@@ -92,11 +92,10 @@ CG.svg = (function () {
     var c = CG.data.CHARACTERS[charId];
     return '<svg viewBox="0 0 100 110" class="cust-svg" aria-label="' + c.name + '">' +
       // body
-      '<path d="M26 110 v-22 a24 22 0 0 1 48 0 v22 z" fill="' + c.top + '"/>' +
-      '<path d="M26 110 v-22 a24 22 0 0 1 48 0 v22 z" fill="#000" opacity="0.06"/>' +
-      '<circle cx="50" cy="86" r="3" fill="#fff" opacity="0.5"/>' +
+      '<path d="M26 110 v-22 a24 22 0 0 1 48 0 v22 z" fill="' + c.top + '" stroke="#7a5743" stroke-width="2"/>' +
+      '<circle cx="50" cy="86" r="3" fill="#fff" opacity="0.55"/>' +
       // head
-      '<circle cx="50" cy="44" r="22" fill="' + c.skin + '"/>' +
+      '<circle cx="50" cy="44" r="22" fill="' + c.skin + '" stroke="#7a5743" stroke-width="2"/>' +
       hairSvg(c) + faceSvg(mood || 'happy') + accessorySvg(c) +
       '</svg>';
   }
@@ -117,35 +116,46 @@ CG.svg = (function () {
   function cup(size, opts) {
     opts = opts || {};
     var s = { S: 0.8, M: 1, L: 1.18 }[size || 'M'];
-    var liquid = opts.fill ? '<path d="M30 38 h40 l-5 46 h-30 z" fill="' + (opts.color || '#6f4e37') + '"/>' : '';
+    var liquid = opts.fill ? '<path d="M30 40 h40 l-4.6 42 h-30.8 z" fill="' + (opts.color || '#6f4e37') + '"/>' : '';
     var whip = opts.whip
-      ? '<g fill="#fffaf0" stroke="#e8dcc8" stroke-width="1"><circle cx="50" cy="33" r="9"/><circle cx="40" cy="36" r="7"/><circle cx="60" cy="36" r="7"/><circle cx="50" cy="26" r="6"/></g>'
+      ? '<g fill="#fffef7" stroke="#7a5743" stroke-width="1.6"><circle cx="50" cy="33" r="9"/><circle cx="40" cy="36" r="7"/><circle cx="60" cy="36" r="7"/><circle cx="50" cy="26" r="6"/></g>'
       : '';
     var dust = opts.dust
       ? '<g fill="' + opts.dust + '"><circle cx="44" cy="31" r="1.4"/><circle cx="51" cy="29" r="1.4"/><circle cx="58" cy="32" r="1.4"/><circle cx="47" cy="34" r="1.2"/><circle cx="55" cy="35" r="1.2"/></g>'
       : '';
     return '<svg viewBox="0 0 100 100" class="cup-svg" style="width:' + (s * 100) + '%;height:' + (s * 100) + '%">' +
-      '<path d="M26 36 h48 l-6 52 a6 6 0 0 1 -6 5 h-24 a6 6 0 0 1 -6 -5 z" fill="#fdf6ec" stroke="#d7c4ad" stroke-width="2"/>' +
+      '<path d="M26 36 h48 l-6 52 a6 6 0 0 1 -6 5 h-24 a6 6 0 0 1 -6 -5 z" fill="#fffaec" stroke="#7a5743" stroke-width="2.6"/>' +
       liquid +
-      '<path d="M74 44 q14 2 12 14 q-2 12 -16 10" fill="none" stroke="#d7c4ad" stroke-width="5" stroke-linecap="round"/>' +
-      '<rect x="24" y="33" width="52" height="7" rx="3.5" fill="#e8dcc8"/>' +
+      '<path d="M74 44 q14 2 12 14 q-2 12 -16 10" fill="none" stroke="#7a5743" stroke-width="5.5" stroke-linecap="round"/>' +
+      '<path d="M74 44 q14 2 12 14 q-2 12 -16 10" fill="none" stroke="#fffaec" stroke-width="2.4" stroke-linecap="round"/>' +
+      '<rect x="24" y="32" width="52" height="8" rx="4" fill="#f2a3b3" stroke="#7a5743" stroke-width="2"/>' +
+      '<path d="M38 62 q4 -7 10 -2 q6 -5 10 2" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" opacity="' + (opts.fill ? 0.5 : 0) + '"/>' +
       whip + dust +
       '</svg>';
   }
 
   function roaster() {
     return '<svg viewBox="0 0 200 170" class="machine-svg">' +
-      '<rect x="20" y="120" width="160" height="34" rx="8" fill="#5d4037"/>' +
-      '<rect x="30" y="20" width="140" height="108" rx="14" fill="#8d6e63" stroke="#4e342e" stroke-width="3"/>' +
-      '<circle cx="100" cy="72" r="40" fill="#3e2723" stroke="#262019" stroke-width="4"/>' +
-      '<circle cx="100" cy="72" r="33" fill="#1f1611"/>' +
+      // wooden base
+      '<rect x="20" y="120" width="160" height="34" rx="10" fill="#b58e6f" stroke="#7a5743" stroke-width="3"/>' +
+      '<line x1="36" y1="128" x2="36" y2="146" stroke="#9c7355" stroke-width="3" stroke-linecap="round"/>' +
+      '<line x1="164" y1="128" x2="164" y2="146" stroke="#9c7355" stroke-width="3" stroke-linecap="round"/>' +
+      // sage body
+      '<rect x="30" y="20" width="140" height="108" rx="18" fill="#9eb585" stroke="#7a5743" stroke-width="3"/>' +
+      '<rect x="38" y="28" width="124" height="14" rx="7" fill="#fffaec" stroke="#7a5743" stroke-width="2"/>' +
+      // drum window
+      '<circle cx="100" cy="76" r="38" fill="#fffaec" stroke="#7a5743" stroke-width="3"/>' +
+      '<circle cx="100" cy="76" r="31" fill="#5e4434"/>' +
       '<g id="roast-beans"></g>' +
-      '<circle cx="100" cy="72" r="33" fill="none" stroke="#00000055" stroke-width="2"/>' +
-      '<rect x="42" y="28" width="26" height="10" rx="5" fill="#e07a5f"/>' +
-      '<circle cx="152" cy="36" r="7" fill="#f2cc8f" stroke="#4e342e" stroke-width="2"/>' +
-      '<path d="M60 132 h80 l-8 16 h-64 z" fill="#4e342e"/>' +
-      '<g id="roast-smoke" opacity="0"><circle cx="100" cy="14" r="6" fill="#9e9e9e" opacity="0.7"/>' +
-      '<circle cx="110" cy="6" r="8" fill="#bdbdbd" opacity="0.6"/><circle cx="92" cy="4" r="5" fill="#bdbdbd" opacity="0.5"/></g>' +
+      '<circle cx="100" cy="76" r="31" fill="none" stroke="#7a5743" stroke-width="2.5"/>' +
+      // cute details: pink switch + gold gauge
+      '<rect x="44" y="50" width="22" height="11" rx="5.5" fill="#f2a3b3" stroke="#7a5743" stroke-width="2"/>' +
+      '<circle cx="152" cy="56" r="8" fill="#f5c64f" stroke="#7a5743" stroke-width="2"/>' +
+      '<line x1="152" y1="56" x2="156" y2="51" stroke="#7a5743" stroke-width="2" stroke-linecap="round"/>' +
+      // chute
+      '<path d="M62 130 h76 l-8 16 h-60 z" fill="#8a6248" stroke="#7a5743" stroke-width="2.5"/>' +
+      '<g id="roast-smoke" opacity="0"><circle cx="100" cy="14" r="6" fill="#cfc8e8" opacity="0.8"/>' +
+      '<circle cx="110" cy="6" r="8" fill="#dfd9f2" opacity="0.7"/><circle cx="92" cy="4" r="5" fill="#dfd9f2" opacity="0.6"/></g>' +
       '</svg>';
   }
 
@@ -166,49 +176,66 @@ CG.svg = (function () {
 
   function espressoMachine() {
     return '<svg viewBox="0 0 200 190" class="machine-svg">' +
-      '<rect x="30" y="14" width="140" height="36" rx="10" fill="#90a4ae" stroke="#546e7a" stroke-width="3"/>' +
-      '<rect x="44" y="50" width="112" height="20" rx="6" fill="#607d8b"/>' +
-      '<rect x="88" y="70" width="24" height="14" rx="4" fill="#37474f"/>' +
-      '<path d="M96 84 h8 v10 h-8 z" fill="#263238"/>' +
-      '<g id="brew-stream" opacity="0"><rect x="97" y="94" width="6" height="40" rx="3" fill="#6f4e37"/></g>' +
+      // cups stacked on top
+      '<path d="M52 14 h22 l-2.5 12 h-17 z" fill="#fffaec" stroke="#7a5743" stroke-width="2.2"/>' +
+      '<path d="M126 14 h22 l-2.5 12 h-17 z" fill="#fffaec" stroke="#7a5743" stroke-width="2.2"/>' +
+      // sage body
+      '<rect x="30" y="24" width="140" height="62" rx="14" fill="#9eb585" stroke="#7a5743" stroke-width="3"/>' +
+      '<rect x="38" y="32" width="124" height="12" rx="6" fill="#b9cba6" stroke="#7a5743" stroke-width="2"/>' +
+      // cream face panel with dial "eyes"
+      '<rect x="56" y="48" width="88" height="30" rx="10" fill="#fffaec" stroke="#7a5743" stroke-width="2.5"/>' +
+      '<circle cx="78" cy="63" r="7" fill="#f2a3b3" stroke="#7a5743" stroke-width="2"/>' +
+      '<line x1="78" y1="63" x2="82" y2="58" stroke="#7a5743" stroke-width="2" stroke-linecap="round"/>' +
+      '<circle cx="122" cy="63" r="7" fill="#f5c64f" stroke="#7a5743" stroke-width="2"/>' +
+      '<line x1="122" y1="63" x2="118" y2="58" stroke="#7a5743" stroke-width="2" stroke-linecap="round"/>' +
+      // group head
+      '<rect x="86" y="84" width="28" height="14" rx="5" fill="#8a6248" stroke="#7a5743" stroke-width="2.5"/>' +
+      '<path d="M95 98 h10 v8 h-10 z" fill="#7a5743"/>' +
+      '<g id="brew-stream" opacity="0"><rect x="97" y="104" width="6" height="30" rx="3" fill="#6f4e37"/></g>' +
+      // glass (ids + coords used by st-brew)
       '<g id="brew-glass" transform="translate(78,128)">' +
-      '<path d="M0 0 h44 l-4 44 a5 5 0 0 1 -5 4 h-26 a5 5 0 0 1 -5 -4 z" fill="#ffffffcc" stroke="#b0bec5" stroke-width="2.5"/>' +
+      '<path d="M0 0 h44 l-4 44 a5 5 0 0 1 -5 4 h-26 a5 5 0 0 1 -5 -4 z" fill="#ffffffd8" stroke="#7a5743" stroke-width="2.6"/>' +
       '<clipPath id="glassclip"><path d="M1 1 h42 l-4 43 a4 4 0 0 1 -4 3 h-26 a4 4 0 0 1 -4 -3 z"/></clipPath>' +
       '<g clip-path="url(#glassclip)"><rect id="brew-fill" x="0" y="48" width="44" height="48" fill="#6f4e37"/></g>' +
-      '<line id="brew-target" x1="-6" y1="18" x2="50" y2="18" stroke="#e07a5f" stroke-width="2.5" stroke-dasharray="4 3"/>' +
+      '<line id="brew-target" x1="-6" y1="18" x2="50" y2="18" stroke="#e2798f" stroke-width="2.5" stroke-dasharray="4 3"/>' +
       '</g>' +
-      '<rect x="148" y="60" width="10" height="56" rx="5" fill="#90a4ae" transform="rotate(18 153 60)"/>' +
+      // side lever
+      '<rect x="150" y="56" width="10" height="56" rx="5" fill="#b58e6f" stroke="#7a5743" stroke-width="2.2" transform="rotate(18 155 56)"/>' +
       '</svg>';
   }
 
   function pourOverRig() {
     return '<svg viewBox="0 0 200 190" class="machine-svg">' +
-      '<path d="M58 30 h84 l-26 44 h-32 z" fill="#ffffffaa" stroke="#b0bec5" stroke-width="3"/>' +
-      '<path d="M70 36 h60 l-19 32 h-22 z" fill="#c8a165"/>' +
-      '<g id="pour-stream" opacity="0"><rect x="97" y="6" width="5" height="28" rx="2.5" fill="#9fd8f0"/></g>' +
-      '<rect x="92" y="74" width="16" height="10" fill="#b0bec5"/>' +
+      '<path d="M58 30 h84 l-26 44 h-32 z" fill="#ffffffd8" stroke="#7a5743" stroke-width="3"/>' +
+      '<path d="M70 36 h60 l-19 32 h-22 z" fill="#c8a165" stroke="#7a5743" stroke-width="1.6"/>' +
+      '<g id="pour-stream" opacity="0"><rect x="97" y="6" width="5" height="28" rx="2.5" fill="#aed5e8"/></g>' +
+      '<rect x="90" y="74" width="20" height="10" rx="3" fill="#b58e6f" stroke="#7a5743" stroke-width="2"/>' +
       '<g transform="translate(64,86)">' +
-      '<path d="M0 0 h72 l-7 64 a6 6 0 0 1 -6 5 h-46 a6 6 0 0 1 -6 -5 z" fill="#ffffffbb" stroke="#b0bec5" stroke-width="3"/>' +
+      '<path d="M0 0 h72 l-7 64 a6 6 0 0 1 -6 5 h-46 a6 6 0 0 1 -6 -5 z" fill="#ffffffd8" stroke="#7a5743" stroke-width="3"/>' +
       '<clipPath id="serverclip"><path d="M2 2 h68 l-7 62 a5 5 0 0 1 -5 3 h-44 a5 5 0 0 1 -5 -3 z"/></clipPath>' +
       '<g clip-path="url(#serverclip)"><rect id="pour-fill" x="0" y="69" width="72" height="70" fill="#7a5230"/></g>' +
-      '<line id="pour-target" x1="-8" y1="30" x2="80" y2="30" stroke="#e07a5f" stroke-width="2.5" stroke-dasharray="4 3"/>' +
+      '<line id="pour-target" x1="-8" y1="30" x2="80" y2="30" stroke="#e2798f" stroke-width="2.5" stroke-dasharray="4 3"/>' +
       '</g></svg>';
   }
 
   function milkRig() {
     return '<svg viewBox="0 0 200 200" class="machine-svg">' +
-      '<rect x="20" y="10" width="70" height="34" rx="8" fill="#90a4ae" stroke="#546e7a" stroke-width="3"/>' +
-      '<rect x="50" y="40" width="10" height="42" rx="5" fill="#78909c" transform="rotate(-14 55 40)"/>' +
-      '<circle cx="44" cy="92" r="4" fill="#546e7a"/>' +
+      '<rect x="18" y="8" width="76" height="38" rx="12" fill="#9eb585" stroke="#7a5743" stroke-width="3"/>' +
+      '<circle cx="40" cy="27" r="7" fill="#f2a3b3" stroke="#7a5743" stroke-width="2"/>' +
+      '<line x1="40" y1="27" x2="44" y2="22" stroke="#7a5743" stroke-width="2" stroke-linecap="round"/>' +
+      '<rect x="68" y="22" width="16" height="10" rx="4" fill="#fffaec" stroke="#7a5743" stroke-width="2"/>' +
+      '<rect x="50" y="42" width="10" height="42" rx="5" fill="#b9cba6" stroke="#7a5743" stroke-width="2.2" transform="rotate(-14 55 42)"/>' +
+      '<circle cx="44" cy="93" r="4.5" fill="#7a5743"/>' +
       '<g id="milk-steam" opacity="0">' +
-      '<path d="M48 96 q-6 12 2 22 q6 10 -2 20" stroke="#ffffffbb" stroke-width="5" fill="none" stroke-linecap="round"/>' +
-      '<path d="M60 98 q-4 10 2 18" stroke="#ffffff88" stroke-width="4" fill="none" stroke-linecap="round"/></g>' +
+      '<path d="M48 96 q-6 12 2 22 q6 10 -2 20" stroke="#ffffffcc" stroke-width="5" fill="none" stroke-linecap="round"/>' +
+      '<path d="M60 98 q-4 10 2 18" stroke="#ffffff99" stroke-width="4" fill="none" stroke-linecap="round"/></g>' +
       '<g id="milk-pitcher" transform="translate(30,108)">' +
-      '<path d="M0 0 h56 l-7 56 h-42 z" fill="#eceff1" stroke="#90a4ae" stroke-width="3"/>' +
-      '<path d="M56 4 l16 8 -17 6" fill="#eceff1" stroke="#90a4ae" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M0 0 h56 l-7 56 h-42 z" fill="#fffaec" stroke="#7a5743" stroke-width="3"/>' +
+      '<path d="M56 4 l16 8 -17 6" fill="#fffaec" stroke="#7a5743" stroke-width="3" stroke-linejoin="round"/>' +
       '<clipPath id="pitchclip"><path d="M2 2 h52 l-6.5 52 h-39 z"/></clipPath>' +
       '<g clip-path="url(#pitchclip)"><rect id="milk-fill" x="0" y="22" width="56" height="40" fill="#fdfdfd"/>' +
       '<rect id="milk-foam" x="0" y="16" width="56" height="8" fill="#fffef5" opacity="0.95"/></g>' +
+      '<path d="M16 32 q12 -8 24 0" fill="none" stroke="#f2a3b3" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>' +
       '</g></svg>';
   }
 
@@ -271,15 +298,23 @@ CG.svg = (function () {
 
   function logo() {
     return '<svg viewBox="0 0 220 150" class="logo-svg">' +
-      '<ellipse cx="110" cy="132" rx="78" ry="10" fill="#00000018"/>' +
-      '<path d="M52 50 h116 l-12 76 a10 10 0 0 1 -10 8 h-72 a10 10 0 0 1 -10 -8 z" fill="#fdf6ec" stroke="#8d6e63" stroke-width="5"/>' +
+      '<ellipse cx="110" cy="134" rx="78" ry="9" fill="#7a574322"/>' +
+      // sparkle stars
+      '<g fill="#f5c64f" stroke="#e0a73a" stroke-width="2" stroke-linejoin="round">' +
+      '<path d="M34 28 l3.5 8 8 0 -6.4 5.2 2 8.3 -7.1 -5 -7.1 5 2 -8.3 -6.4 -5.2 8 0 z"/>' +
+      '<path d="M190 70 l2.5 5.8 5.8 0 -4.6 3.7 1.5 6 -5.2 -3.6 -5.2 3.6 1.5 -6 -4.6 -3.7 5.8 0 z"/></g>' +
+      // cup
+      '<path d="M52 50 h116 l-12 76 a10 10 0 0 1 -10 8 h-72 a10 10 0 0 1 -10 -8 z" fill="#fffaec" stroke="#7a5743" stroke-width="5"/>' +
       '<path d="M62 62 h96 l-6 38 h-84 z" fill="#6f4e37"/>' +
-      '<path d="M168 62 q26 4 22 26 q-4 20 -26 18" fill="none" stroke="#8d6e63" stroke-width="9" stroke-linecap="round"/>' +
-      '<rect x="46" y="42" width="128" height="14" rx="7" fill="#e07a5f"/>' +
-      '<g stroke="#b08968" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.85">' +
+      '<path d="M168 62 q26 4 22 26 q-4 20 -26 18" fill="none" stroke="#7a5743" stroke-width="9" stroke-linecap="round"/>' +
+      '<path d="M168 62 q26 4 22 26 q-4 20 -26 18" fill="none" stroke="#fffaec" stroke-width="3.5" stroke-linecap="round"/>' +
+      '<rect x="46" y="42" width="128" height="14" rx="7" fill="#f2a3b3" stroke="#7a5743" stroke-width="3"/>' +
+      // steam
+      '<g stroke="#cfc8e8" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.95">' +
       '<path d="M86 32 q6 -10 0 -20"/><path d="M110 34 q6 -12 0 -24"/><path d="M134 32 q6 -10 0 -20"/></g>' +
-      '<g transform="translate(110,86)"><ellipse rx="16" ry="11" fill="#4a2c17" transform="rotate(-18)"/>' +
-      '<path d="M-10 6 q10 -14 20 -12" stroke="#f2cc8f" stroke-width="3.5" fill="none"/></g>' +
+      // latte-art heart
+      '<g transform="translate(110,84)">' +
+      '<path d="M0 14 C-14 2 -12 -10 -3 -10 C0 -10 0 -6 0 -6 C0 -6 0 -10 3 -10 C12 -10 14 2 0 14 z" fill="#f8e3c0" stroke="#e8c89a" stroke-width="2"/></g>' +
       '</svg>';
   }
 

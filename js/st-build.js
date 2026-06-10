@@ -80,7 +80,7 @@ CG.stations.build = (function () {
 
   function renderList() {
     listEl.innerHTML = ticket.components.map(function (c, i) {
-      return '<div class="comp ' + (c.done ? 'done' : '') + '">' +
+      return '<div class="comp kind-' + c.kind + (c.done ? ' done' : '') + '">' +
         (c.done ? '✓ ' : '○ ') + c.label + (c.done ? ' <small>' + c.score + '%</small>' : '') + '</div>';
     }).join('');
   }

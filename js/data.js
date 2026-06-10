@@ -42,21 +42,21 @@ CG.data = (function () {
 
   // 8 recurring customers
   var CHARACTERS = {
-    mabel:  { name: 'Mabel',  skin: '#f3c9a5', hair: 'bun',      hairColor: '#cfcfcf', top: '#b07aa1', accessory: 'glasses',
+    mabel:  { name: 'Mabel',  skin: '#f3c9a5', hair: 'bun',      hairColor: '#cfcfcf', top: '#c79ab5', accessory: 'glasses',
               patienceMult: 1.4, prefersNewest: true },
-    dex:    { name: 'Dex',    skin: '#c98e5a', hair: 'beanie',   hairColor: '#37474f', top: '#546e7a', accessory: 'headphones',
+    dex:    { name: 'Dex',    skin: '#c98e5a', hair: 'beanie',   hairColor: '#37474f', top: '#8fa8b8', accessory: 'headphones',
               patienceMult: 0.7, only: ['espresso', 'americano'] },
-    priya:  { name: 'Priya',  skin: '#b5763f', hair: 'pony',     hairColor: '#2d2026', top: '#1f618d', accessory: 'none',
+    priya:  { name: 'Priya',  skin: '#b5763f', hair: 'pony',     hairColor: '#2d2026', top: '#7da7cc', accessory: 'none',
               patienceMult: 1.0, tipBonusAt90: 0.3 },
-    hank:   { name: 'Hank',   skin: '#e8b88a', hair: 'short',    hairColor: '#6d4c41', top: '#b03a2e', accessory: 'mustache',
+    hank:   { name: 'Hank',   skin: '#e8b88a', hair: 'short',    hairColor: '#6d4c41', top: '#e08e7a', accessory: 'mustache',
               patienceMult: 1.0, forceRoast: 'dark' },
-    junie:  { name: 'Junie',  skin: '#f7d6b3', hair: 'pigtails', hairColor: '#e67e22', top: '#f4d03f', accessory: 'freckles',
+    junie:  { name: 'Junie',  skin: '#f7d6b3', hair: 'pigtails', hairColor: '#e67e22', top: '#f7dd88', accessory: 'freckles',
               patienceMult: 1.0, sweet: true },
-    theo:   { name: 'Theo',   skin: '#d9a06b', hair: 'curly',    hairColor: '#3e2723', top: '#117864', accessory: 'scarf',
+    theo:   { name: 'Theo',   skin: '#d9a06b', hair: 'curly',    hairColor: '#3e2723', top: '#6aa893', accessory: 'scarf',
               patienceMult: 1.0, only: ['pourover'], minDay: 4 },
-    rosa:   { name: 'Rosa',   skin: '#cc8855', hair: 'flower',   hairColor: '#1b1b1b', top: '#e07a5f', accessory: 'none',
+    rosa:   { name: 'Rosa',   skin: '#cc8855', hair: 'flower',   hairColor: '#1b1b1b', top: '#f0a18a', accessory: 'none',
               patienceMult: 1.0, patienceFloor: 25 },
-    marcus: { name: 'Marcus', skin: '#8d5a3b', hair: 'bald',     hairColor: '#000000', top: '#2c3e50', accessory: 'phone',
+    marcus: { name: 'Marcus', skin: '#8d5a3b', hair: 'bald',     hairColor: '#000000', top: '#7c8aa0', accessory: 'phone',
               patienceMult: 1.0, prefersComplex: true }
   };
 
