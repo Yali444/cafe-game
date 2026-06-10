@@ -1,0 +1,123 @@
+/* Crackle & Pour — customers, queue, speech bubble, ticket detail */
+
+.cust-svg { width: 100%; height: 100%; }
+.ring-svg { width: 100%; height: 100%; }
+
+/* ---------- order station queue ---------- */
+
+.queue-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: flex-end;
+  flex: 1;
+  min-height: 150px;
+  padding: 8px 0 0;
+}
+.queue-empty {
+  margin: auto;
+  color: #9b8268;
+  font-size: 14px;
+}
+
+.cust-slot {
+  position: relative;
+  border: none;
+  background: none;
+  font-family: inherit;
+  width: clamp(64px, 21vw, 96px);
+  cursor: pointer;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0;
+  touch-action: manipulation;
+}
+.cust-body {
+  width: 100%;
+  display: block;
+  animation: idle-bob 2.6s ease-in-out infinite;
+}
+.cust-slot:nth-child(2) .cust-body { animation-delay: 0.6s; }
+.cust-slot:nth-child(3) .cust-body { animation-delay: 1.1s; }
+.cust-slot:nth-child(4) .cust-body { animation-delay: 1.7s; }
+@keyframes idle-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.cust-slot.talking .cust-body { animation: none; transform: translateY(-4px); }
+.cust-slot.talking { filter: drop-shadow(0 0 6px rgba(242, 204, 143, 0.9)); }
+
+.cust-ring {
+  position: absolute;
+  top: -4px; right: -2px;
+  width: 30px; height: 30px;
+  z-index: 2;
+  background: rgba(253,246,236,0.9);
+  border-radius: 50%;
+}
+.cust-name {
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--wood-dark);
+  background: var(--cream-2);
+  border-radius: 999px;
+  padding: 2px 9px;
+  margin-top: 3px;
+  box-shadow: var(--shadow);
+}
+
+.counter-bar {
+  height: 26px;
+  border-radius: 10px 10px 0 0;
+  background: linear-gradient(to bottom, var(--wood), var(--wood-dark));
+  margin: 0 -12px -16px;
+  flex: 0 0 auto;
+}
+
+/* ---------- waiting row ---------- */
+
+.waiting-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 34px;
+  flex-wrap: wrap;
+}
+.wait-label { font-size: 11px; font-weight: bold; color: #9b8268; margin-right: 2px; }
+.wait-chip {
+  width: 26px; height: 30px;
+  display: inline-block;
+  opacity: 0.9;
+}
+
+/* ---------- speech bubble ---------- */
+
+#order-bubble { min-height: 0; }
+.speech-bubble {
+  position: relative;
+  background: var(--cream-2);
+  border: 3px solid var(--wood);
+  border-radius: 16px;
+  padding: 12px 14px;
+  margin: 6px 2px 10px;
+  text-align: center;
+  animation: pop-in 0.22s;
+  box-shadow: var(--shadow);
+}
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -13px; left: 50%;
+  transform: translateX(-50%);
+  border: 11px solid transparent;
+  border-top-color: var(--wood);
+  border-bottom: none;
+}
+.sb-text { font-size: 15px; line-height: 1.45; margin-bottom: 10px; color: var(--ink); }
+.btn-take { width: 100%; }
+
+/* ---------- ticket detail modal ---------- */
+
+.ticket-detail { display: flex; gap: 12px; text-align: left; align-items: flex-start; }
+.td-avatar { width: 64px; flex: 0 0 auto; }
+.td-body h3 { color: var(--espresso); margin-bottom: 6px; }
+.td-body p { font-size: 14px; line-height: 1.55; color: #5d4a3a; }

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#3e2723">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Crackle &amp; Pour — Cafe &amp; Roastery</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cellipse cx='20' cy='20' rx='12' ry='15' fill='%236f4e37'/%3E%3Cpath d='M20 7 q-5 13 0 26' stroke='%23f5e9d9' stroke-width='2.5' fill='none'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/stations.css">
+<link rel="stylesheet" href="css/characters.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- TITLE -->
+  <section class="screen active" id="screen-title">
+    <div class="title-inner">
+      <div id="title-logo"></div>
+      <h1>Crackle <span class="amp">&amp;</span> Pour</h1>
+      <p class="tagline">Your specialty cafe &amp; roastery</p>
+      <button class="btn btn-big btn-primary" id="btn-new">New Game</button>
+      <button class="btn btn-big btn-secondary hidden" id="btn-continue">Continue</button>
+      <button class="icon-btn mute-btn" aria-label="Toggle sound"></button>
+    </div>
+  </section>
+
+  <!-- DAY INTRO -->
+  <section class="screen" id="screen-dayintro">
+    <div class="intro-inner">
+      <p class="intro-sun">☀</p>
+      <h1 id="intro-day">Day 1</h1>
+      <div id="intro-info"></div>
+      <button class="btn btn-big btn-primary" id="btn-open">Open the Cafe</button>
+    </div>
+  </section>
+
+  <!-- SERVICE -->
+  <section class="screen" id="screen-service">
+    <header id="hud">
+      <span id="hud-day" class="hud-chip"></span>
+      <div class="hud-clockbox">
+        <span id="hud-clock"></span>
+        <div class="hud-clocktrack"><div id="hud-clockfill"></div></div>
+      </div>
+      <span id="hud-money" class="hud-chip money"></span>
+      <span class="hud-holds">
+        <span class="hold-slot" id="hold-brew" title="Shot in hand"></span>
+        <span class="hold-slot" id="hold-milk" title="Milk in hand"></span>
+      </span>
+      <button class="icon-btn" id="btn-pause" aria-label="Pause"></button>
+    </header>
+
+    <main id="station-panels">
+      <div class="station-panel active" id="panel-order"></div>
+      <div class="station-panel" id="panel-roast"></div>
+      <div class="station-panel" id="panel-brew"></div>
+      <div class="station-panel" id="panel-milk"></div>
+      <div class="station-panel" id="panel-build"></div>
+      <div id="float-layer"></div>
+    </main>
+
+    <div id="ticket-strip"></div>
+    <nav id="tabbar"></nav>
+  </section>
+
+  <!-- SUMMARY -->
+  <section class="screen" id="screen-summary">
+    <div class="panel-inner" id="summary-body"></div>
+    <div class="screen-footer">
+      <button class="btn btn-big btn-primary" id="btn-to-shop">Go to Shop →</button>
+    </div>
+  </section>
+
+  <!-- SHOP -->
+  <section class="screen" id="screen-shop">
+    <div class="panel-inner">
+      <h2 class="shop-title">Upgrade Shop <span class="hud-chip money" id="shop-money"></span></h2>
+      <div id="shop-body"></div>
+    </div>
+    <div class="screen-footer">
+      <button class="btn btn-big btn-primary" id="btn-next-day">Start Next Day →</button>
+    </div>
+  </section>
+
+  <!-- OVERLAYS -->
+  <div class="overlay hidden" id="overlay-pause">
+    <div class="overlay-card">
+      <h2>Paused</h2>
+      <button class="btn btn-primary" id="btn-resume">Resume</button>
+      <button class="btn btn-secondary" id="btn-restart-day">Restart Day</button>
+      <button class="btn btn-ghost" id="btn-quit-title">Quit to Title</button>
+      <button class="icon-btn mute-btn" aria-label="Toggle sound"></button>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="overlay-modal">
+    <div class="overlay-card">
+      <div id="modal-body"></div>
+      <div id="modal-buttons"></div>
+    </div>
+  </div>
+
+  <div id="toasts"></div>
+  <div id="rotate-overlay"><p>↻<br>Please rotate your device<br><small>Crackle &amp; Pour is a portrait game</small></p></div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/svg.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/save.js"></script>
+<script src="js/state.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/customers.js"></script>
+<script src="js/tickets.js"></script>
+<script src="js/st-order.js"></script>
+<script src="js/st-roast.js"></script>
+<script src="js/st-brew.js"></script>
+<script src="js/st-milk.js"></script>
+<script src="js/st-build.js"></script>
+<script src="js/shop.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
