@@ -9,11 +9,12 @@ inline SVG and all sound synthesized with WebAudio.
 
 ## Play it
 
+- **Live**: https://yali444.github.io/cafe-game/ (deployed from the `gh-pages` branch — push there to update the site)
 - Open `index.html` directly in a browser, **or**
-- Serve it: `python3 -m http.server 8000` → `http://localhost:8000`, **or**
-- Host the repo on GitHub Pages (works as-is).
+- Serve it: `python3 -m http.server 8000` → `http://localhost:8000`
 
 Best played on a phone in portrait. Mouse works fine on desktop.
+On iPhone, use Safari's Share → "Add to Home Screen" for a fullscreen app-like experience.
 
 ## How a day goes
 
