@@ -1,53 +1,55 @@
-# ☕ Crackle & Pour
+# fika — specialty cafe & roastery
 
-A Papa's Pizzeria-style time-management game for mobile web: you own a specialty
-cafe **and roastery**, and you play through your day — greeting customers,
-roasting beans, pulling shots, steaming milk, and building drinks for tips.
+A time-management game for mobile web in the spirit of Papa's Pizzeria, set in a
+Nordic specialty coffee bar. You own the place: roast single-origin beans, dial
+in espresso, pour V60s with a gooseneck kettle, steam milk, and free-pour latte
+art — drink by drink through your day.
 
-**Zero dependencies, zero build step.** Plain HTML/CSS/JS with all art drawn as
-inline SVG and all sound synthesized with WebAudio.
+**Zero dependencies, zero build step.** Plain HTML/CSS/JS; all art is soft-shaded
+inline SVG and all sound is synthesized WebAudio.
 
 ## Play it
 
-- **Live**: https://yali444.github.io/cafe-game/ (deployed from the `gh-pages` branch — push there to update the site)
-- Open `index.html` directly in a browser, **or**
-- Serve it: `python3 -m http.server 8000` → `http://localhost:8000`
+- **Live**: https://yali444.github.io/cafe-game/ (deployed from the `gh-pages` branch — push there to update)
+- Or open `index.html` directly, or serve with `python3 -m http.server 8000`
 
-Best played on a phone in portrait. Mouse works fine on desktop.
-On iPhone, use Safari's Share → "Add to Home Screen" for a fullscreen app-like experience.
+Best on a phone in portrait. On iPhone, Safari → Share → **Add to Home Screen**
+for a fullscreen, app-like experience. Mouse works fine on desktop.
 
-## How a day goes
+## The day
 
-1. **Order** — customers line up with patience meters. Tap them, take their order;
-   tickets land on the ticket strip at the bottom.
-2. **Roast** — the twist: drinks consume roasted beans from shared inventory.
-   Load greens, pick Light/Medium/Dark, and hit **DROP!** when the marker is in
-   the band — listen for first crack. Burnt batches go in the bin.
-3. **Brew** — grind (release in the gold window), then pull the espresso shot to
-   the line — or do a two-pour pour-over with a bloom rest.
-4. **Milk** — hold and drag the pitcher: near the surface builds foam, deep
-   builds heat. Release inside both target bands.
-5. **Serve** — assemble the cup: pour your shot and milk, count syrup pumps,
-   hold the whipped cream, tap the dust shaker on the pulse. Then SERVE.
+1. **The Counter** — guests arrive with patience meters and order by origin and
+   brew method ("The Ethiopia as a V60 — something floral").
+2. **Roastery** — tap a bag of greens (Colombia Huila, Ethiopia Yirgacheffe,
+   Kenya Nyeri AA), ride the roast curve, and drop inside that origin's profile
+   window. First crack is your cue. Batches stock the brew bar.
+3. **Brew Bar** — hands-on, the equipment is the interface:
+   - *Espresso*: drag the grind dial into the sweet spot, lock the portafilter
+     into the group head, tap to cut the shot at the line.
+   - *V60*: pick up the gooseneck kettle and pour — bloom to the first line,
+     wait, then two slow pours.
+   - *AeroPress*: steep on the ring, then a steady press.
+   - *Batch*: keep the house carafe stocked.
+4. **Milk Bar** — hold the pitcher under the wand; raise it to stretch foam,
+   lower it to heat. Release inside both texture bands.
+5. **The Pass** — pour the drink together, and on flat whites and lattes
+   free-pour the art: wiggle as you pour for a heart, tulip, or rosetta.
 
-Drinks are scored on craftsmanship, roast quality, and how long the customer
-waited. Stars decide tips. Earnings buy upgrades (wider timing windows, calmer
-customers, a smart register), and each day unlocks new recipes — latte,
-pour-over, cappuccino, mocha and more — with more customers and faster tempers.
-
-Progress saves automatically between days (`localStorage`).
+Drinks are scored on roast quality, brew execution, milk texture, the pour, and
+the guest's wait. Stars decide tips; earnings buy equipment (wider dial windows,
+steadier kettle, calmer guests). New origins and brew methods unlock day by day.
+Progress saves automatically between days.
 
 ## Code layout
 
 | Path | What it is |
 |---|---|
-| `js/data.js` | All recipes, characters, prices, unlock schedule, balance constants |
-| `js/svg.js` | Parameterized SVG art (customers, machines, cups, icons) |
-| `js/audio.js` | Synthesized sound effects |
-| `js/state.js`, `js/save.js` | Central state, event bus, versioned saves |
-| `js/customers.js`, `js/tickets.js` | Arrivals, patience, ticket lifecycle, scoring |
-| `js/st-*.js` | One module per station minigame |
-| `js/shop.js`, `js/main.js` | Summary/shop screens, game loop, day flow |
+| `js/data.js` | Origins, menu, upgrades, unlock schedule, balance |
+| `js/svg.js` | Soft-shaded SVG scenes, equipment, characters, drink art |
+| `js/st-*.js` | One module per station (counter, roastery, brew, milk, pass) |
+| `js/customers.js`, `js/tickets.js` | Guests, patience, tickets, scoring |
+| `js/state.js`, `js/save.js`, `js/audio.js` | State + event bus, versioned saves, synth SFX |
+| `js/ui.js`, `js/shop.js`, `js/main.js` | Screens, summary/shop, game loop |
 
-Scripts load as plain `<script>` tags onto a shared `CG` namespace so the game
-also runs from `file://`.
+Scripts load as plain `<script>` tags onto a shared `CG` namespace, so the game
+also runs straight from `file://`.

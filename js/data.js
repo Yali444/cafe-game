@@ -1,101 +1,96 @@
-/* Crackle & Pour — game data & balance constants */
+/* Kopi — specialty cafe & roastery: data & balance */
 var CG = window.CG || {};
 
 CG.data = (function () {
   'use strict';
 
-  var ROASTS = {
-    light:  { name: 'Light',  color: '#c69c6d', center: 4.6, order: 0 },
-    medium: { name: 'Medium', color: '#8d5a2b', center: 6.2, order: 1 },
-    dark:   { name: 'Dark',   color: '#4a2c17', center: 7.8, order: 2 }
+  /* single-origin greens; each roasts to its own profile window */
+  var ORIGINS = {
+    colombia: { name: 'Colombia · Huila',        short: 'Colombia', notes: 'caramel · red apple · cocoa',
+                roastCenter: 6.4, bean: '#7e5634', bag: '#a8b5a0', flavor: 'comforting' },
+    ethiopia: { name: 'Ethiopia · Yirgacheffe',  short: 'Ethiopia', notes: 'jasmine · bergamot · peach',
+                roastCenter: 4.8, bean: '#a87f4f', bag: '#c97f5d', flavor: 'floral' },
+    kenya:    { name: 'Kenya · Nyeri AA',        short: 'Kenya',    notes: 'blackcurrant · grapefruit · brown sugar',
+                roastCenter: 5.6, bean: '#8a5e38', bag: '#8f86a8', flavor: 'bright' }
   };
-  var ROAST_TOTAL = 9.2;     // seconds for marker to reach top
-  var ROAST_BURN = 8.8;      // past this = burnt batch
-  var ROAST_BATCH_UNITS = 6; // inventory units per batch
-  var ROAST_CAP = 12;        // max units per roast level
+  var ROAST_TOTAL = 9.2;     // seconds for the roast curve
+  var ROAST_BURN = 8.6;      // past this the batch is burnt
+  var ROAST_BATCH_UNITS = 6;
+  var ROAST_CAP = 12;
+  var BATCH_ORIGIN = 'colombia'; // the house batch-brew bean
+  var BATCH_CARAFE = 4;          // cups per batch carafe
 
-  // milk targets: [center, halfBand] in %
+  /* milk targets: [center, halfBand] in % — texture profiles per drink */
   var RECIPES = {
-    espresso:   { name: 'Espresso',      price: 3.0, brew: 'espresso', milk: null, water: false, choc: 0, syrupOk: false, toppingsOk: [], complexity: 1 },
-    americano:  { name: 'Americano',     price: 3.5, brew: 'espresso', milk: null, water: true,  choc: 0, syrupOk: true,  toppingsOk: [], complexity: 2 },
-    pourover:   { name: 'Pour-Over',     price: 4.5, brew: 'pourover', milk: null, water: false, choc: 0, syrupOk: false, toppingsOk: [], complexity: 3 },
-    latte:      { name: 'Latte',         price: 4.5, brew: 'espresso', milk: { temp: [78, 10], foam: [22, 13] }, water: false, choc: 0, syrupOk: true, toppingsOk: ['whip', 'cocoa', 'cinnamon'], complexity: 4 },
-    cappuccino: { name: 'Cappuccino',    price: 4.5, brew: 'espresso', milk: { temp: [70, 10], foam: [68, 13] }, water: false, choc: 0, syrupOk: true, toppingsOk: ['cocoa', 'cinnamon'], complexity: 4 },
-    mocha:      { name: 'Mocha',         price: 5.0, brew: 'espresso', milk: { temp: [75, 10], foam: [45, 13] }, water: false, choc: 2, syrupOk: false, toppingsOk: ['whip', 'cocoa'], complexity: 5 },
-    hotchoc:    { name: 'Hot Chocolate', price: 4.0, brew: null,       milk: { temp: [75, 10], foam: [30, 13] }, water: false, choc: 2, syrupOk: false, toppingsOk: ['whip', 'cinnamon'], complexity: 3 }
+    espresso:  { name: 'Espresso',    price: 3.5, brew: 'espresso', milk: null, art: false, complexity: 1,
+                 blurb: 'a straight shot' },
+    batch:     { name: 'Batch Filter', price: 3.0, brew: 'batch',   milk: null, art: false, complexity: 1,
+                 blurb: 'from the house carafe' },
+    cortado:   { name: 'Cortado',     price: 4.0, brew: 'espresso', milk: { temp: [62, 9], foam: [14, 9] }, art: false, complexity: 3,
+                 blurb: 'equal parts, gently warm' },
+    flatwhite: { name: 'Flat White',  price: 4.5, brew: 'espresso', milk: { temp: [66, 8], foam: [24, 9] }, art: true, complexity: 4,
+                 blurb: 'silky microfoam' },
+    latte:     { name: 'Latte',       price: 5.0, brew: 'espresso', milk: { temp: [70, 8], foam: [34, 10] }, art: true, complexity: 4,
+                 blurb: 'poured with care' },
+    v60:       { name: 'V60 Pour-Over', price: 5.5, brew: 'v60',    milk: null, art: false, complexity: 5,
+                 blurb: 'bloom, then slow spirals' },
+    aeropress: { name: 'AeroPress',   price: 4.5, brew: 'aero',     milk: null, art: false, complexity: 4,
+                 blurb: 'steeped and pressed' }
   };
 
-  var SIZES = { S: { name: 'Small', mod: -0.5 }, M: { name: 'Medium', mod: 0 }, L: { name: 'Large', mod: 1 } };
-
-  var SYRUPS = {
-    vanilla:  { name: 'Vanilla',  color: '#f2e4c4' },
-    caramel:  { name: 'Caramel',  color: '#cd8b3e' },
-    hazelnut: { name: 'Hazelnut', color: '#a9744f' }
-  };
-  var CHOC = { name: 'Chocolate', color: '#5a3219' }; // build-station sauce, not an unlockable syrup
-
-  var TOPPINGS = {
-    whip:     { name: 'Whipped Cream', kind: 'ring' },
-    cocoa:    { name: 'Cocoa Dust',    kind: 'shake', color: '#6b4226' },
-    cinnamon: { name: 'Cinnamon Dust', kind: 'shake', color: '#b5651d' }
-  };
-
-  // 8 recurring customers
+  /* 8 regulars */
   var CHARACTERS = {
-    mabel:  { name: 'Mabel',  skin: '#f3c9a5', hair: 'bun',      hairColor: '#cfcfcf', top: '#c79ab5', accessory: 'glasses',
+    mabel:  { name: 'Mabel',  skin: '#eec9a7', hair: 'bun',      hairColor: '#d8d3cb', top: '#b9a0ad',
               patienceMult: 1.4, prefersNewest: true },
-    dex:    { name: 'Dex',    skin: '#c98e5a', hair: 'beanie',   hairColor: '#37474f', top: '#8fa8b8', accessory: 'headphones',
-              patienceMult: 0.7, only: ['espresso', 'americano'] },
-    priya:  { name: 'Priya',  skin: '#b5763f', hair: 'pony',     hairColor: '#2d2026', top: '#7da7cc', accessory: 'none',
+    dex:    { name: 'Dex',    skin: '#c08a5c', hair: 'beanie',   hairColor: '#5b6770', top: '#8da0ab',
+              patienceMult: 0.7, only: ['espresso', 'batch'] },
+    priya:  { name: 'Priya',  skin: '#b5763f', hair: 'pony',     hairColor: '#3a2e33', top: '#7c98ad',
               patienceMult: 1.0, tipBonusAt90: 0.3 },
-    hank:   { name: 'Hank',   skin: '#e8b88a', hair: 'short',    hairColor: '#6d4c41', top: '#e08e7a', accessory: 'mustache',
-              patienceMult: 1.0, forceRoast: 'dark' },
-    junie:  { name: 'Junie',  skin: '#f7d6b3', hair: 'pigtails', hairColor: '#e67e22', top: '#f7dd88', accessory: 'freckles',
-              patienceMult: 1.0, sweet: true },
-    theo:   { name: 'Theo',   skin: '#d9a06b', hair: 'curly',    hairColor: '#3e2723', top: '#6aa893', accessory: 'scarf',
-              patienceMult: 1.0, only: ['pourover'], minDay: 4 },
-    rosa:   { name: 'Rosa',   skin: '#cc8855', hair: 'flower',   hairColor: '#1b1b1b', top: '#f0a18a', accessory: 'none',
+    hank:   { name: 'Hank',   skin: '#e2b186', hair: 'short',    hairColor: '#7a6248', top: '#c08a72', accessory: 'mustache',
+              patienceMult: 1.0, forceOrigin: 'colombia' },
+    junie:  { name: 'Junie',  skin: '#f2d2ae', hair: 'pigtails', hairColor: '#cd8d57', top: '#d9c08a', accessory: 'freckles',
+              patienceMult: 1.0, only: ['latte', 'flatwhite', 'cortado'] },
+    theo:   { name: 'Theo',   skin: '#d09c68', hair: 'curly',    hairColor: '#46362b', top: '#7fA38f', accessory: 'scarf',
+              patienceMult: 1.0, only: ['v60'], minDay: 3 },
+    rosa:   { name: 'Rosa',   skin: '#c48653', hair: 'flower',   hairColor: '#2e2a26', top: '#c97f5d',
               patienceMult: 1.0, patienceFloor: 25 },
-    marcus: { name: 'Marcus', skin: '#8d5a3b', hair: 'bald',     hairColor: '#000000', top: '#7c8aa0', accessory: 'phone',
+    marcus: { name: 'Marcus', skin: '#8d5a3b', hair: 'bald',     hairColor: '#000000', top: '#6f7b8a', accessory: 'phone',
               patienceMult: 1.0, prefersComplex: true }
   };
 
-  // applied at the START of the listed day
+  /* applied at the start of the listed day */
   var UNLOCKS = {
-    1: { recipes: ['espresso', 'americano'], roasts: ['medium'], syrups: ['vanilla'], toppings: [] },
+    1: { recipes: ['espresso', 'batch'], origins: ['colombia'] },
     2: { recipes: ['latte'] },
-    3: { roasts: ['dark'], syrups: ['caramel'], toppings: ['cocoa'] },
-    4: { recipes: ['pourover'] },
-    5: { recipes: ['cappuccino'], toppings: ['whip'] },
-    6: { roasts: ['light'], syrups: ['hazelnut'] },
-    7: { recipes: ['mocha'] },
-    8: { recipes: ['hotchoc'], toppings: ['cinnamon'] }
+    3: { recipes: ['v60'], origins: ['ethiopia'] },
+    4: { recipes: ['cortado'] },
+    5: { recipes: ['flatwhite'] },
+    6: { origins: ['kenya'] },
+    7: { recipes: ['aeropress'] }
   };
 
   var UPGRADES = {
-    grinder:  { name: 'Burr Grinder', icon: 'brew',  costs: [25, 60], max: 2,
-                desc: 'Wider grind sweet-spot', values: [0.22, 0.30, 0.38] },
-    roaster:  { name: 'Drum Roaster', icon: 'roast', costs: [30, 70], max: 2,
-                desc: 'Wider roast drop window', values: [0.7, 0.9, 1.1] },
-    steamer:  { name: 'Steam Wand',   icon: 'milk',  costs: [30, 70], max: 2,
-                desc: 'Slower, easier steaming', values: [1, 0.85, 0.7] },
-    decor:    { name: 'Cozy Decor',   icon: 'build', costs: [40, 90], max: 2,
-                desc: 'Customers wait happily longer', values: [1, 0.9, 0.8] },
-    register: { name: 'Smart Register', icon: 'order', costs: [50], max: 1,
-                desc: 'Auto-greets the next customer', values: [0, 1] }
+    grinder: { name: 'EK Grinder',     icon: 'brew',  costs: [25, 60], max: 2,
+               desc: 'Wider dial-in sweet spot', values: [0.22, 0.30, 0.38] },
+    roaster: { name: 'Drum Roaster',   icon: 'roast', costs: [30, 70], max: 2,
+               desc: 'Wider profile drop window', values: [0.7, 0.9, 1.1] },
+    kettle:  { name: 'Gooseneck Kettle', icon: 'kettle', costs: [30, 70], max: 2,
+               desc: 'Steadier, slower pours', values: [1, 0.85, 0.72] },
+    pitcher: { name: 'Steam Pitcher',  icon: 'milk',  costs: [30, 70], max: 2,
+               desc: 'Calmer steaming gauges', values: [1, 0.85, 0.7] },
+    decor:   { name: 'Warm Interior',  icon: 'build', costs: [40, 90], max: 2,
+               desc: 'Guests wait more happily', values: [1, 0.9, 0.8] },
+    host:    { name: 'Host Stand',     icon: 'order', costs: [50], max: 1,
+               desc: 'Greets the next guest for you', values: [0, 1] }
   };
 
-  var TIP_RATES = [0, 0, 0.05, 0.10, 0.18, 0.25]; // index by stars 1..5
+  var TIP_RATES = [0, 0, 0.05, 0.10, 0.18, 0.25]; // by stars 1..5
 
   function dayCustomerCount(day) { return Math.min(4 + day, 14); }
   function dayLength(day) { return Math.min(120 + day * 20, 360); }
   function patienceSeconds(day) { return Math.min(45 + day * 5, 75); }
 
-  function priceOf(ticket) {
-    var p = RECIPES[ticket.recipe].price + SIZES[ticket.size].mod;
-    p += 0.5 * ticket.extras.length + 0.5 * ticket.toppings.length;
-    return Math.round(p * 100) / 100;
-  }
+  function priceOf(ticket) { return RECIPES[ticket.recipe].price; }
 
   function starsFor(score) {
     if (score >= 95) return 5;
@@ -105,7 +100,6 @@ CG.data = (function () {
     return 1;
   }
 
-  // mutates state.unlocked; returns list of human-readable new unlock names
   function applyUnlocks(state, day) {
     var u = UNLOCKS[day];
     if (!u) return [];
@@ -113,14 +107,8 @@ CG.data = (function () {
     (u.recipes || []).forEach(function (r) {
       if (state.unlocked.recipes.indexOf(r) < 0) { state.unlocked.recipes.push(r); fresh.push(RECIPES[r].name); }
     });
-    (u.roasts || []).forEach(function (r) {
-      if (state.unlocked.roasts.indexOf(r) < 0) { state.unlocked.roasts.push(r); fresh.push(ROASTS[r].name + ' Roast'); }
-    });
-    (u.syrups || []).forEach(function (s) {
-      if (state.unlocked.syrups.indexOf(s) < 0) { state.unlocked.syrups.push(s); fresh.push(SYRUPS[s].name + ' Syrup'); }
-    });
-    (u.toppings || []).forEach(function (t) {
-      if (state.unlocked.toppings.indexOf(t) < 0) { state.unlocked.toppings.push(t); fresh.push(TOPPINGS[t].name); }
+    (u.origins || []).forEach(function (o) {
+      if (state.unlocked.origins.indexOf(o) < 0) { state.unlocked.origins.push(o); fresh.push(ORIGINS[o].name); }
     });
     return fresh;
   }
@@ -129,10 +117,10 @@ CG.data = (function () {
   function fmtMoney(n) { return '$' + n.toFixed(2).replace(/\.00$/, ''); }
 
   return {
-    ROASTS: ROASTS, ROAST_TOTAL: ROAST_TOTAL, ROAST_BURN: ROAST_BURN,
+    ORIGINS: ORIGINS, ROAST_TOTAL: ROAST_TOTAL, ROAST_BURN: ROAST_BURN,
     ROAST_BATCH_UNITS: ROAST_BATCH_UNITS, ROAST_CAP: ROAST_CAP,
-    RECIPES: RECIPES, SIZES: SIZES, SYRUPS: SYRUPS, CHOC: CHOC, TOPPINGS: TOPPINGS,
-    CHARACTERS: CHARACTERS, UNLOCKS: UNLOCKS, UPGRADES: UPGRADES, TIP_RATES: TIP_RATES,
+    BATCH_ORIGIN: BATCH_ORIGIN, BATCH_CARAFE: BATCH_CARAFE,
+    RECIPES: RECIPES, CHARACTERS: CHARACTERS, UNLOCKS: UNLOCKS, UPGRADES: UPGRADES, TIP_RATES: TIP_RATES,
     dayCustomerCount: dayCustomerCount, dayLength: dayLength, patienceSeconds: patienceSeconds,
     priceOf: priceOf, starsFor: starsFor, applyUnlocks: applyUnlocks,
     clamp: clamp, fmtMoney: fmtMoney

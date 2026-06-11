@@ -1,316 +1,41 @@
-/* Crackle & Pour — station minigame UI over illustrated scenes */
+/* FIKA — station-specific bits over the scenes */
 
 .scene-svg { display: block; }
 .drink-svg { display: block; }
 
-/* ---------- roastery ---------- */
-
+/* roast crackle sparks */
 .crack-spark {
   position: absolute;
-  width: 10px; height: 10px;
-  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  width: 7px; height: 7px;
+  border-radius: 50%;
   background: var(--gold);
+  box-shadow: 0 0 10px rgba(217, 184, 124, 0.9);
   animation: spark 0.5s ease-out forwards;
 }
 @keyframes spark {
-  from { transform: scale(1) rotate(0deg); opacity: 1; }
-  to { transform: scale(0.3) rotate(60deg) translateY(-14px); opacity: 0; }
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(0.25) translateY(-16px); opacity: 0; }
 }
 
-/* roast thermometer floats over the scene's right edge */
-.thermo-overlay {
-  position: absolute;
-  top: 8px; right: 8px; bottom: 10px;
-  width: 54px;
-  z-index: 5;
-  display: flex;
-}
-.thermo-track {
-  position: relative;
-  flex: 1;
-  border-radius: 14px;
-  background: linear-gradient(to top, #ecdfc4ee, #fffaecee);
-  border: 3px solid var(--line);
-  overflow: hidden;
-  box-shadow: var(--shadow);
-}
-.thermo-band {
-  position: absolute;
-  left: 0; right: 0;
-  display: flex; align-items: center; justify-content: center;
-}
-.thermo-band span {
-  font-size: 9px; font-weight: bold;
-  color: rgba(255,255,255,0.95);
-  text-shadow: 0 1px 2px rgba(90,60,45,0.5);
-}
-.band-light { background: rgba(208,168,122,0.92); }
-.band-medium { background: rgba(158,108,62,0.92); }
-.band-dark { background: rgba(96,62,38,0.94); }
-.thermo-band::after {
-  content: ''; position: absolute; left: 0; right: 0; top: 50%;
-  height: 2px; background: rgba(255,255,255,0.8);
-}
-.thermo-mark {
-  position: absolute;
-  left: -2px; right: -2px;
-  bottom: 0;
-  height: 6px;
-  background: var(--pink);
-  border: 1.5px solid var(--pink-deep);
-  border-radius: 3px;
-  box-shadow: 0 0 6px rgba(242,163,179,0.95);
-  z-index: 2;
-}
+/* origin bag selection pulse (svg side) */
+.bag-sel { filter: drop-shadow(0 0 6px rgba(201, 127, 93, 0.6)); }
 
-.roast-controls { display: flex; flex-direction: column; gap: 10px; align-items: center; padding-top: 12px; }
-.chip-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-
-.btn-drop {
-  background: linear-gradient(to bottom, var(--pink), var(--pink-deep));
-  color: #fffaf0;
-  text-shadow: 0 1.5px 0 var(--pink-deep);
-  font-size: 24px;
-  padding: 18px 52px;
-  border-radius: 999px;
-  animation: throb 0.7s infinite alternate;
-}
-@keyframes throb { from { transform: scale(1); } to { transform: scale(1.05); } }
-
-/* ---------- brew ---------- */
-
-.grind-box { display: flex; flex-direction: column; gap: 12px; padding: 12px 4px 8px; }
-.grind-bar {
-  position: relative;
-  height: 32px;
-  border-radius: 16px;
-  background: var(--parch-2);
-  border: 3px solid var(--line);
-  overflow: hidden;
-}
-.grind-window {
-  position: absolute; top: 0; bottom: 0;
-  background: rgba(245,198,79,0.95);
-  border-left: 2.5px solid var(--gold-deep);
-  border-right: 2.5px solid var(--gold-deep);
-  z-index: 1;
-}
-.grind-fill {
-  position: absolute; inset: 0;
-  background: linear-gradient(90deg, #b58e6f, #8a6248);
-  transform-origin: left;
-  transform: scaleX(0);
-  opacity: 0.85;
-  z-index: 2;
-}
-
-.btn-hold {
-  background: linear-gradient(to bottom, var(--pink), var(--pink-deep));
-  color: #fffaf0;
-  text-shadow: 0 1.5px 0 var(--pink-deep);
-  font-size: 19px;
-  padding: 17px 20px;
-  border-radius: 18px;
-  width: 100%;
-  touch-action: none;
-}
-.btn-hold.waiting { background: var(--parch); color: var(--ink-soft); text-shadow: none; opacity: 0.8; }
-.brew-controls { display: flex; flex-direction: column; gap: 9px; align-items: stretch; padding-top: 12px; }
-.brew-controls .btn-ghost { align-self: center; color: var(--ink-soft); }
-
-/* ---------- milk ---------- */
-
-/* heat/foam gauges float over the scene's right edge */
-.gauges-overlay {
-  position: absolute;
-  top: 8px; right: 8px; bottom: 10px;
-  display: flex; gap: 7px;
-  z-index: 5;
-}
-.gauge { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 42px; }
-.gauge label {
-  font-size: 10px; font-weight: bold;
-  color: var(--ink);
-  background: var(--parch-2);
-  border: 2px solid var(--line);
-  border-radius: 999px;
-  padding: 1px 7px;
-}
-.gauge-track {
-  position: relative;
-  flex: 1;
-  width: 100%;
-  border-radius: 13px;
-  background: rgba(255,250,236,0.92);
-  border: 3px solid var(--line);
-  overflow: hidden;
-  box-shadow: var(--shadow);
-}
-.gauge-band {
-  position: absolute; left: 0; right: 0;
-  background: rgba(158,181,133,0.55);
-  border-top: 2px dashed var(--sage-deep);
-  border-bottom: 2px dashed var(--sage-deep);
-  z-index: 2;
-}
-.gauge-fill {
-  position: absolute; inset: 0;
-  transform-origin: bottom;
-  transform: scaleY(0);
-}
-.gauge-fill.temp { background: linear-gradient(to top, var(--gold), var(--pink), var(--pink-deep)); }
-.gauge-fill.foam { background: linear-gradient(to top, #f1e8d4, #fffef7); }
-
-.milk-dragzone {
-  position: relative;
-  height: 150px;
-  border-radius: 18px;
-  background: linear-gradient(to bottom, var(--parch-2), #ecdfc4);
-  border: 3px dashed var(--ink-soft);
-  touch-action: none;
-  overflow: hidden;
-}
-.dz-label {
-  position: absolute; left: 0; right: 0;
-  text-align: center;
-  font-size: 11px; font-weight: bold;
-  color: var(--ink-soft);
-  pointer-events: none;
-}
-.dz-label.top { top: 6px; }
-.dz-label.bot { bottom: 6px; }
-.dz-pitcher {
-  position: absolute;
-  left: 50%; top: 80%;
-  transform: translate(-50%, -50%);
-  width: 86px; height: 56px;
-  border-radius: 16px;
-  background: var(--pink);
-  border: 2.5px solid var(--line);
-  color: #fffaf0;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  font-size: 10px; font-weight: bold;
-  box-shadow: var(--shadow);
-  pointer-events: none;
-}
-.dz-pitcher .icon-svg { width: 22px; height: 22px; }
-
-/* ---------- build ---------- */
-
-/* component checklist as recipe-card tags under the scene */
+/* pass checklist */
 .build-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
-  padding: 9px 0 2px;
+  gap: 6px;
+  padding: 12px 0 0;
   justify-content: center;
 }
 .comp {
   font-size: 12px;
-  font-weight: bold;
-  background: var(--parch-2);
-  border: 2px solid var(--line);
+  font-weight: 600;
+  background: var(--card);
   border-radius: 999px;
-  padding: 4px 11px;
+  padding: 6px 13px;
   color: var(--ink-soft);
-  transform: rotate(-1deg);
+  box-shadow: var(--shadow-soft);
 }
-.comp:nth-child(2n) { transform: rotate(1.2deg); }
-.comp.kind-holding-brew { border-color: #a9744f; }
-.comp.kind-holding-milk { border-color: #d8c5a4; }
-.comp.kind-tap { border-color: #7fb6d0; }
-.comp.kind-pump { border-color: var(--pink-deep); }
-.comp.kind-ring { border-color: #d8c5a4; }
-.comp.kind-shake { border-color: var(--gold-deep); }
-.comp.done { color: #fffaf0; background: var(--sage); border-color: var(--sage-deep); text-shadow: 0 1px 0 var(--sage-deep); }
-.comp small { color: inherit; opacity: 0.85; }
-
-/* the prep shelf is a wooden plank the items stand on */
-.build-shelf {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 12px 10px;
-  margin-top: 8px;
-  background: linear-gradient(to bottom, #d9b078, #b58e6f);
-  border: 3px solid var(--line);
-  border-radius: 14px;
-}
-.shelf-item {
-  font-family: inherit;
-  flex: 1 1 calc(33% - 8px);
-  min-width: 92px;
-  min-height: 66px;
-  border: 2.5px solid var(--line);
-  border-radius: 16px;
-  background: var(--parch-2);
-  box-shadow: var(--shadow);
-  cursor: pointer;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 4px;
-  font-size: 11px; font-weight: bold;
-  color: var(--ink);
-  padding: 7px;
-  position: relative;
-  touch-action: none;
-}
-.shelf-item small { font-weight: normal; color: var(--ink-soft); }
-.shelf-item .icon-svg { width: 24px; height: 24px; }
-.shelf-item.pressed { transform: translateY(2px); }
-.shelf-item.empty { opacity: 0.55; box-shadow: none; }
-.shelf-item.wrongticket { outline: 2px dashed var(--pink-deep); opacity: 0.75; }
-.shelf-item.holding:not(.empty):not(.wrongticket) { outline: 3px solid var(--sage); }
-
-.shelf-item.bottle .bottle-shape {
-  width: 22px; height: 30px;
-  background: var(--syr, var(--gold));
-  border-radius: 6px 6px 9px 9px;
-  border: 2px solid var(--line);
-  position: relative;
-}
-.shelf-item.bottle .bottle-shape::before {
-  content: ''; position: absolute;
-  top: -8px; left: 50%; transform: translateX(-50%);
-  width: 9px; height: 8px;
-  background: var(--line);
-  border-radius: 3px 3px 0 0;
-}
-.shelf-item.bottle[data-count]::after {
-  content: attr(data-count);
-  position: absolute; top: 4px; right: 6px;
-  background: var(--pink); color: #fff;
-  border: 1.5px solid var(--pink-deep);
-  border-radius: 999px;
-  font-size: 11px;
-  padding: 2px 7px;
-}
-.shelf-item[data-whip] {
-  background: linear-gradient(to top, var(--parch-2) var(--ringpct, 0%), #eef3e4 var(--ringpct, 0%));
-}
-
-.shake-box {
-  width: 100%;
-  display: flex; align-items: center; justify-content: center; gap: 16px;
-  padding: 10px;
-  background: var(--parch-2);
-  border: 2.5px solid var(--line);
-  border-radius: 16px;
-}
-.shake-pulse {
-  width: 44px; height: 44px;
-  border-radius: 50%;
-  background: var(--gold);
-  border: 3px solid var(--gold-deep);
-}
-
-.build-servebox { text-align: center; padding-top: 10px; }
-.btn-serve {
-  background: linear-gradient(to bottom, var(--sage), var(--sage-deep));
-  color: #fffaf0;
-  text-shadow: 0 1.5px 0 var(--sage-deep);
-  font-size: 22px;
-  padding: 15px 60px;
-  border-radius: 999px;
-}
-.btn-serve:not(:disabled) { animation: throb 0.8s infinite alternate; }
-.serve-hint { font-size: 12px; color: var(--pink-deep); margin-top: 6px; font-weight: bold; }
+.comp.done { color: #f6f8f4; background: var(--sage); }
+.comp small { opacity: 0.85; font-weight: 500; }

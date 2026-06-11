@@ -1,4 +1,4 @@
-/* Crackle & Pour — customer arrivals, patience, moods, order generation */
+/* FIKA — guest arrivals, patience, moods, order generation */
 CG.customers = (function () {
   'use strict';
 
@@ -29,41 +29,31 @@ CG.customers = (function () {
       recipes.sort(function (a, b) { return d.RECIPES[b].complexity - d.RECIPES[a].complexity; });
       recipeId = recipes[0];
     } else if (char.prefersNewest || Math.random() < 0.4) {
-      recipeId = recipes[recipes.length - 1]; // unlock order is preserved in the array
+      recipeId = recipes[recipes.length - 1]; // unlock order preserved
     } else {
       recipeId = pick(recipes);
     }
     var recipe = d.RECIPES[recipeId];
 
-    var roast = null;
-    if (recipe.brew) {
-      if (char.forceRoast && s.unlocked.roasts.indexOf(char.forceRoast) >= 0) roast = char.forceRoast;
-      else roast = pick(s.unlocked.roasts);
+    var origin = null;
+    if (recipe.brew === 'batch') {
+      origin = d.BATCH_ORIGIN;
+    } else if (recipe.brew) {
+      if (char.forceOrigin && s.unlocked.origins.indexOf(char.forceOrigin) >= 0) origin = char.forceOrigin;
+      else origin = pick(s.unlocked.origins);
     }
 
-    var extras = [];
-    if (recipe.syrupOk && s.unlocked.syrups.length && (char.sweet || Math.random() < 0.5)) {
-      var syr = pick(s.unlocked.syrups);
-      var pumps = 1 + Math.floor(Math.random() * 3);
-      if (char.sweet) pumps = Math.max(2, pumps);
-      extras.push({ syrup: syr, pumps: pumps });
-    }
-
-    var toppings = [];
-    recipe.toppingsOk.forEach(function (t) {
-      if (s.unlocked.toppings.indexOf(t) >= 0 && toppings.length < 2 && Math.random() < 0.35) toppings.push(t);
-    });
-
-    return { recipe: recipeId, size: pick(['S', 'M', 'L']), roast: roast, extras: extras, toppings: toppings };
+    return { recipe: recipeId, origin: origin };
   }
 
   function orderText(order) {
     var r = d.RECIPES[order.recipe];
-    var parts = [d.SIZES[order.size].name + ' ' + r.name];
-    if (order.roast) parts.push(d.ROASTS[order.roast].name.toLowerCase() + ' roast');
-    order.extras.forEach(function (e) { parts.push(e.pumps + ' pump' + (e.pumps > 1 ? 's' : '') + ' ' + d.SYRUPS[e.syrup].name.toLowerCase()); });
-    order.toppings.forEach(function (t) { parts.push(d.TOPPINGS[t].name.toLowerCase()); });
-    return parts.join(', ');
+    if (order.recipe === 'batch') return 'Just a cup of the batch filter';
+    if (!order.origin) return 'A ' + r.name.toLowerCase();
+    var o = d.ORIGINS[order.origin];
+    if (r.milk) return 'A ' + r.name.toLowerCase() + ' on the ' + o.short;
+    return 'The ' + o.short + ' as ' + (r.name === 'Espresso' ? 'a straight shot' : (r.name === 'AeroPress' ? 'an AeroPress' : 'a ' + r.name)) +
+      ' — something ' + o.flavor;
   }
 
   /* ---------- day scheduling ---------- */
@@ -76,14 +66,12 @@ CG.customers = (function () {
       return !c.minDay || s.day >= c.minDay;
     });
 
-    // arrival times: even spread with jitter; the first arrives quickly
     var times = [];
     var usable = sv.dayLength - 15;
     for (var i = 0; i < count; i++) {
       var base = 4 + (usable - 4) * (i / count);
       times.push(Math.max(2, base + (Math.random() * 14 - 7)));
     }
-    // a rush cluster from day 3 — three arrivals squeezed mid-day
     if (s.day >= 3 && count >= 6) {
       var mid = usable * (0.4 + Math.random() * 0.2);
       times[Math.floor(count / 2) - 1] = mid;
@@ -124,7 +112,6 @@ CG.customers = (function () {
   function update(dt) {
     var s = CG.state, sv = s.service;
 
-    // arrivals
     while (sv.spawnQueue.length && sv.spawnQueue[0].at <= sv.clock && !sv.closed) {
       spawn(sv.spawnQueue.shift().charId);
     }
@@ -142,16 +129,14 @@ CG.customers = (function () {
       var mood = CG.moodFor(c.patience);
       if (mood !== c.mood) { c.mood = mood; changed = true; if (mood === 'angry') CG.audio.play('buzz'); }
 
-      // storm-out only while still un-ordered
       if (c.patience <= 0 && c.status === 'queued') {
         c.status = 'left';
         sv.lostToday++;
-        CG.ui.toast(char.name + ' left without ordering!', 'bad');
+        CG.ui.toast(char.name + ' left without ordering', 'bad');
         CG.audio.play('buzz');
         changed = true;
       }
 
-      // throttle ring redraw to ~4Hz
       c.ringTimer += dt;
       if (c.ringTimer > 0.25 && Math.abs(before - c.patience) > 0.01) {
         c.ringTimer = 0;
@@ -172,7 +157,6 @@ CG.customers = (function () {
     return CG.state.service.customers.filter(function (c) { return c.status === 'queued' || c.status === 'waiting'; });
   }
 
-  // at closing time un-ordered customers head home politely
   function closeDoors() {
     queued().forEach(function (c) { c.status = 'left'; });
     CG.events.emit('queuechange');

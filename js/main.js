@@ -39,9 +39,9 @@ CG.main = (function () {
     var sv = CG.state.service;
     if (!sv) return;
     setBadge('order', CG.customers.queued().length);
-    var lowBeans = CG.state.unlocked.roasts.some(function (r) { return sv.roastInventory[r] <= 1; });
+    var lowBeans = CG.state.unlocked.origins.some(function (o) { return sv.roastInventory[o] <= 1; });
     setBadge('roast', lowBeans ? '!' : 0);
-    setBadge('brew', CG.tickets.needing('brew').length + (sv.holding.brew ? 0 : 0));
+    setBadge('brew', CG.tickets.needing('brew').length);
     setBadge('milk', CG.tickets.needing('milk').length);
     var buildable = CG.tickets.open().filter(CG.tickets.readyToServe).length;
     setBadge('build', (sv.holding.brew || sv.holding.milk) ? '●' : buildable || 0);
@@ -155,7 +155,7 @@ CG.main = (function () {
     // tab bar
     var bar = $('#tabbar');
     bar.innerHTML = STATION_ORDER.map(function (k) {
-      var labels = { order: 'Order', roast: 'Roast', brew: 'Brew', milk: 'Milk', build: 'Serve' };
+      var labels = { order: 'Counter', roast: 'Roast', brew: 'Brew', milk: 'Milk', build: 'Pass' };
       return '<button class="tab-btn" data-station="' + k + '">' +
         CG.svg.icon(k) + '<span>' + labels[k] + '</span><span class="badge hidden"></span></button>';
     }).join('');

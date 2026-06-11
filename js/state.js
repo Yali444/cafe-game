@@ -1,8 +1,7 @@
-/* Crackle & Pour — central game state + event bus */
+/* Kopi — central game state + event bus */
 (function () {
   'use strict';
 
-  /* tiny event bus */
   var listeners = {};
   CG.events = {
     on: function (name, fn) { (listeners[name] = listeners[name] || []).push(fn); },
@@ -17,8 +16,8 @@
     paused: false,
     day: 1,
     money: 0,
-    upgrades: { grinder: 0, roaster: 0, steamer: 0, decor: 0, register: 0 },
-    unlocked: { recipes: [], roasts: [], syrups: [], toppings: [] },
+    upgrades: { grinder: 0, roaster: 0, kettle: 0, pitcher: 0, decor: 0, host: 0 },
+    unlocked: { recipes: [], origins: [] },
     stats: { servedTotal: 0, bestDrink: 0, dayHistory: [] },
     service: null
   };
@@ -28,14 +27,15 @@
       clock: 0,
       dayLength: CG.data.dayLength(day),
       closed: false,
-      spawnQueue: [],      // [{at, customer}] built by customers.startDay
-      customers: [],       // live Customer objects
+      spawnQueue: [],
+      customers: [],
       tickets: [],
       nextId: 1,
       activeStation: 'order',
       selectedTicketId: null,
-      roastInventory: { light: 0, medium: 6, dark: 0 }, // a starter batch of medium each morning
-      roastQuality: { light: null, medium: 70, dark: null },
+      roastInventory: { colombia: 6, ethiopia: 0, kenya: 0 }, // a starter batch of the house bean
+      roastQuality: { colombia: 72, ethiopia: null, kenya: null },
+      batchCarafe: 0,          // cups left in the batch-brew carafe
       holding: { brew: null, milk: null }, // {ticketId, type, score}
       earnedToday: 0,
       tipsToday: 0,
@@ -48,8 +48,8 @@
     var s = CG.state;
     s.day = 1;
     s.money = 0;
-    s.upgrades = { grinder: 0, roaster: 0, steamer: 0, decor: 0, register: 0 };
-    s.unlocked = { recipes: [], roasts: [], syrups: [], toppings: [] };
+    s.upgrades = { grinder: 0, roaster: 0, kettle: 0, pitcher: 0, decor: 0, host: 0 };
+    s.unlocked = { recipes: [], origins: [] };
     s.stats = { servedTotal: 0, bestDrink: 0, dayHistory: [] };
     s.service = null;
   };
@@ -73,10 +73,10 @@
   };
 
   CG.moodColor = function (patience) {
-    if (patience > 66) return '#81b29a';
-    if (patience > 33) return '#f2cc8f';
-    if (patience > 10) return '#e09f3e';
-    return '#d75a4a';
+    if (patience > 66) return '#94a98c';
+    if (patience > 33) return '#d9b87c';
+    if (patience > 10) return '#cf9362';
+    return '#c5705c';
   };
 
   CG.upgradeValue = function (key) {
