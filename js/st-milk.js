@@ -17,9 +17,9 @@ CG.stations.milk = (function () {
     panel = document.getElementById('panel-milk');
     panel.innerHTML =
       '<div class="station-head"><h2>Milk Bar</h2><p class="hint" id="milk-msg"></p></div>' +
-      '<div class="milk-stage">' +
-      '  <div id="milk-rig" class="milk-rig"></div>' +
-      '  <div id="milk-gauges" class="milk-gauges">' +
+      '<div class="scene-wrap milk-scene">' +
+      '  <div id="milk-rig" class="scene-host"></div>' +
+      '  <div id="milk-gauges" class="gauges-overlay">' +
       '    <div class="gauge"><div class="gauge-track"><div class="gauge-band" id="band-temp"></div>' +
       '      <div class="gauge-fill temp" id="fill-temp"></div></div><label>Heat</label></div>' +
       '    <div class="gauge"><div class="gauge-track"><div class="gauge-band" id="band-foam"></div>' +
@@ -44,7 +44,8 @@ CG.stations.milk = (function () {
     if (sv.holding.milk) {
       ticket = null;
       msgEl.textContent = 'Steamed milk is waiting on the shelf.';
-      stageEl.innerHTML = CG.svg.milkRig();
+      stageEl.innerHTML = CG.svg.sceneMilk();
+      stageEl.classList.remove('dim');
       controlsEl.innerHTML = '<button class="btn btn-primary" id="milk-build">Deliver it at Build →</button>';
       controlsEl.querySelector('#milk-build').addEventListener('click', function () { CG.main.switchStation('build'); });
       gaugesEl.classList.add('hidden');
@@ -53,7 +54,7 @@ CG.stations.milk = (function () {
     ticket = CG.tickets.pickFor('milk');
     phase = 'pick';
     gaugesEl.classList.add('hidden');
-    stageEl.innerHTML = CG.svg.milkRig();
+    stageEl.innerHTML = CG.svg.sceneMilk();
     if (!ticket) {
       msgEl.textContent = 'No drinks need milk right now.';
       controlsEl.innerHTML = '';

@@ -224,14 +224,19 @@ CG.tickets = (function () {
   function showDetail(t) {
     var cust = CG.customers.byId(t.customerId);
     var char = d.CHARACTERS[cust.charId];
-    var lines = ['<b>' + d.SIZES[t.size].name + ' ' + d.RECIPES[t.recipe].name + '</b>'];
-    if (t.roast) lines.push(d.ROASTS[t.roast].name + ' roast beans');
-    t.components.forEach(function (c) {
-      lines.push((c.done ? '✓ ' : '· ') + c.label);
-    });
+    var steps = t.components.map(function (c) {
+      return '<span class="rc-step' + (c.done ? ' done' : '') + '">' + (c.done ? '✓' : '○') + ' ' + c.label + '</span>';
+    }).join('');
     CG.ui.showModal(
-      '<div class="ticket-detail"><div class="td-avatar">' + CG.svg.customer(cust.charId, cust.mood) + '</div>' +
-      '<div class="td-body"><h3>' + char.name + '’s order</h3><p>' + lines.join('<br>') + '</p></div></div>'
+      '<div class="recipe-card">' +
+      '<h3 class="rc-title">' + d.SIZES[t.size].name + ' ' + d.RECIPES[t.recipe].name + '</h3>' +
+      '<div class="rc-row">' +
+      '<div class="rc-art">' + CG.svg.drink(t, false) + '</div>' +
+      '<div class="rc-side"><div class="rc-for">' + CG.svg.customer(cust.charId, cust.mood) +
+      '<span>for ' + char.name + '</span></div>' + CG.svg.tagPills(t) + '</div>' +
+      '</div>' +
+      '<div class="rc-steps">' + steps + '</div>' +
+      '</div>'
     );
   }
 

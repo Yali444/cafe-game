@@ -13,10 +13,8 @@ CG.stations.build = (function () {
     panel = document.getElementById('panel-build');
     panel.innerHTML =
       '<div class="station-head"><h2>Build &amp; Serve</h2><p class="hint" id="build-msg"></p></div>' +
-      '<div class="build-stage">' +
-      '  <div id="build-cup" class="build-cup"></div>' +
-      '  <div id="build-list" class="build-list"></div>' +
-      '</div>' +
+      '<div class="scene-wrap build-scene" id="build-cup"></div>' +
+      '<div id="build-list" class="build-list"></div>' +
       '<div id="build-shelf" class="build-shelf"></div>' +
       '<div id="build-serve" class="build-servebox"></div>';
     msgEl = panel.querySelector('#build-msg');
@@ -36,12 +34,14 @@ CG.stations.build = (function () {
     ticket = (sel && sel.status !== 'served') ? sel : open[0] || null;
     if (!ticket) {
       msgEl.textContent = 'No drinks to build. Take some orders!';
-      cupEl.innerHTML = '';
+      cupEl.innerHTML = CG.svg.sceneBuild();
+      cupEl.classList.add('dim');
       listEl.innerHTML = '';
       shelfEl.innerHTML = '';
       serveEl.innerHTML = '';
       return;
     }
+    cupEl.classList.remove('dim');
     var cust = CG.customers.byId(ticket.customerId);
     msgEl.innerHTML = d.SIZES[ticket.size].name + ' ' + d.RECIPES[ticket.recipe].name +
       ' for <b>' + d.CHARACTERS[cust.charId].name + '</b>';
@@ -62,20 +62,9 @@ CG.stations.build = (function () {
   }
 
   function renderCup() {
-    var hasLiquid = ticket.components.some(function (c) {
-      return c.done && (c.kind === 'holding-brew' || c.kind === 'holding-milk' || c.kind === 'tap');
-    });
-    var whipDone = ticket.components.some(function (c) { return c.topping === 'whip' && c.done; });
-    var dust = null;
-    ticket.components.forEach(function (c) {
-      if (c.done && c.kind === 'shake') dust = d.TOPPINGS[c.topping].color;
-    });
-    cupEl.innerHTML = CG.svg.cup(ticket.size, {
-      fill: hasLiquid,
-      color: d.RECIPES[ticket.recipe].milk ? '#c8a165' : '#6f4e37',
-      whip: whipDone,
-      dust: dust
-    });
+    if (!cupEl.firstChild) cupEl.innerHTML = CG.svg.sceneBuild();
+    var host = cupEl.querySelector('#cup-host');
+    if (host) host.innerHTML = CG.svg.drinkGroup(ticket, true);
   }
 
   function renderList() {

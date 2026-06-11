@@ -1,9 +1,9 @@
-/* Crackle & Pour — roastery: drum-roast green beans into inventory */
+/* Crackle & Pour — roastery: drum-roast green beans into jarred inventory */
 CG.stations.roast = (function () {
   'use strict';
 
   var d = CG.data;
-  var panel, thermoMark, beansG, smokeG, msgEl, invEl, controlsEl, cracklesEl;
+  var panel, thermoMark, beansG, smokeG, msgEl, jarsG, controlsEl, cracklesEl;
   var phase = 'idle';   // idle -> loaded -> roasting -> cooling
   var targetRoast = null;
   var t = 0;            // roast timer
@@ -18,18 +18,18 @@ CG.stations.roast = (function () {
     }).join('');
     panel.innerHTML =
       '<div class="station-head"><h2>Roastery</h2><p class="hint" id="roast-msg">Roast beans ahead — drinks need them!</p></div>' +
-      '<div class="roast-stage">' +
-      '  <div class="roaster-wrap">' + CG.svg.roaster() + '<div id="roast-crackles"></div></div>' +
-      '  <div class="thermo"><div class="thermo-track">' + bands +
-      '    <div class="thermo-mark" id="thermo-mark"></div></div></div>' +
+      '<div class="scene-wrap roast-scene">' +
+      CG.svg.sceneRoast() +
+      '<div id="roast-crackles"></div>' +
+      '<div class="thermo-overlay"><div class="thermo-track">' + bands +
+      '<div class="thermo-mark" id="thermo-mark"></div></div></div>' +
       '</div>' +
-      '<div id="roast-inventory" class="roast-inv"></div>' +
       '<div id="roast-controls" class="roast-controls"></div>';
     thermoMark = panel.querySelector('#thermo-mark');
     beansG = panel.querySelector('#roast-beans');
     smokeG = panel.querySelector('#roast-smoke');
     msgEl = panel.querySelector('#roast-msg');
-    invEl = panel.querySelector('#roast-inventory');
+    jarsG = panel.querySelector('#roast-jars');
     controlsEl = panel.querySelector('#roast-controls');
     cracklesEl = panel.querySelector('#roast-crackles');
     positionBands();
@@ -54,7 +54,6 @@ CG.stations.roast = (function () {
     if (phase === 'idle') return null;
     if (phase === 'loaded') return '#9aa86d'; // green beans
     var frac = Math.min(t / d.ROAST_TOTAL, 1);
-    // green -> tan -> brown -> near-black
     if (frac < 0.3) return '#9aa86d';
     if (frac < 0.5) return '#c69c6d';
     if (frac < 0.67) return '#8d5a2b';
@@ -69,16 +68,8 @@ CG.stations.roast = (function () {
 
   function renderInventory() {
     var sv = CG.state.service;
-    if (!sv) return;
-    invEl.innerHTML = CG.state.unlocked.roasts.map(function (r) {
-      var R = d.ROASTS[r];
-      var n = sv.roastInventory[r];
-      var q = sv.roastQuality[r];
-      return '<div class="inv-chip' + (n === 0 ? ' empty' : '') + '">' +
-        '<span class="inv-dot" style="background:' + R.color + '"></span>' +
-        '<span>' + R.name + '</span><b>' + n + '</b>' +
-        (q != null ? '<small>q' + Math.round(q) + '</small>' : '') + '</div>';
-    }).join('');
+    if (!sv || !jarsG) return;
+    jarsG.innerHTML = CG.svg.roastJars(CG.state.unlocked.roasts, sv.roastInventory, sv.roastQuality);
   }
 
   function renderControls() {
@@ -167,7 +158,6 @@ CG.stations.roast = (function () {
     t += dt;
     thermoMark.style.bottom = Math.min(t / d.ROAST_TOTAL, 1) * 100 + '%';
 
-    // crackle cues approaching light & dark bands
     if (!crackled.first && t > d.ROASTS.light.center - 1.2) { crackled.first = true; msgEl.textContent = 'First crack!'; }
     if (!crackled.second && t > d.ROASTS.dark.center - 1.0) { crackled.second = true; msgEl.textContent = 'Second crack — careful now!'; }
     if (crackled.first) {
@@ -191,13 +181,13 @@ CG.stations.roast = (function () {
   function spark() {
     var s = document.createElement('div');
     s.className = 'crack-spark';
-    s.style.left = (30 + Math.random() * 40) + '%';
+    s.style.left = (12 + Math.random() * 28) + '%';
     s.style.top = (30 + Math.random() * 30) + '%';
     cracklesEl.appendChild(s);
     setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, 500);
   }
 
-  CG.events.on('inventorychange', function () { if (invEl) renderInventory(); });
+  CG.events.on('inventorychange', function () { if (jarsG) renderInventory(); });
 
   return {
     init: init,

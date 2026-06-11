@@ -1,23 +1,10 @@
-/* Crackle & Pour — station minigame UI (pastel parchment style) */
+/* Crackle & Pour — station minigame UI over illustrated scenes */
 
-.machine-svg { width: 100%; height: 100%; }
+.scene-svg { display: block; }
+.drink-svg { display: block; }
 
 /* ---------- roastery ---------- */
 
-.roast-stage {
-  display: flex;
-  gap: 12px;
-  align-items: stretch;
-  flex: 1;
-  min-height: 200px;
-  max-height: 300px;
-}
-.roaster-wrap {
-  flex: 1;
-  position: relative;
-  display: flex; align-items: center; justify-content: center;
-}
-#roast-crackles { position: absolute; inset: 0; pointer-events: none; }
 .crack-spark {
   position: absolute;
   width: 10px; height: 10px;
@@ -30,15 +17,22 @@
   to { transform: scale(0.3) rotate(60deg) translateY(-14px); opacity: 0; }
 }
 
-.thermo { width: 64px; display: flex; }
+/* roast thermometer floats over the scene's right edge */
+.thermo-overlay {
+  position: absolute;
+  top: 8px; right: 8px; bottom: 10px;
+  width: 54px;
+  z-index: 5;
+  display: flex;
+}
 .thermo-track {
   position: relative;
   flex: 1;
-  margin: 6px 0;
   border-radius: 14px;
-  background: linear-gradient(to top, #ecdfc4, var(--parch-2));
+  background: linear-gradient(to top, #ecdfc4ee, #fffaecee);
   border: 3px solid var(--line);
   overflow: hidden;
+  box-shadow: var(--shadow);
 }
 .thermo-band {
   position: absolute;
@@ -50,9 +44,9 @@
   color: rgba(255,255,255,0.95);
   text-shadow: 0 1px 2px rgba(90,60,45,0.5);
 }
-.band-light { background: rgba(208,168,122,0.9); }
-.band-medium { background: rgba(158,108,62,0.9); }
-.band-dark { background: rgba(96,62,38,0.92); }
+.band-light { background: rgba(208,168,122,0.92); }
+.band-medium { background: rgba(158,108,62,0.92); }
+.band-dark { background: rgba(96,62,38,0.94); }
 .thermo-band::after {
   content: ''; position: absolute; left: 0; right: 0; top: 50%;
   height: 2px; background: rgba(255,255,255,0.8);
@@ -69,22 +63,7 @@
   z-index: 2;
 }
 
-.roast-inv { display: flex; gap: 7px; flex-wrap: wrap; margin: 10px 0; }
-.inv-chip {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: var(--parch-2);
-  border: 2.5px solid var(--line);
-  border-radius: 999px;
-  padding: 5px 12px;
-  font-size: 13px;
-  box-shadow: var(--shadow);
-}
-.inv-chip b { font-size: 14px; }
-.inv-chip small { color: var(--ink-soft); }
-.inv-chip.empty { opacity: 0.55; box-shadow: none; }
-.inv-dot { width: 13px; height: 13px; border-radius: 50%; border: 2px solid var(--line); }
-
-.roast-controls { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.roast-controls { display: flex; flex-direction: column; gap: 10px; align-items: center; padding-top: 12px; }
 .chip-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
 
 .btn-drop {
@@ -100,16 +79,7 @@
 
 /* ---------- brew ---------- */
 
-.brew-stage {
-  flex: 1;
-  min-height: 190px;
-  max-height: 280px;
-  display: flex; align-items: center; justify-content: center;
-}
-.brew-idle { width: min(60%, 230px); height: 100%; display: flex; align-items: center; justify-content: center; }
-.brew-stage > .machine-svg { max-width: 250px; }
-
-.grind-box { display: flex; flex-direction: column; gap: 12px; padding: 8px 4px; }
+.grind-box { display: flex; flex-direction: column; gap: 12px; padding: 12px 4px 8px; }
 .grind-bar {
   position: relative;
   height: 32px;
@@ -145,30 +115,36 @@
   touch-action: none;
 }
 .btn-hold.waiting { background: var(--parch); color: var(--ink-soft); text-shadow: none; opacity: 0.8; }
-.brew-controls { display: flex; flex-direction: column; gap: 9px; align-items: stretch; padding-top: 6px; }
+.brew-controls { display: flex; flex-direction: column; gap: 9px; align-items: stretch; padding-top: 12px; }
 .brew-controls .btn-ghost { align-self: center; color: var(--ink-soft); }
 
 /* ---------- milk ---------- */
 
-.milk-stage {
-  flex: 1;
-  display: flex;
-  gap: 10px;
-  min-height: 190px;
-  max-height: 280px;
+/* heat/foam gauges float over the scene's right edge */
+.gauges-overlay {
+  position: absolute;
+  top: 8px; right: 8px; bottom: 10px;
+  display: flex; gap: 7px;
+  z-index: 5;
 }
-.milk-rig { flex: 1.3; display: flex; align-items: center; justify-content: center; }
-.milk-gauges { flex: 1; display: flex; gap: 12px; justify-content: center; padding: 6px 0; }
-.gauge { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 46px; }
-.gauge label { font-size: 11px; font-weight: bold; color: var(--ink); }
+.gauge { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 42px; }
+.gauge label {
+  font-size: 10px; font-weight: bold;
+  color: var(--ink);
+  background: var(--parch-2);
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
 .gauge-track {
   position: relative;
   flex: 1;
   width: 100%;
-  border-radius: 14px;
-  background: var(--parch-2);
+  border-radius: 13px;
+  background: rgba(255,250,236,0.92);
   border: 3px solid var(--line);
   overflow: hidden;
+  box-shadow: var(--shadow);
 }
 .gauge-band {
   position: absolute; left: 0; right: 0;
@@ -221,53 +197,44 @@
 
 /* ---------- build ---------- */
 
-.build-stage {
-  display: flex;
-  gap: 10px;
-  min-height: 150px;
-  max-height: 210px;
-  flex: 0 0 auto;
-}
-.build-cup {
-  flex: 1;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--parch-2);
-  border: 2.5px solid #e3d2b3;
-  border-radius: 18px;
-}
-.cup-svg { max-height: 100%; }
+/* component checklist as recipe-card tags under the scene */
 .build-list {
-  flex: 1.2;
-  overflow-y: auto;
-  display: flex; flex-direction: column; gap: 5px;
-  padding: 4px 2px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 9px 0 2px;
+  justify-content: center;
 }
 .comp {
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: bold;
   background: var(--parch-2);
-  border: 2px solid #e3d2b3;
-  border-left-width: 6px;
-  border-radius: 10px;
-  padding: 6px 10px;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 11px;
   color: var(--ink-soft);
+  transform: rotate(-1deg);
 }
-/* recipe-card style ingredient tags */
-.comp.kind-holding-brew { border-left-color: #a9744f; }
-.comp.kind-holding-milk { border-left-color: #f1e8d4; }
-.comp.kind-tap { border-left-color: #aed5e8; }
-.comp.kind-pump { border-left-color: var(--pink); }
-.comp.kind-ring { border-left-color: #fffef7; }
-.comp.kind-shake { border-left-color: var(--gold); }
-.comp.done { color: var(--sage-deep); background: #eef3e4; border-color: #ccdab4; }
-.comp.done.kind-holding-brew, .comp.done.kind-holding-milk, .comp.done.kind-tap,
-.comp.done.kind-pump, .comp.done.kind-ring, .comp.done.kind-shake { border-left-color: var(--sage); }
-.comp small { color: var(--ink-soft); }
+.comp:nth-child(2n) { transform: rotate(1.2deg); }
+.comp.kind-holding-brew { border-color: #a9744f; }
+.comp.kind-holding-milk { border-color: #d8c5a4; }
+.comp.kind-tap { border-color: #7fb6d0; }
+.comp.kind-pump { border-color: var(--pink-deep); }
+.comp.kind-ring { border-color: #d8c5a4; }
+.comp.kind-shake { border-color: var(--gold-deep); }
+.comp.done { color: #fffaf0; background: var(--sage); border-color: var(--sage-deep); text-shadow: 0 1px 0 var(--sage-deep); }
+.comp small { color: inherit; opacity: 0.85; }
 
+/* the prep shelf is a wooden plank the items stand on */
 .build-shelf {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 10px 0;
+  padding: 12px 10px;
+  margin-top: 8px;
+  background: linear-gradient(to bottom, #d9b078, #b58e6f);
+  border: 3px solid var(--line);
+  border-radius: 14px;
 }
 .shelf-item {
   font-family: inherit;
@@ -290,7 +257,7 @@
 .shelf-item small { font-weight: normal; color: var(--ink-soft); }
 .shelf-item .icon-svg { width: 24px; height: 24px; }
 .shelf-item.pressed { transform: translateY(2px); }
-.shelf-item.empty { opacity: 0.5; box-shadow: none; }
+.shelf-item.empty { opacity: 0.55; box-shadow: none; }
 .shelf-item.wrongticket { outline: 2px dashed var(--pink-deep); opacity: 0.75; }
 .shelf-item.holding:not(.empty):not(.wrongticket) { outline: 3px solid var(--sage); }
 
@@ -336,7 +303,7 @@
   border: 3px solid var(--gold-deep);
 }
 
-.build-servebox { text-align: center; padding-top: 4px; }
+.build-servebox { text-align: center; padding-top: 10px; }
 .btn-serve {
   background: linear-gradient(to bottom, var(--sage), var(--sage-deep));
   color: #fffaf0;

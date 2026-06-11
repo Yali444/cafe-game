@@ -23,7 +23,7 @@ CG.shop = (function () {
     var best = sv.results.reduce(function (a, r) { return (!a || r.score > a.score) ? r : a; }, null);
 
     el.innerHTML =
-      '<h2>Day ' + s.day + ' Complete!</h2>' +
+      '<div class="ribbon-wrap"><h2 class="ribbon">Day ' + s.day + ' Complete!</h2></div>' +
       '<div class="sum-list">' + rows + '</div>' +
       '<div class="sum-totals">' +
       '  <div><span>Sales</span><b>' + d.fmtMoney(sv.earnedToday) + '</b></div>' +
@@ -49,11 +49,12 @@ CG.shop = (function () {
       var maxed = lvl >= u.max;
       var cost = maxed ? null : u.costs[lvl];
       var afford = cost != null && s.money >= cost;
-      var pips = '';
-      for (var i = 1; i <= u.max; i++) pips += '<span class="pip ' + (i <= lvl ? 'on' : '') + '"></span>';
+      var pct = Math.round(lvl / u.max * 100);
       return '<div class="shop-card' + (maxed ? ' maxed' : '') + '">' +
         '<span class="shop-icon">' + CG.svg.icon(u.icon) + '</span>' +
-        '<div class="shop-info"><b>' + u.name + '</b><small>' + u.desc + '</small><span class="pips">' + pips + '</span></div>' +
+        '<div class="shop-info"><b>' + u.name + '</b><small>' + u.desc + '</small>' +
+        '<span class="lvlrow"><span class="lv-badge">Lv' + lvl + '</span>' +
+        '<span class="lvlbar"><span class="lvlbar-fill" style="width:' + pct + '%"></span></span></span></div>' +
         (maxed
           ? '<span class="shop-max">MAX</span>'
           : '<button class="btn btn-buy" data-up="' + key + '"' + (afford ? '' : ' disabled') + '>' + d.fmtMoney(cost) + '</button>') +

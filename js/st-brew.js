@@ -19,7 +19,7 @@ CG.stations.brew = (function () {
     panel = document.getElementById('panel-brew');
     panel.innerHTML =
       '<div class="station-head"><h2>Brew Bar</h2><p class="hint" id="brew-msg"></p></div>' +
-      '<div id="brew-stage" class="brew-stage"></div>' +
+      '<div id="brew-stage" class="scene-wrap brew-scene"></div>' +
       '<div id="brew-grind" class="grind-box hidden">' +
       '  <div class="grind-bar"><div class="grind-window" id="grind-window"></div><div class="grind-fill" id="grind-fill"></div></div>' +
       '  <button class="btn btn-hold" id="grind-btn">HOLD TO GRIND</button>' +
@@ -60,7 +60,8 @@ CG.stations.brew = (function () {
     if (sv.holding.brew) {
       ticket = null;
       msgEl.textContent = 'A ' + (sv.holding.brew.type === 'espresso' ? 'shot' : 'pour-over') + ' is waiting on the shelf.';
-      stageEl.innerHTML = '<div class="brew-idle">' + CG.svg.cup('M', { fill: true }) + '</div>';
+      stageEl.innerHTML = CG.svg.sceneBrew(sv.holding.brew.type);
+      stageEl.classList.remove('dim');
       controlsEl.innerHTML = '<button class="btn btn-primary" id="goto-build">Deliver it at Build →</button>';
       controlsEl.querySelector('#goto-build').addEventListener('click', function () { CG.main.switchStation('build'); });
       return;
@@ -69,7 +70,8 @@ CG.stations.brew = (function () {
     phase = 'pick';
     if (!ticket) {
       msgEl.textContent = 'No drinks need brewing right now.';
-      stageEl.innerHTML = '<div class="brew-idle dim">' + CG.svg.espressoMachine() + '</div>';
+      stageEl.innerHTML = CG.svg.sceneBrew('espresso');
+      stageEl.classList.add('dim');
       controlsEl.innerHTML = '';
       return;
     }
@@ -80,7 +82,8 @@ CG.stations.brew = (function () {
 
     if (sv.roastInventory[ticket.roast] <= 0) {
       msgEl.innerHTML = 'Out of <b style="color:' + R.color + '">' + R.name + '</b> roast beans!';
-      stageEl.innerHTML = '<div class="brew-idle dim">' + CG.svg.espressoMachine() + '</div>';
+      stageEl.innerHTML = CG.svg.sceneBrew(mode);
+      stageEl.classList.add('dim');
       controlsEl.innerHTML = '<button class="btn btn-warn" id="goto-roast">Go Roast Beans →</button>';
       controlsEl.querySelector('#goto-roast').addEventListener('click', function () { CG.main.switchStation('roast'); });
       return;
@@ -88,7 +91,8 @@ CG.stations.brew = (function () {
 
     msgEl.innerHTML = (mode === 'espresso' ? 'Espresso' : 'Pour-over') + ' for <b>' + name + '</b> — ' +
       '<span style="color:' + R.color + '">' + R.name + '</span> roast';
-    stageEl.innerHTML = '<div class="brew-idle">' + (mode === 'espresso' ? CG.svg.espressoMachine() : CG.svg.pourOverRig()) + '</div>';
+    stageEl.innerHTML = CG.svg.sceneBrew(mode);
+    stageEl.classList.remove('dim');
     controlsEl.innerHTML = '<button class="btn btn-primary" id="brew-start">Start — grind the beans</button>';
     controlsEl.querySelector('#brew-start').addEventListener('click', startGrind);
   }
@@ -140,7 +144,7 @@ CG.stations.brew = (function () {
   function startPull() {
     phase = 'pull';
     fill = 0;
-    stageEl.innerHTML = CG.svg.espressoMachine();
+    stageEl.innerHTML = CG.svg.sceneBrew('espresso');
     setTargetLine('#brew-target', '#brew-glass', PULL_TARGET, 48);
     controlsEl.innerHTML = '<button class="btn btn-hold" id="pull-btn">HOLD TO PULL</button>';
     bindHold(controlsEl.querySelector('#pull-btn'), function () { holdingBtn = true; setStream('#brew-stream', true); },
@@ -172,7 +176,7 @@ CG.stations.brew = (function () {
 
   function startPour(n) {
     phase = 'pour' + n;
-    if (n === 1) { fill = 0; stageEl.innerHTML = CG.svg.pourOverRig(); }
+    if (n === 1) { fill = 0; stageEl.innerHTML = CG.svg.sceneBrew('pourover'); }
     setTargetLine('#pour-target', null, n === 1 ? POUR_T1 : POUR_T2, 69);
     controlsEl.innerHTML = '<button class="btn btn-hold" id="pour-btn">HOLD TO POUR</button>';
     bindHold(controlsEl.querySelector('#pour-btn'),

@@ -1,4 +1,4 @@
-/* Crackle & Pour — order station: greet customers, take orders */
+/* Crackle & Pour — order station: an illustrated front-of-house scene */
 CG.stations = CG.stations || {};
 
 CG.stations.order = (function () {
@@ -12,9 +12,12 @@ CG.stations.order = (function () {
     panel.innerHTML =
       '<div class="station-head"><h2>Front Counter</h2><p class="hint">Tap a customer to take their order</p></div>' +
       '<div id="order-waiting" class="waiting-row"></div>' +
-      '<div id="order-bubble"></div>' +
-      '<div id="order-queue" class="queue-row"></div>' +
-      '<div class="counter-bar"></div>';
+      '<div class="scene-wrap order-scene">' +
+      CG.svg.sceneOrderBack() +
+      '<div id="order-queue" class="queue-row scene-actors"></div>' +
+      CG.svg.sceneOrderFront() +
+      '<div id="order-bubble" class="bubble-layer"></div>' +
+      '</div>';
     queueEl = panel.querySelector('#order-queue');
     waitEl = panel.querySelector('#order-waiting');
     bubbleEl = panel.querySelector('#order-bubble');
@@ -67,6 +70,7 @@ CG.stations.order = (function () {
     bubbleEl.innerHTML =
       '<div class="speech-bubble">' +
       '<p class="sb-text">“' + greeting(char) + ' ' + CG.customers.orderText(c.order) + ', please!”</p>' +
+      CG.svg.tagPills(c.order) +
       '<button class="btn btn-primary btn-take">Take Order — ' + CG.data.fmtMoney(orderPrice(c.order)) + '</button>' +
       '</div>';
     bubbleEl.querySelector('.btn-take').addEventListener('click', function () {
