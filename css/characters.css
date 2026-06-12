@@ -54,7 +54,8 @@
   font-weight: 700;
   letter-spacing: 0.5px;
   color: var(--ink);
-  background: rgba(251, 249, 244, 0.92);
+  border: 1.5px solid var(--edge);
+  background: rgba(253, 248, 236, 0.94);
   border-radius: 999px;
   padding: 3px 10px;
   margin-bottom: 3px;
@@ -83,6 +84,7 @@
 .speech-bubble {
   position: relative;
   background: var(--card);
+  border: 2.5px solid var(--edge);
   border-radius: 20px;
   padding: 14px 16px;
   text-align: center;

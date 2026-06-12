@@ -1,22 +1,28 @@
-/* FIKA — Nordic soft-shaded SVG art: scenes, equipment, characters */
+/* FIKA — reference-style illustration kit: warm pastels, thin outlines, dense scenes */
 CG.svg = (function () {
   'use strict';
 
-  var INK = '#2e2a26';
+  var O = '#8a705a';        // soft warm outline
+  var OW = 1.8;             // outline width
+  var INK = '#4a3f33';
 
-  /* ============ shared scene plumbing (360x240, counter top at y=172) ============ */
+  function ol(extra) { return 'stroke="' + O + '" stroke-width="' + (extra || OW) + '" stroke-linejoin="round"'; }
+
+  /* ============ scene plumbing (360x240, counter slab y168-184, front to 240) ============ */
 
   function defs(p) {
     return '<defs>' +
       '<linearGradient id="' + p + 'w" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" stop-color="#f5f0e8"/><stop offset="1" stop-color="#e8e1d3"/></linearGradient>' +
+      '<stop offset="0" stop-color="#f9eccb"/><stop offset="1" stop-color="#f3e0b4"/></linearGradient>' +
       '<linearGradient id="' + p + 'ct" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" stop-color="#b6967a"/><stop offset="1" stop-color="#9a7d63"/></linearGradient>' +
+      '<stop offset="0" stop-color="#d2ad74"/><stop offset="1" stop-color="#c19c64"/></linearGradient>' +
       '<linearGradient id="' + p + 'wd" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" stop-color="#8d7159"/><stop offset="1" stop-color="#755d4a"/></linearGradient>' +
+      '<stop offset="0" stop-color="#b08a5e"/><stop offset="1" stop-color="#9c7950"/></linearGradient>' +
+      '<linearGradient id="' + p + 'sg" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#a8bd90"/><stop offset="1" stop-color="#8da377"/></linearGradient>' +
       '<linearGradient id="' + p + 'st" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0" stop-color="#56504a"/><stop offset="1" stop-color="#403b36"/></linearGradient>' +
-      '<filter id="' + p + 'b" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="5"/></filter>' +
+      '<stop offset="0" stop-color="#5b554d"/><stop offset="1" stop-color="#46413a"/></linearGradient>' +
+      '<filter id="' + p + 'b" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="4"/></filter>' +
       '</defs>';
   }
 
@@ -25,153 +31,354 @@ CG.svg = (function () {
   }
 
   function wall(p) {
-    return '<rect x="-5" y="-5" width="370" height="250" fill="url(#' + p + 'w)"/>' +
-      '<rect x="-5" y="-5" width="370" height="250" fill="#caa97e" opacity="0.05"/>';
+    var stripes = '', x;
+    for (x = 8; x < 380; x += 34) {
+      stripes += '<rect x="' + x + '" y="-5" width="15" height="250" fill="#fbf2da" opacity="0.6"/>';
+    }
+    return '<rect x="-5" y="-5" width="370" height="250" fill="url(#' + p + 'w)"/>' + stripes;
+  }
+
+  /* white tiled backsplash band */
+  function tiles(x, y, w, h) {
+    var out = '<g><rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="5" fill="#fdfaf2" ' + ol(2) + '/>';
+    var i;
+    for (i = y + 16; i < y + h; i += 16) {
+      out += '<line x1="' + (x + 2) + '" y1="' + i + '" x2="' + (x + w - 2) + '" y2="' + i + '" stroke="#ece1cc" stroke-width="1.6"/>';
+    }
+    var row = 0;
+    for (i = y; i < y + h; i += 16) {
+      var off = (row % 2) * 16;
+      for (var j = x + off; j < x + w; j += 32) {
+        out += '<line x1="' + j + '" y1="' + (i + 0.5) + '" x2="' + j + '" y2="' + Math.min(i + 16, y + h) + '" stroke="#ece1cc" stroke-width="1.6"/>';
+      }
+      row++;
+    }
+    return out + '</g>';
   }
 
   function counter(p) {
-    return '<rect x="-6" y="182" width="372" height="62" fill="url(#' + p + 'wd)"/>' +
-      '<rect x="-6" y="168" width="372" height="16" rx="6" fill="url(#' + p + 'ct)"/>' +
-      '<rect x="-6" y="168" width="372" height="3.5" rx="1.75" fill="#ffffff" opacity="0.35"/>' +
-      '<rect x="-6" y="182" width="372" height="5" fill="#3c352d" opacity="0.18"/>';
+    var planks = '', x;
+    for (x = 44; x < 360; x += 72) {
+      planks += '<line x1="' + x + '" y1="190" x2="' + x + '" y2="240" stroke="#8f6d47" stroke-width="2" opacity="0.5"/>';
+    }
+    return '<rect x="-6" y="184" width="372" height="60" fill="url(#' + p + 'wd)"/>' + planks +
+      '<rect x="-6" y="168" width="372" height="18" rx="6" fill="url(#' + p + 'ct)" ' + ol(2.2) + '/>' +
+      '<rect x="-2" y="170.5" width="364" height="4" rx="2" fill="#ffffff" opacity="0.45"/>';
   }
 
   function shadow(p, x, y, rx, ry, op) {
-    return '<ellipse cx="' + x + '" cy="' + y + '" rx="' + rx + '" ry="' + (ry || 5) + '" fill="#3c352d" opacity="' + (op || 0.16) + '" filter="url(#' + p + 'b)"/>';
+    return '<ellipse cx="' + x + '" cy="' + y + '" rx="' + rx + '" ry="' + (ry || 4.5) + '" fill="#6b543c" opacity="' + (op || 0.18) + '" filter="url(#' + p + 'b)"/>';
   }
 
-  /* ---------- furnishing props ---------- */
+  /* ============ prop library ============ */
 
   function pendant(x, len) {
-    return '<line x1="' + x + '" y1="0" x2="' + x + '" y2="' + len + '" stroke="#4a443d" stroke-width="2"/>' +
-      '<path d="M' + (x - 17) + ' ' + (len + 16) + ' a17 17 0 0 1 34 0 z" fill="#4a443d"/>' +
-      '<path d="M' + (x - 17) + ' ' + (len + 16) + ' a17 17 0 0 1 34 0 l-4 0 a13 13 0 0 0 -26 0 z" fill="#5d564e"/>' +
-      '<circle cx="' + x + '" cy="' + (len + 13) + '" r="4" fill="#f3d9a4" opacity="0.95"/>' +
-      '<circle cx="' + x + '" cy="' + (len + 14) + '" r="10" fill="#f3d9a4" opacity="0.22"/>';
+    return '<line x1="' + x + '" y1="0" x2="' + x + '" y2="' + len + '" stroke="' + O + '" stroke-width="2.2"/>' +
+      '<path d="M' + (x - 16) + ' ' + (len + 15) + ' a16 16 0 0 1 32 0 z" fill="#5b554d" ' + ol(2) + '/>' +
+      '<path d="M' + (x - 11) + ' ' + (len + 13) + ' a11 11 0 0 1 22 0 z" fill="#6d665d"/>' +
+      '<circle cx="' + x + '" cy="' + (len + 12.5) + '" r="3.6" fill="#ffd98c"/>' +
+      '<circle cx="' + x + '" cy="' + (len + 13) + '" r="9" fill="#ffd98c" opacity="0.3"/>';
   }
 
-  function menuBoard(p, x, y, w, h) {
+  function chalkMenu(p, x, y, w, h) {
     var lines = '', i;
-    for (i = 0; i < 4; i++) {
-      lines += '<rect x="' + (x + 12) + '" y="' + (y + 16 + i * 13) + '" width="' + (w - 24 - (i % 2) * 14) + '" height="3.5" rx="1.75" fill="#e9e2d3" opacity="0.7"/>';
+    for (i = 0; i < 3; i++) {
+      lines += '<rect x="' + (x + 12) + '" y="' + (y + 22 + i * 12) + '" width="' + (w - 38 - (i % 2) * 10) + '" height="3" rx="1.5" fill="#e9e2d3" opacity="0.75"/>' +
+        '<rect x="' + (x + w - 20) + '" y="' + (y + 22 + i * 12) + '" width="9" height="3" rx="1.5" fill="#f0c9a8" opacity="0.9"/>';
     }
-    return shadow(p, x + w / 2, y + h + 4, w / 2, 4, 0.12) +
-      '<rect x="' + (x - 4) + '" y="' + (y - 4) + '" width="' + (w + 8) + '" height="' + (h + 8) + '" rx="6" fill="#b6967a"/>' +
-      '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="4" fill="#43504a"/>' +
-      '<text x="' + (x + w / 2) + '" y="' + (y + 11) + '" text-anchor="middle" font-size="8" letter-spacing="2" fill="#e9e2d3" font-family="Georgia,serif" font-style="italic">menu</text>' +
-      lines;
+    return shadow(p, x + w / 2, y + h + 5, w / 2, 4, 0.12) +
+      '<rect x="' + (x - 5) + '" y="' + (y - 5) + '" width="' + (w + 10) + '" height="' + (h + 10) + '" rx="7" fill="#c9a36a" ' + ol(2.2) + '/>' +
+      '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="4" fill="#4b5a50"/>' +
+      '<text x="' + (x + w / 2) + '" y="' + (y + 14) + '" text-anchor="middle" font-size="9" letter-spacing="1.5" fill="#f3ead6" font-family="Georgia,serif" font-style="italic">menu</text>' +
+      lines +
+      '<path d="M' + (x + 13) + ' ' + (y + h - 8) + ' h7 l-1 5 h-5 z" fill="#f3ead6" opacity="0.85"/>' +
+      '<path d="M' + (x + 21) + ' ' + (y + h - 6) + ' q3 1 5 -2" stroke="#f3ead6" stroke-width="1.4" fill="none" opacity="0.85"/>';
   }
 
-  function plant(p, x, y, s) {
-    return '<g transform="translate(' + x + ',' + y + ') scale(' + (s || 1) + ')">' +
-      shadow(p, 0, 3, 16, 4, 0.14) +
-      '<path d="M0 -6 q-4 -20 -16 -27 M0 -6 q0 -24 5 -33 M0 -6 q7 -18 18 -23" stroke="#7b8a6f" stroke-width="4" fill="none" stroke-linecap="round"/>' +
-      '<ellipse cx="-16" cy="-29" rx="6" ry="9" fill="#92a285" transform="rotate(-32 -16 -29)"/>' +
-      '<ellipse cx="5" cy="-35" rx="6" ry="10" fill="#9cab8e"/>' +
-      '<ellipse cx="18" cy="-25" rx="6" ry="9" fill="#86977a" transform="rotate(30 18 -25)"/>' +
-      '<path d="M-13 -6 h26 l-4 17 h-18 z" fill="#ddd5c4"/>' +
-      '<path d="M-13 -6 h26 l-1 4 h-24 z" fill="#ffffff" opacity="0.4"/>' +
-      '</g>';
+  function shelfPlank(p, x, y, w) {
+    return shadow(p, x + w / 2, y + 11, w / 2, 3, 0.12) +
+      '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="7" rx="3.5" fill="#c9a36a" ' + ol(2) + '/>' +
+      '<rect x="' + (x + 1) + '" y="' + (y + 1) + '" width="' + (w - 2) + '" height="2.4" rx="1.2" fill="#ffffff" opacity="0.4"/>' +
+      '<path d="M' + (x + 9) + ' ' + (y + 7) + ' l6 10 h-6 z" fill="#a9845a" ' + ol(1.5) + '/>' +
+      '<path d="M' + (x + w - 15) + ' ' + (y + 7) + ' l6 10 h-6 z" fill="#a9845a" ' + ol(1.5) + '/>';
   }
 
-  function framedArch(x, y) {
-    return '<rect x="' + x + '" y="' + y + '" width="44" height="56" rx="3" fill="#faf7f1"/>' +
-      '<rect x="' + x + '" y="' + y + '" width="44" height="56" rx="3" fill="none" stroke="#cbbfa9" stroke-width="2"/>' +
-      '<path d="M' + (x + 10) + ' ' + (y + 44) + ' v-16 a12 12 0 0 1 24 0 v16 z" fill="#c97f5d" opacity="0.85"/>' +
-      '<circle cx="' + (x + 22) + '" cy="' + (y + 16) + '" r="5" fill="#d9b87c"/>';
-  }
-
-  function shelfThin(p, x, y, w) {
-    return shadow(p, x + w / 2, y + 10, w / 2, 3, 0.1) +
-      '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="6" rx="3" fill="#b6967a"/>' +
-      '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="2" rx="1" fill="#ffffff" opacity="0.3"/>';
-  }
-
-  function cupRow(x, y, n) {
+  function cupStack(x, y, n, color) {
     var out = '', i;
     for (i = 0; i < n; i++) {
-      out += '<path d="M' + (x + i * 20) + ' ' + y + ' h14 l-2 11 h-10 z" fill="#faf7f1"/>' +
-        '<path d="M' + (x + i * 20) + ' ' + y + ' h14 l-0.5 3 h-13 z" fill="#ddd5c4"/>';
+      var yy = y - i * 9;
+      out += '<path d="M' + x + ' ' + yy + ' h22 l-3 9 h-16 z" fill="' + (color || '#fdf8ec') + '" ' + ol(1.6) + '/>' +
+        '<path d="M' + x + ' ' + yy + ' h22 l-0.6 2.4 h-20.8 z" fill="#ffffff" opacity="0.55"/>';
     }
     return out;
   }
 
-  function beanBag(p, x, y, origin, s) {
-    var o = CG.data.ORIGINS[origin];
-    return '<g transform="translate(' + x + ',' + y + ') scale(' + (s || 1) + ')">' +
-      shadow(p, 0, 46, 22, 5, 0.16) +
-      '<path d="M-20 -8 q-6 30 -3 48 q23 9 46 0 q3 -18 -3 -48 z" fill="#e3d6bf"/>' +
-      '<path d="M-20 -8 q-6 30 -3 48 q10 4 23 4 l0 -52 z" fill="#d8c9b0"/>' +
-      '<path d="M-20 -8 q20 7 40 0 l2 -9 q-22 -6 -44 0 z" fill="#cdbda2"/>' +
-      '<rect x="-15" y="8" width="30" height="22" rx="3" fill="#faf7f1"/>' +
-      '<circle cx="0" cy="14" r="4" fill="' + o.bag + '"/>' +
-      '<text x="0" y="26" text-anchor="middle" font-size="7.5" font-weight="600" fill="' + INK + '" font-family="system-ui,sans-serif">' + o.short + '</text>' +
+  function mug(x, y, color) {
+    return '<path d="M' + x + ' ' + y + ' h15 v13 a3.5 3.5 0 0 1 -3.5 3.5 h-8 a3.5 3.5 0 0 1 -3.5 -3.5 z" fill="' + (color || '#f2cfc4') + '" ' + ol(1.6) + '/>' +
+      '<path d="M' + (x + 15) + ' ' + (y + 3) + ' q6 0 5 5 t-6 4.5" fill="none" ' + ol(1.8) + '/>' +
+      '<rect x="' + (x + 1.5) + '" y="' + (y + 1.5) + '" width="12" height="3" rx="1.5" fill="#ffffff" opacity="0.45"/>';
+  }
+
+  function jar(x, y, h, color, frac, label) {
+    var inner = Math.max(0, Math.min(1, frac == null ? 0.7 : frac)) * (h - 7);
+    return '<g transform="translate(' + x + ',' + y + ')">' +
+      '<rect x="0" y="0" width="20" height="' + h + '" rx="5" fill="#ffffff" fill-opacity="0.75" ' + ol(1.7) + '/>' +
+      '<rect x="2.5" y="' + (h - 2.5 - inner) + '" width="15" height="' + inner + '" rx="3.5" fill="' + (color || '#b98e5c') + '"/>' +
+      '<rect x="2" y="-5" width="16" height="6.5" rx="3" fill="#c9a36a" ' + ol(1.6) + '/>' +
+      (label ? '<rect x="3" y="' + (h * 0.34) + '" width="14" height="8" rx="2" fill="#fdf8ec" ' + ol(1.2) + '/>' : '') +
       '</g>';
+  }
+
+  function bottle(x, y, color) {
+    return '<g transform="translate(' + x + ',' + y + ')">' +
+      '<path d="M3 9 q-3 3 -3 8 v12 a3 3 0 0 0 3 3 h8 a3 3 0 0 0 3 -3 v-12 q0 -5 -3 -8 z" fill="' + (color || '#aed0c2') + '" ' + ol(1.6) + '/>' +
+      '<rect x="4" y="0" width="6" height="9" rx="2" fill="' + (color || '#aed0c2') + '" ' + ol(1.6) + '/>' +
+      '<rect x="2" y="16" width="10" height="8" rx="2" fill="#fdf8ec" opacity="0.85"/>' +
+      '</g>';
+  }
+
+  function plantPot(p, x, y, s) {
+    return '<g transform="translate(' + x + ',' + y + ') scale(' + (s || 1) + ')">' +
+      shadow(p, 0, 3, 14, 3.5, 0.14) +
+      '<path d="M0 -5 q-4 -16 -14 -22 M0 -5 q0 -20 4 -28 M0 -5 q6 -15 15 -19" stroke="#84a06b" stroke-width="3.6" fill="none" stroke-linecap="round"/>' +
+      '<ellipse cx="-14" cy="-24" rx="5.5" ry="8" fill="#9cba80" ' + ol(1.5) + ' transform="rotate(-32 -14 -24)"/>' +
+      '<ellipse cx="4" cy="-30" rx="5.5" ry="9" fill="#a7c48b" ' + ol(1.5) + '/>' +
+      '<ellipse cx="15" cy="-21" rx="5.5" ry="8" fill="#90ad75" ' + ol(1.5) + ' transform="rotate(30 15 -21)"/>' +
+      '<path d="M-11 -5 h22 l-3.5 14 h-15 z" fill="#e3a98a" ' + ol(1.7) + '/>' +
+      '<path d="M-11 -5 h22 l-0.8 3.2 h-20.4 z" fill="#ffffff" opacity="0.4"/>' +
+      '</g>';
+  }
+
+  function plantHang(x, y) {
+    return '<g transform="translate(' + x + ',' + y + ')">' +
+      '<line x1="-9" y1="-100" x2="-2" y2="0" stroke="' + O + '" stroke-width="1.6"/>' +
+      '<line x1="9" y1="-100" x2="2" y2="0" stroke="' + O + '" stroke-width="1.6"/>' +
+      '<path d="M-12 0 h24 l-4 12 h-16 z" fill="#f2cfc4" ' + ol(1.7) + '/>' +
+      '<path d="M-9 2 q-7 13 -4 24 M0 3 q0 15 -2 22 M9 2 q6 12 3 22" stroke="#84a06b" stroke-width="3" fill="none" stroke-linecap="round"/>' +
+      '<circle cx="-12" cy="22" r="3.4" fill="#9cba80"/><circle cx="-1" cy="27" r="3.4" fill="#a7c48b"/><circle cx="11" cy="21" r="3.4" fill="#90ad75"/>' +
+      '</g>';
+  }
+
+  function fridge(p, x, y, h) {
+    return '<g transform="translate(' + x + ',' + y + ')">' +
+      shadow(p, 31, h + 3, 32, 5, 0.16) +
+      '<rect x="0" y="0" width="62" height="' + h + '" rx="10" fill="#fdf8ec" ' + ol(2.2) + '/>' +
+      '<rect x="2" y="2" width="58" height="8" rx="4" fill="#ffffff" opacity="0.7"/>' +
+      '<line x1="3" y1="' + (h * 0.42) + '" x2="59" y2="' + (h * 0.42) + '" stroke="' + O + '" stroke-width="1.8"/>' +
+      '<rect x="48" y="10" width="5.5" height="' + (h * 0.42 - 18) + '" rx="2.75" fill="#d8c8a8" ' + ol(1.3) + '/>' +
+      '<rect x="48" y="' + (h * 0.42 + 8) + '" width="5.5" height="' + (h * 0.34) + '" rx="2.75" fill="#d8c8a8" ' + ol(1.3) + '/>' +
+      '<rect x="9" y="12" width="22" height="22" rx="4" fill="#f2cfc4" ' + ol(1.5) + '/>' +
+      '<path d="M15 23 C12 19 13 16 16.5 16 C18 16 19 18 20 18 C21 18 22 16 23.5 16 C27 16 28 19 25 23 q-5 5 -5 5 q-5 -5 -5 -5z" fill="#d9876a"/>' +
+      '<rect x="9" y="' + (h * 0.42 + 12) + '" width="16" height="12" rx="3" fill="#cfe0d5" ' + ol(1.3) + '/>' +
+      '</g>';
+  }
+
+  function framedPrint(p, x, y) {
+    return shadow(p, x + 19, y + 50, 19, 3, 0.1) +
+      '<rect x="' + x + '" y="' + y + '" width="38" height="46" rx="3" fill="#fdf8ec" ' + ol(2) + '/>' +
+      '<path d="M' + (x + 9) + ' ' + (y + 36) + ' v-13 a10 10 0 0 1 20 0 v13 z" fill="#d9876a" opacity="0.9"/>' +
+      '<circle cx="' + (x + 19) + '" cy="' + (y + 13) + '" r="4" fill="#e9c178"/>';
+  }
+
+  function register(p, x, y) {
+    return '<g transform="translate(' + x + ',' + y + ')">' +
+      shadow(p, 27, 36, 28, 4.5, 0.18) +
+      '<rect x="0" y="6" width="54" height="30" rx="7" fill="url(#' + p + 'sg)" ' + ol(2) + '/>' +
+      '<rect x="0" y="6" width="54" height="6" rx="3" fill="#ffffff" opacity="0.35"/>' +
+      '<rect x="7" y="12" width="26" height="12" rx="3" fill="#dff0e4" ' + ol(1.5) + '/>' +
+      '<circle cx="44" cy="18" r="4.5" fill="#f2cfc4" ' + ol(1.4) + '/>' +
+      '<rect x="8" y="-4" width="38" height="11" rx="4" fill="#5b554d" ' + ol(1.6) + ' transform="rotate(-6 27 1)"/>' +
+      '</g>';
+  }
+
+  function pastryDome(p, x, y) {
+    return '<g transform="translate(' + x + ',' + y + ')">' +
+      shadow(p, 22, 30, 24, 4, 0.16) +
+      '<rect x="0" y="24" width="44" height="6" rx="3" fill="#c9a36a" ' + ol(1.8) + '/>' +
+      '<path d="M4 24 a18 18 0 0 1 36 0 z" fill="#ffffff" fill-opacity="0.45" ' + ol(1.7) + '/>' +
+      '<circle cx="22" cy="5" r="2.6" fill="#c9a36a" ' + ol(1.4) + '/>' +
+      '<path d="M12 23 q2 -8 9 -7 q-1 -4 4 -4 q5 0 4 4 q7 -1 9 7 z" fill="#e0a96f" ' + ol(1.4) + '/>' +
+      '</g>';
+  }
+
+  function vasePlant(x, y) {
+    return '<g transform="translate(' + x + ',' + y + ')">' +
+      '<path d="M4 12 q-4 8 0 16 q7 3 14 0 q4 -8 0 -16 q-7 -3 -14 0z" fill="#cfe0d5" ' + ol(1.7) + '/>' +
+      '<path d="M9 12 q-3 -9 -8 -12 M13 12 q1 -10 5 -13" stroke="#84a06b" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
+      '<circle cx="1" cy="-1" r="3" fill="#f2cfc4" ' + ol(1.2) + '/><circle cx="18" cy="-2" r="3" fill="#e9c178" ' + ol(1.2) + '/>' +
+      '</g>';
+  }
+
+  function tipJar(x, y) {
+    return '<g transform="translate(' + x + ',' + y + ')">' +
+      '<rect x="0" y="0" width="22" height="26" rx="5" fill="#ffffff" fill-opacity="0.7" ' + ol(1.7) + '/>' +
+      '<rect x="3" y="14" width="16" height="9" rx="2" fill="#e9c178"/>' +
+      '<rect x="2" y="-4" width="18" height="6" rx="3" fill="#c9a36a" ' + ol(1.5) + '/>' +
+      '<text x="11" y="11" text-anchor="middle" font-size="6.5" font-weight="700" fill="' + INK + '" font-family="system-ui,sans-serif">tip</text>' +
+      '</g>';
+  }
+
+  function menuCard(x, y) {
+    return '<g transform="translate(' + x + ',' + y + ') rotate(-5)">' +
+      '<rect x="0" y="0" width="24" height="20" rx="3" fill="#fdf8ec" ' + ol(1.6) + '/>' +
+      '<line x1="4" y1="6" x2="20" y2="6" stroke="#d8c8a8" stroke-width="1.8"/>' +
+      '<line x1="4" y1="11" x2="20" y2="11" stroke="#d8c8a8" stroke-width="1.8"/>' +
+      '<line x1="4" y1="16" x2="14" y2="16" stroke="#f0c9a8" stroke-width="1.8"/>' +
+      '</g>';
+  }
+
+  function brewScale(p, x, y, w) {
+    return '<g transform="translate(' + x + ',' + y + ')">' +
+      shadow(p, w / 2, 12, w / 2 + 2, 3.5, 0.16) +
+      '<rect x="0" y="0" width="' + w + '" height="10" rx="5" fill="#4f4a43" ' + ol(1.7) + '/>' +
+      '<rect x="' + (w - 18) + '" y="2.5" width="13" height="5" rx="2.5" fill="#cfe0d5"/>' +
+      '</g>';
+  }
+
+  function timer(x, y) {
+    return '<g transform="translate(' + x + ',' + y + ')">' +
+      '<rect x="0" y="0" width="18" height="20" rx="4" fill="#f2cfc4" ' + ol(1.6) + '/>' +
+      '<rect x="3.5" y="4" width="11" height="7" rx="2" fill="#fdf8ec"/>' +
+      '<circle cx="9" cy="16" r="2.2" fill="' + O + '"/>' +
+      '</g>';
+  }
+
+  function tamper(x, y) {
+    return '<g transform="translate(' + x + ',' + y + ')">' +
+      '<rect x="0" y="10" width="16" height="6" rx="3" fill="#5b554d" ' + ol(1.5) + '/>' +
+      '<rect x="4" y="0" width="8" height="11" rx="3.5" fill="#c9a36a" ' + ol(1.5) + '/>' +
+      '</g>';
+  }
+
+  function cloth(x, y, color) {
+    return '<g transform="translate(' + x + ',' + y + ')">' +
+      '<rect x="0" y="0" width="26" height="9" rx="3" fill="' + (color || '#aed0c2') + '" ' + ol(1.5) + '/>' +
+      '<rect x="0" y="3" width="26" height="3" fill="#ffffff" opacity="0.4"/>' +
+      '</g>';
+  }
+
+  function filterBox(x, y) {
+    return '<g transform="translate(' + x + ',' + y + ')">' +
+      '<rect x="0" y="0" width="26" height="20" rx="3.5" fill="#e9c178" ' + ol(1.6) + '/>' +
+      '<path d="M5 -4 h16 l-3 5 h-10 z" fill="#fdf8ec" ' + ol(1.3) + '/>' +
+      '<circle cx="13" cy="10" r="4.5" fill="#fdf8ec"/>' +
+      '</g>';
+  }
+
+  function saucerStack(x, y, n) {
+    var out = '', i;
+    for (i = 0; i < n; i++) {
+      out += '<ellipse cx="' + x + '" cy="' + (y - i * 4.5) + '" rx="16" ry="4" fill="#fdf8ec" ' + ol(1.5) + '/>';
+    }
+    return out;
+  }
+
+  function bell(x, y) {
+    return '<g transform="translate(' + x + ',' + y + ')">' +
+      '<path d="M-9 10 a9 9 0 0 1 18 0 z" fill="#e9c178" ' + ol(1.6) + '/>' +
+      '<circle cx="0" cy="-1" r="2.2" fill="#c9a36a" ' + ol(1.2) + '/>' +
+      '<rect x="-12" y="10" width="24" height="4" rx="2" fill="#c9a36a" ' + ol(1.4) + '/>' +
+      '</g>';
+  }
+
+  function sack(p, x, y) {
+    return '<g transform="translate(' + x + ',' + y + ')">' +
+      shadow(p, 16, 42, 18, 4, 0.16) +
+      '<path d="M4 8 q-7 17 -3 30 q15 6 30 0 q4 -13 -3 -30 z" fill="#e7d3ac" ' + ol(1.9) + '/>' +
+      '<path d="M4 8 q14 6 24 0 l3 -7 q-15 -5 -30 0 z" fill="#d8bf92" ' + ol(1.9) + '/>' +
+      '<ellipse cx="14" cy="24" rx="4" ry="2.8" fill="#7e5634" transform="rotate(-20 14 24)"/>' +
+      '<ellipse cx="22" cy="29" rx="4" ry="2.8" fill="#7e5634" transform="rotate(25 22 29)"/>' +
+      '</g>';
+  }
+
+  function coolingTray(p, x, y) {
+    var beans = '', i;
+    for (i = 0; i < 8; i++) {
+      beans += '<ellipse cx="' + (x + 7 + (i % 4) * 8) + '" cy="' + (y + 4 + Math.floor(i / 4) * 5) + '" rx="3" ry="2.1" fill="#8a5e38" transform="rotate(' + (i * 40) + ' ' + (x + 7 + (i % 4) * 8) + ' ' + (y + 4 + Math.floor(i / 4) * 5) + ')"/>';
+    }
+    return shadow(p, x + 19, y + 14, 20, 3.5, 0.14) +
+      '<rect x="' + x + '" y="' + y + '" width="38" height="12" rx="4" fill="#d8c8a8" ' + ol(1.7) + '/>' + beans;
   }
 
   /* ============ scenes ============ */
 
-  /* --- order: the front of house --- */
+  /* --- order: front of house --- */
 
   function sceneOrderBack() {
     var p = 'so';
     return open(p, 'scene-back') + wall(p) +
-      pendant(64, 26) + pendant(296, 40) +
-      menuBoard(p, 132, 36, 96, 72) +
-      framedArch(22, 58) + shelfThin(p, 252, 70, 86) + cupRow(262, 56, 3) +
-      plant(p, 322, 168, 1) +
+      tiles(0, 118, 360, 52) +
+      pendant(50, 18) + pendant(310, 30) +
+      chalkMenu(p, 142, 30, 92, 70) +
+      framedPrint(p, 96, 42) +
+      shelfPlank(p, 14, 70, 72) + cupStack(20, 60, 2, '#f2cfc4') + jar(52, 44, 24, '#b98e5c', 0.7) +
+      shelfPlank(p, 248, 64, 98) + mug(254, 46, '#aed0c2') + mug(276, 46, '#f2cfc4') + bottle(300, 38) + plantPot(p, 332, 62, 0.55) +
+      plantHang(338, 90) +
       '</svg>';
   }
 
   function sceneOrderFront() {
     var p = 'sf';
     return open(p, 'scene-front-svg') + counter(p) +
-      // register
-      shadow(p, 50, 168, 30, 5, 0.2) +
-      '<rect x="24" y="138" width="52" height="32" rx="7" fill="url(#' + p + 'st)"/>' +
-      '<rect x="30" y="144" width="26" height="12" rx="3" fill="#cfe3d6" opacity="0.9"/>' +
-      '<circle cx="66" cy="150" r="4" fill="#c97f5d"/>' +
-      // small vase
-      '<path d="M300 146 q-5 12 0 22 q9 4 18 0 q5 -10 0 -22 q-9 -4 -18 0z" fill="#ddd5c4"/>' +
-      '<path d="M306 146 q-2 -10 -8 -14 M312 146 q1 -11 6 -15" stroke="#9aab8c" stroke-width="2.5" fill="none" stroke-linecap="round"/>' +
-      // menu card on the counter
-      '<rect x="92" y="148" width="26" height="22" rx="3" fill="#faf7f1" transform="rotate(-5 105 159)"/>' +
-      '<line x1="97" y1="155" x2="111" y2="153.5" stroke="#cbbfa9" stroke-width="2"/>' +
-      '<line x1="97" y1="160" x2="111" y2="158.5" stroke="#cbbfa9" stroke-width="2"/>' +
+      register(p, 18, 132) +
+      pastryDome(p, 84, 138) +
+      menuCard(140, 150) +
+      vasePlant(288, 138) +
+      tipJar(322, 142) +
       '</svg>';
   }
 
   /* --- roastery --- */
 
+  var ROAST_BAG_X = [186, 232, 278];
+
   function sceneRoast() {
     var p = 'sr';
     return open(p) + wall(p) +
-      shelfThin(p, 18, 56, 120) + cupRow(28, 42, 2) +
-      '<text x="78" y="50" font-size="9" letter-spacing="3" fill="#a59a88" font-family="system-ui,sans-serif">ROASTERY</text>' +
-      // drum roaster: cream body, charcoal drum, walnut base
+      tiles(0, 122, 360, 48) +
+      pendant(174, 14) +
+      shelfPlank(p, 14, 50, 130) +
+      jar(20, 24, 24, '#a87f4f', 0.8) + jar(46, 24, 24, '#7e5634', 0.55) + jar(72, 24, 24, '#94a06b', 0.7) +
+      cupStack(102, 41, 2) +
+      '<text x="160" y="56" font-size="9" letter-spacing="3" fill="#b3996e" font-family="system-ui,sans-serif">ROASTERY</text>' +
+      // drum roaster (ids + drum coords preserved: group (28,76), drum cx62 cy44)
       '<g transform="translate(28,76)">' +
-      shadow(p, 62, 100, 64, 7, 0.18) +
-      '<rect x="0" y="86" width="124" height="14" rx="6" fill="url(#' + p + 'ct)"/>' +
-      '<rect x="6" y="0" width="112" height="88" rx="16" fill="#efe9dd"/>' +
-      '<rect x="6" y="0" width="112" height="10" rx="5" fill="#ffffff" opacity="0.5"/>' +
-      '<rect x="6" y="74" width="112" height="14" rx="7" fill="#ddd5c4"/>' +
-      '<circle cx="62" cy="44" r="33" fill="url(#' + p + 'st)"/>' +
-      '<circle cx="62" cy="44" r="26" fill="#1f1c19"/>' +
+      shadow(p, 62, 100, 66, 7, 0.18) +
+      '<rect x="0" y="86" width="124" height="14" rx="6" fill="url(#' + p + 'ct)" ' + ol(2) + '/>' +
+      '<rect x="6" y="0" width="112" height="88" rx="16" fill="#f3ead6" ' + ol(2.2) + '/>' +
+      '<rect x="8" y="2" width="108" height="9" rx="4.5" fill="#ffffff" opacity="0.6"/>' +
+      '<rect x="6" y="74" width="112" height="14" rx="7" fill="#ddd0b2"/>' +
+      '<circle cx="62" cy="44" r="33" fill="url(#' + p + 'st)" ' + ol(2.2) + '/>' +
+      '<circle cx="62" cy="44" r="26" fill="#241f1a"/>' +
       '<g id="roast-beans"></g>' +
-      '<circle cx="55" cy="36" r="11" fill="#ffffff" opacity="0.07"/>' +
-      '<circle cx="104" cy="16" r="6" fill="#c97f5d"/>' +
-      '<rect x="14" y="12" width="22" height="8" rx="4" fill="#cbbfa9"/>' +
-      '<path d="M40 88 h44 l-5 12 h-34 z" fill="#755d4a"/>' +
-      '<g id="roast-smoke" opacity="0"><circle cx="62" cy="-8" r="7" fill="#b9b2a6" opacity="0.7"/>' +
-      '<circle cx="74" cy="-16" r="9" fill="#c9c2b6" opacity="0.6"/><circle cx="52" cy="-18" r="6" fill="#c9c2b6" opacity="0.5"/></g>' +
+      '<circle cx="54" cy="36" r="10" fill="#ffffff" opacity="0.07"/>' +
+      '<circle cx="104" cy="16" r="6.5" fill="#d9876a" ' + ol(1.6) + '/>' +
+      '<rect x="12" y="11" width="24" height="9" rx="4.5" fill="#c9a36a" ' + ol(1.5) + '/>' +
+      '<circle cx="104" cy="68" r="5" fill="#e9c178" ' + ol(1.4) + '/>' +
+      '<line x1="104" y1="68" x2="107" y2="64" stroke="' + O + '" stroke-width="1.6" stroke-linecap="round"/>' +
+      '<path d="M40 88 h44 l-5 12 h-34 z" fill="#9c7950" ' + ol(1.8) + '/>' +
+      '<g id="roast-smoke" opacity="0"><circle cx="62" cy="-8" r="7" fill="#cdc3b1" opacity="0.75"/>' +
+      '<circle cx="74" cy="-16" r="9" fill="#dcd3c2" opacity="0.65"/><circle cx="52" cy="-18" r="6" fill="#dcd3c2" opacity="0.55"/></g>' +
       '</g>' +
       counter(p) +
+      coolingTray(p, 152, 150) +
       '<g id="roast-bags"></g>' +
       '</svg>';
   }
 
-  /* origin bags standing on the roastery counter; tap zones are laid over these x-centres */
-  var ROAST_BAG_X = [206, 258, 310];
+  function beanBag(p, x, y, origin, s) {
+    var o = CG.data.ORIGINS[origin];
+    return '<g transform="translate(' + x + ',' + y + ') scale(' + (s || 1) + ')">' +
+      shadow(p, 0, 47, 22, 4.5, 0.16) +
+      '<path d="M-20 -8 q-6 30 -3 48 q23 9 46 0 q3 -18 -3 -48 z" fill="#ecd9b2" ' + ol(2) + '/>' +
+      '<path d="M-20 -8 q-6 30 -3 48 q10 4 23 4 l0 -52 z" fill="#e0cba0" opacity="0.7"/>' +
+      '<path d="M-20 -8 q20 7 40 0 l2 -9 q-22 -6 -44 0 z" fill="#d4bd8d" ' + ol(2) + '/>' +
+      '<rect x="-15" y="8" width="30" height="22" rx="3.5" fill="#fdf8ec" ' + ol(1.5) + '/>' +
+      '<circle cx="0" cy="14.5" r="4" fill="' + o.bag + '" ' + ol(1.2) + '/>' +
+      '<text x="0" y="26" text-anchor="middle" font-size="7.5" font-weight="700" fill="' + INK + '" font-family="system-ui,sans-serif">' + o.short + '</text>' +
+      '</g>';
+  }
+
   function roastBags(unlocked, inv, quality, selected) {
     var p = 'sr';
     return unlocked.map(function (o, i) {
@@ -180,10 +387,10 @@ CG.svg = (function () {
       return '<g' + (selected === o ? ' class="bag-sel"' : '') + '>' +
         beanBag(p, x, 126, o, 0.92) +
         '<g transform="translate(' + x + ',106)">' +
-        '<rect x="-14" y="-10" width="28" height="17" rx="8.5" fill="' + (inv[o] > 0 ? '#4a443d' : '#b9ab93') + '"/>' +
-        '<text x="0" y="2.5" text-anchor="middle" font-size="10" font-weight="700" fill="#faf7f1" font-family="system-ui,sans-serif">' + inv[o] + '</text>' +
+        '<rect x="-14" y="-10" width="28" height="17" rx="8.5" fill="' + (inv[o] > 0 ? '#5b554d' : '#c2af8d') + '" ' + ol(1.5) + '/>' +
+        '<text x="0" y="2.5" text-anchor="middle" font-size="10" font-weight="700" fill="#fdf8ec" font-family="system-ui,sans-serif">' + inv[o] + '</text>' +
         '</g>' +
-        (q != null ? '<text x="' + x + '" y="182" text-anchor="middle" font-size="7.5" fill="#efe9dd" font-family="system-ui,sans-serif">q ' + Math.round(q) + '</text>' : '') +
+        (q != null ? '<text x="' + x + '" y="183" text-anchor="middle" font-size="7.5" font-weight="600" fill="#fdf8ec" font-family="system-ui,sans-serif">q ' + Math.round(q) + '</text>' : '') +
         '</g>';
     }).join('');
   }
@@ -206,219 +413,229 @@ CG.svg = (function () {
   /* --- brew bar variants --- */
 
   function brewWallCommon(p, label) {
-    return wall(p) + pendant(40, 18) +
-      shelfThin(p, 230, 52, 116) + cupRow(240, 38, 3) +
-      '<text x="20" y="50" font-size="9" letter-spacing="3" fill="#a59a88" font-family="system-ui,sans-serif">' + label + '</text>';
+    return wall(p) +
+      tiles(40, 50, 280, 120) +
+      pendant(24, 14) +
+      '<text x="50" y="44" font-size="9" letter-spacing="3" fill="#b3996e" font-family="system-ui,sans-serif">' + label + '</text>' +
+      shelfPlank(p, 236, 28, 110) + jar(244, 4, 22, '#7e5634', 0.7) + jar(268, 4, 22, '#a87f4f', 0.5) + mug(294, 6, '#f2cfc4') + mug(316, 6, '#aed0c2');
   }
 
-  /* espresso: grinder left, machine centre, shot glass under group (glass local h=40) */
+  /* espresso: reference-style wide sage machine, two heads; ids + glass geometry preserved */
   function sceneBrewEspresso() {
     var p = 'se';
     return open(p) + brewWallCommon(p, 'BREW BAR') +
-      // grinder
-      '<g transform="translate(34,66)">' +
-      shadow(p, 26, 110, 30, 6, 0.18) +
-      '<rect x="6" y="34" width="40" height="72" rx="9" fill="url(#' + p + 'st)"/>' +
-      '<rect x="6" y="34" width="40" height="8" rx="4" fill="#6a635b"/>' +
-      '<path d="M12 34 h28 l-5 -22 h-18 z" fill="#e8e2d6" opacity="0.92"/>' +
-      '<ellipse cx="22" cy="22" rx="4" ry="2.8" fill="#7e5634"/><ellipse cx="31" cy="18" rx="4" ry="2.8" fill="#6e4a2c"/>' +
-      '<circle cx="26" cy="64" r="8" fill="#b6967a"/>' +
-      '<circle cx="26" cy="64" r="3" fill="#755d4a"/>' +
-      '<rect x="18" y="88" width="16" height="10" rx="3" fill="#2b2724"/>' +
+      // grinder with full hopper
+      '<g transform="translate(24,62)">' +
+      shadow(p, 28, 110, 32, 6, 0.18) +
+      '<rect x="6" y="34" width="44" height="72" rx="10" fill="url(#' + p + 'st)" ' + ol(2) + '/>' +
+      '<rect x="8" y="36" width="40" height="7" rx="3.5" fill="#6d665d"/>' +
+      '<path d="M12 34 h32 l-5 -24 h-22 z" fill="#ffffff" fill-opacity="0.7" ' + ol(1.8) + '/>' +
+      '<ellipse cx="22" cy="20" rx="4" ry="2.8" fill="#7e5634"/><ellipse cx="32" cy="16" rx="4" ry="2.8" fill="#6e4a2c"/>' +
+      '<ellipse cx="27" cy="25" rx="4" ry="2.8" fill="#8a5e38"/>' +
+      '<circle cx="28" cy="64" r="8.5" fill="#c9a36a" ' + ol(1.7) + '/>' +
+      '<circle cx="28" cy="64" r="3" fill="#9c7950"/>' +
+      '<rect x="20" y="90" width="16" height="11" rx="3.5" fill="#2e2a25" ' + ol(1.4) + '/>' +
       '</g>' +
-      // espresso machine: low matte charcoal + walnut sides
-      '<g transform="translate(118,84)">' +
-      shadow(p, 80, 90, 86, 8, 0.2) +
-      '<rect x="0" y="0" width="160" height="62" rx="12" fill="url(#' + p + 'st)"/>' +
-      '<rect x="0" y="0" width="160" height="8" rx="4" fill="#6a635b"/>' +
-      '<rect x="-8" y="6" width="14" height="52" rx="6" fill="#8d7159"/>' +
-      '<rect x="154" y="6" width="14" height="52" rx="6" fill="#8d7159"/>' +
-      cupRow(18, -12, 2) + cupRow(106, -12, 2) +
-      '<circle cx="34" cy="30" r="9" fill="#efe9dd"/><circle cx="34" cy="30" r="3.5" fill="#c97f5d"/>' +
-      '<rect x="120" y="22" width="26" height="6" rx="3" fill="#8d7159"/>' +
-      // group head + portafilter dock
-      '<rect x="62" y="58" width="38" height="14" rx="5" fill="#2b2724"/>' +
-      '<g id="esp-pf-dock" opacity="0"><rect x="56" y="68" width="50" height="8" rx="4" fill="#8d7159"/><path d="M76 76 h10 v6 h-10 z" fill="#2b2724"/></g>' +
-      '<g id="esp-stream" opacity="0"><rect x="78" y="80" width="5" height="28" rx="2.5" fill="#8a5a30"/></g>' +
-      // drip tray
-      '<rect x="44" y="100" width="74" height="7" rx="3.5" fill="#9b948b"/>' +
+      // machine: wide sage body, two group heads, cup rail
+      '<g transform="translate(110,78)">' +
+      shadow(p, 88, 94, 92, 8, 0.2) +
+      '<rect x="0" y="0" width="176" height="58" rx="13" fill="url(#' + p + 'sg)" ' + ol(2.4) + '/>' +
+      '<rect x="2" y="2" width="172" height="9" rx="4.5" fill="#ffffff" opacity="0.4"/>' +
+      '<rect x="-4" y="-8" width="184" height="10" rx="5" fill="#c9a36a" ' + ol(2) + '/>' +
+      cupStack(10, -17, 2) + cupStack(62, -17, 2, '#f2cfc4') + cupStack(140, -17, 2) +
+      '<circle cx="32" cy="28" r="9" fill="#fdf8ec" ' + ol(1.8) + '/><circle cx="32" cy="28" r="3.2" fill="#d9876a"/>' +
+      '<line x1="32" y1="28" x2="37" y2="23" stroke="' + O + '" stroke-width="1.8" stroke-linecap="round"/>' +
+      '<circle cx="88" cy="26" r="7" fill="#e9c178" ' + ol(1.6) + '/>' +
+      '<line x1="88" y1="26" x2="84" y2="21" stroke="' + O + '" stroke-width="1.6" stroke-linecap="round"/>' +
+      '<rect x="118" y="20" width="34" height="12" rx="5" fill="#fdf8ec" ' + ol(1.7) + '/>' +
+      '<circle cx="166" cy="26" r="5.5" fill="#f2cfc4" ' + ol(1.5) + '/>' +
+      // two group heads; the LEFT one is the live dock
+      '<rect x="56" y="56" width="38" height="14" rx="5.5" fill="#46413a" ' + ol(1.8) + '/>' +
+      '<path d="M70 70 h12 v8 h-12 z" fill="#2e2a25"/>' +
+      '<rect x="120" y="56" width="38" height="14" rx="5.5" fill="#46413a" ' + ol(1.8) + '/>' +
+      '<path d="M134 70 h12 v8 h-12 z" fill="#2e2a25"/>' +
+      '<rect x="146" y="58" width="40" height="8" rx="4" fill="#c9a36a" ' + ol(1.7) + '/>' +
+      '<g id="esp-pf-dock" opacity="0"><rect x="50" y="68" width="50" height="9" rx="4.5" fill="#c9a36a" ' + ol(1.7) + '/><rect x="92" y="69.5" width="26" height="6" rx="3" fill="#a9845a"/></g>' +
+      '<g id="esp-stream" opacity="0"><rect x="73" y="80" width="5" height="26" rx="2.5" fill="#8a5a30"/></g>' +
+      // body columns to the counter + drip tray
+      '<rect x="2" y="56" width="28" height="34" rx="8" fill="url(#' + p + 'sg)" ' + ol(2) + '/>' +
+      '<rect x="146" y="66" width="28" height="24" rx="8" fill="url(#' + p + 'sg)" ' + ol(2) + '/>' +
+      '<rect x="30" y="84" width="118" height="8" rx="4" fill="#9b948b" ' + ol(1.6) + '/>' +
       '</g>' +
-      // shot glass on the tray (fill rect local: y=130+... glass top y=130? define group)
-      '<g id="esp-glass" transform="translate(180,142)">' +
+      // shot glass under the left head (inner geometry preserved for st-brew)
+      '<g id="esp-glass" transform="translate(167,150)">' +
       '<clipPath id="' + p + 'gc"><path d="M1 1 h30 l-3 30 a4 4 0 0 1 -4 3 h-16 a4 4 0 0 1 -4 -3 z"/></clipPath>' +
       '<g clip-path="url(#' + p + 'gc)"><rect id="esp-fill" x="0" y="34" width="32" height="36" fill="#8a5a30"/>' +
       '<rect x="0" y="34" width="32" height="3" fill="#caa468" id="esp-crema"/></g>' +
-      '<path d="M0 0 h32 l-3 31 a5 5 0 0 1 -5 4 h-16 a5 5 0 0 1 -5 -4 z" fill="none" stroke="#ffffff" stroke-opacity="0.75" stroke-width="2.5"/>' +
-      '<line id="esp-target" x1="-7" y1="13" x2="39" y2="13" stroke="#c97f5d" stroke-width="2.5" stroke-dasharray="4 3"/>' +
+      '<path d="M0 0 h32 l-3 31 a5 5 0 0 1 -5 4 h-16 a5 5 0 0 1 -5 -4 z" fill="#ffffff" fill-opacity="0.25" ' + ol(2) + '/>' +
+      '<line id="esp-target" x1="-7" y1="13" x2="39" y2="13" stroke="#d9876a" stroke-width="2.5" stroke-dasharray="4 3"/>' +
       '</g>' +
       counter(p) +
+      tamper(86, 154) + cloth(308, 156) + brewScale(p, 300, 142, 40) +
       '</svg>';
   }
 
-  /* portafilter for dragging (DOM element) */
   function portafilter() {
     return '<svg viewBox="0 0 90 44" class="drag-svg">' +
-      '<ellipse cx="34" cy="38" rx="26" ry="4" fill="#3c352d" opacity="0.18"/>' +
-      '<path d="M10 14 h48 v10 a14 14 0 0 1 -14 12 h-20 a14 14 0 0 1 -14 -12 z" fill="#56504a"/>' +
-      '<path d="M10 14 h48 v5 h-48 z" fill="#6a635b"/>' +
-      '<rect x="56" y="14" width="32" height="9" rx="4.5" fill="#8d7159"/>' +
-      '<rect x="56" y="14" width="32" height="3.5" rx="1.75" fill="#ffffff" opacity="0.3"/>' +
+      '<ellipse cx="34" cy="39" rx="26" ry="4" fill="#6b543c" opacity="0.2"/>' +
+      '<path d="M10 14 h48 v10 a14 14 0 0 1 -14 12 h-20 a14 14 0 0 1 -14 -12 z" fill="#5b554d" ' + ol(2) + '/>' +
+      '<path d="M11 15 h46 v5 h-46 z" fill="#6d665d"/>' +
+      '<rect x="56" y="14" width="32" height="9.5" rx="4.75" fill="#c9a36a" ' + ol(1.8) + '/>' +
+      '<rect x="57" y="15" width="30" height="3.5" rx="1.75" fill="#ffffff" opacity="0.4"/>' +
       '</svg>';
   }
 
-  /* v60: stand + dripper + server on a scale; kettle is a separate draggable */
+  /* v60: stand group + server ids preserved (translate(96,52)) */
   function sceneBrewV60() {
     var p = 'sv';
     return open(p) + brewWallCommon(p, 'SLOW BAR') +
       '<g transform="translate(96,52)">' +
-      shadow(p, 44, 122, 52, 7, 0.18) +
-      // slate scale
-      '<rect x="-4" y="114" width="96" height="10" rx="5" fill="#4a443d"/>' +
-      '<rect x="64" y="116.5" width="18" height="5" rx="2.5" fill="#cfe3d6" opacity="0.85"/>' +
-      // glass server
+      shadow(p, 44, 124, 56, 7, 0.18) +
+      '<rect x="-8" y="114" width="104" height="11" rx="5.5" fill="#4f4a43" ' + ol(1.8) + '/>' +
+      '<rect x="62" y="116.5" width="20" height="6" rx="3" fill="#cfe0d5"/>' +
       '<g id="v60-server">' +
       '<clipPath id="' + p + 'sc"><path d="M12 62 h64 l-6 50 h-52 z"/></clipPath>' +
       '<g clip-path="url(#' + p + 'sc)"><rect id="v60-fill" x="8" y="112" width="72" height="56" fill="#7a4e28"/></g>' +
-      '<path d="M12 62 h64 l-6 50 h-52 z" fill="#ffffff" opacity="0.14"/>' +
-      '<path d="M12 62 h64 l-6 50 h-52 z" fill="none" stroke="#ffffff" stroke-opacity="0.7" stroke-width="2.5"/>' +
-      '<line id="v60-line1" x1="6" y1="98" x2="82" y2="98" stroke="#c97f5d" stroke-width="2" stroke-dasharray="3 3"/>' +
-      '<line id="v60-line2" x1="6" y1="84" x2="82" y2="84" stroke="#c97f5d" stroke-width="2" stroke-dasharray="3 3" opacity="0"/>' +
-      '<line id="v60-line3" x1="6" y1="68" x2="82" y2="68" stroke="#c97f5d" stroke-width="2" stroke-dasharray="3 3" opacity="0"/>' +
+      '<path d="M12 62 h64 l-6 50 h-52 z" fill="#dce8e0" fill-opacity="0.5" ' + ol(2) + '/>' +
+      '<line id="v60-line1" x1="6" y1="98" x2="82" y2="98" stroke="#d9876a" stroke-width="2" stroke-dasharray="3 3"/>' +
+      '<line id="v60-line2" x1="6" y1="84" x2="82" y2="84" stroke="#d9876a" stroke-width="2" stroke-dasharray="3 3" opacity="0"/>' +
+      '<line id="v60-line3" x1="6" y1="68" x2="82" y2="68" stroke="#d9876a" stroke-width="2" stroke-dasharray="3 3" opacity="0"/>' +
       '</g>' +
-      // ceramic V60 with walnut collar
-      '<path d="M14 18 h60 l-21 38 h-18 z" fill="#faf7f1"/>' +
-      '<path d="M14 18 h60 l-3 6 h-54 z" fill="#ffffff"/>' +
-      '<path d="M14 18 h60 l-21 38 h-18 z" fill="#cbbfa9" opacity="0.25"/>' +
+      '<path d="M14 18 h60 l-21 38 h-18 z" fill="#f3e3c3" ' + ol(2) + '/>' +
+      '<path d="M16 20 h56 l-3 5.5 h-50 z" fill="#fbf0d8"/>' +
       '<ellipse id="v60-water" cx="44" cy="30" rx="0" ry="0" fill="#8a5a30" opacity="0.85"/>' +
-      '<path d="M20 30 h48 l-2.5 5 h-43 z" fill="#8d7159"/>' +
-      '<path d="M40 56 h8 v6 h-8 z" fill="#ddd5c4"/>' +
+      '<path d="M20 30 h48 l-2.5 5.5 h-43 z" fill="#c9a36a" ' + ol(1.5) + '/>' +
+      '<path d="M40 56 h8 v6 h-8 z" fill="#ddd0b2" ' + ol(1.3) + '/>' +
       '<g id="v60-drip" opacity="0"><rect x="41.5" y="60" width="4" height="14" rx="2" fill="#8a5a30"/></g>' +
       '</g>' +
       counter(p) +
+      filterBox(214, 148) + timer(252, 148) + mug(282, 152, '#f2cfc4') + brewScale(p, 312, 154, 36) +
       '</svg>';
   }
 
-  /* matte black gooseneck kettle (draggable DOM element); spout at left tip */
   function kettle() {
     return '<svg viewBox="0 0 110 80" class="drag-svg">' +
-      '<ellipse cx="62" cy="74" rx="34" ry="5" fill="#3c352d" opacity="0.18"/>' +
-      '<path d="M34 30 q-2 40 28 40 q30 0 28 -40 z" fill="#3a3531"/>' +
-      '<path d="M34 30 q-2 8 1 14 l52 0 q3 -6 1 -14 z" fill="#4a443d"/>' +
-      '<path d="M34 32 q-16 2 -26 16 l-6 -3 q10 -18 30 -19 z" fill="#3a3531"/>' +
-      '<path d="M2 45 l6 3 4 -5 -7 -4 z" fill="#3a3531"/>' +
-      '<rect x="40" y="20" width="44" height="10" rx="5" fill="#2b2724"/>' +
-      '<path d="M48 18 q14 -14 28 0" fill="none" stroke="#8d7159" stroke-width="7" stroke-linecap="round"/>' +
-      '<circle cx="90" cy="38" r="3" fill="#c97f5d"/>' +
+      '<ellipse cx="62" cy="74" rx="34" ry="5" fill="#6b543c" opacity="0.2"/>' +
+      '<path d="M34 30 q-2 40 28 40 q30 0 28 -40 z" fill="#46413a" ' + ol(2) + '/>' +
+      '<path d="M35 31 q-2 8 1 13 l51 0 q3 -5 1 -13 z" fill="#5b554d"/>' +
+      '<path d="M34 32 q-16 2 -26 16 l-6 -3 q10 -18 30 -19 z" fill="#46413a" ' + ol(1.8) + '/>' +
+      '<path d="M2 45 l6 3 4 -5 -7 -4 z" fill="#46413a" ' + ol(1.6) + '/>' +
+      '<rect x="40" y="20" width="44" height="10" rx="5" fill="#2e2a25" ' + ol(1.7) + '/>' +
+      '<path d="M48 18 q14 -14 28 0" fill="none" stroke="#c9a36a" stroke-width="7" stroke-linecap="round"/>' +
+      '<path d="M48 18 q14 -14 28 0" fill="none" stroke="' + O + '" stroke-width="9.5" stroke-linecap="round" opacity="0.35"/>' +
+      '<circle cx="90" cy="38" r="3.2" fill="#d9876a"/>' +
       '</svg>';
   }
 
-  /* aeropress on a server */
+  /* aeropress (group translate(128,44), ids preserved) */
   function sceneBrewAero() {
     var p = 'sa';
     return open(p) + brewWallCommon(p, 'BREW BAR') +
       '<g transform="translate(128,44)">' +
-      shadow(p, 52, 130, 54, 7, 0.18) +
-      '<rect x="0" y="122" width="104" height="10" rx="5" fill="#4a443d"/>' +
+      shadow(p, 52, 132, 56, 7, 0.18) +
+      '<rect x="-4" y="122" width="112" height="11" rx="5.5" fill="#4f4a43" ' + ol(1.8) + '/>' +
       '<g><clipPath id="' + p + 'ac"><path d="M22 78 h60 l-5 42 h-50 z"/></clipPath>' +
       '<g clip-path="url(#' + p + 'ac)"><rect id="aero-fill" x="18" y="120" width="68" height="46" fill="#7a4e28"/></g>' +
-      '<path d="M22 78 h60 l-5 42 h-50 z" fill="#ffffff" opacity="0.14"/>' +
-      '<path d="M22 78 h60 l-5 42 h-50 z" fill="none" stroke="#ffffff" stroke-opacity="0.7" stroke-width="2.5"/></g>' +
-      // chamber
-      '<rect x="30" y="34" width="44" height="46" rx="5" fill="#d8d3ca" opacity="0.55"/>' +
-      '<rect x="30" y="34" width="44" height="46" rx="5" fill="none" stroke="#ffffff" stroke-opacity="0.7" stroke-width="2.5"/>' +
+      '<path d="M22 78 h60 l-5 42 h-50 z" fill="#dce8e0" fill-opacity="0.5" ' + ol(2) + '/></g>' +
+      '<rect x="30" y="34" width="44" height="46" rx="5" fill="#e6e0d2" fill-opacity="0.6" ' + ol(2) + '/>' +
       '<rect id="aero-brew" x="33" y="58" width="38" height="20" rx="3" fill="#8a5a30" opacity="0"/>' +
-      // plunger
       '<g id="aero-plunger">' +
-      '<rect x="36" y="2" width="32" height="34" rx="5" fill="url(#' + p + 'st)"/>' +
-      '<rect x="26" y="0" width="52" height="9" rx="4.5" fill="#2b2724"/>' +
+      '<rect x="36" y="2" width="32" height="34" rx="5" fill="url(#' + p + 'st)" ' + ol(1.8) + '/>' +
+      '<rect x="26" y="0" width="52" height="10" rx="5" fill="#2e2a25" ' + ol(1.6) + '/>' +
       '</g>' +
       '</g>' +
       counter(p) +
+      mug(58, 150, '#f2cfc4') + mug(82, 152, '#aed0c2') + timer(258, 148) + jar(290, 138, 26, '#a87f4f', 0.6) +
       '</svg>';
   }
 
-  /* batch brewer with glass carafe */
+  /* batch brewer (group translate(124,56), ids preserved) */
   function sceneBrewBatch() {
     var p = 'sb';
     return open(p) + brewWallCommon(p, 'BREW BAR') +
       '<g transform="translate(124,56)">' +
-      shadow(p, 56, 116, 58, 7, 0.18) +
-      '<rect x="0" y="0" width="34" height="112" rx="9" fill="#efe9dd"/>' +
-      '<rect x="0" y="0" width="34" height="8" rx="4" fill="#ffffff" opacity="0.6"/>' +
-      '<rect x="0" y="0" width="112" height="22" rx="9" fill="#efe9dd"/>' +
-      '<rect x="84" y="14" width="22" height="12" rx="4" fill="#ddd5c4"/>' +
-      '<rect x="64" y="22" width="10" height="8" fill="#cbbfa9"/>' +
+      shadow(p, 56, 118, 60, 7, 0.18) +
+      '<rect x="0" y="0" width="34" height="112" rx="9" fill="#f3ead6" ' + ol(2.2) + '/>' +
+      '<rect x="2" y="2" width="30" height="8" rx="4" fill="#ffffff" opacity="0.7"/>' +
+      '<rect x="0" y="0" width="112" height="22" rx="9" fill="#f3ead6" ' + ol(2.2) + '/>' +
+      '<rect x="84" y="14" width="22" height="12" rx="4" fill="#ddd0b2" ' + ol(1.5) + '/>' +
+      '<circle cx="17" cy="56" r="5" fill="#d9876a" ' + ol(1.4) + '/>' +
+      '<rect x="64" y="22" width="10" height="8" fill="#d4bd8d" ' + ol(1.3) + '/>' +
       '<g id="batch-drip" opacity="0"><rect x="66" y="30" width="5" height="22" rx="2.5" fill="#7a4e28"/></g>' +
       '<g><clipPath id="' + p + 'bc"><path d="M44 56 h62 l-6 50 h-50 z"/></clipPath>' +
       '<g clip-path="url(#' + p + 'bc)"><rect id="batch-fill" x="40" y="106" width="70" height="54" fill="#7a4e28"/></g>' +
-      '<path d="M44 56 h62 l-6 50 h-50 z" fill="#ffffff" opacity="0.14"/>' +
-      '<path d="M44 56 h62 l-6 50 h-50 z" fill="none" stroke="#ffffff" stroke-opacity="0.7" stroke-width="2.5"/>' +
-      '<rect x="64" y="46" width="22" height="10" rx="5" fill="#4a443d"/></g>' +
-      '<rect x="34" y="106" width="78" height="8" rx="4" fill="#4a443d"/>' +
+      '<path d="M44 56 h62 l-6 50 h-50 z" fill="#dce8e0" fill-opacity="0.5" ' + ol(2) + '/>' +
+      '<rect x="64" y="46" width="22" height="10" rx="5" fill="#4f4a43" ' + ol(1.6) + '/></g>' +
+      '<rect x="34" y="106" width="78" height="9" rx="4.5" fill="#4f4a43" ' + ol(1.7) + '/>' +
       '</g>' +
       counter(p) +
+      mug(54, 150, '#f2cfc4') + mug(78, 152, '#e9c178') + jar(268, 140, 26, '#fdf8ec', 0.8) + cloth(304, 156, '#f2cfc4') +
       '</svg>';
   }
 
-  /* --- milk bar: wand fixed, pitcher dragged --- */
+  /* --- milk bar (machine group translate(118,48); steam id preserved) --- */
 
   function sceneMilk() {
     var p = 'sm';
-    return open(p) + wall(p) + pendant(318, 24) +
-      shelfThin(p, 20, 58, 104) + cupRow(30, 44, 2) +
-      '<text x="22" y="80" font-size="9" letter-spacing="3" fill="#a59a88" font-family="system-ui,sans-serif">MILK BAR</text>' +
-      // side of the espresso machine with steam wand
+    return open(p) + wall(p) +
+      tiles(90, 48, 270, 122) +
+      pendant(330, 18) +
+      '<text x="20" y="44" font-size="9" letter-spacing="3" fill="#b3996e" font-family="system-ui,sans-serif">MILK BAR</text>' +
+      fridge(p, 18, 58, 110) +
+      shelfPlank(p, 168, 40, 100) +
+      bottle(176, 14, '#fdfdfd') + bottle(196, 14, '#f2cfc4') + mug(218, 22, '#aed0c2') + mug(242, 22, '#fdf8ec') +
       '<g transform="translate(118,48)">' +
-      shadow(p, 56, 132, 60, 7, 0.16) +
-      '<rect x="0" y="0" width="112" height="48" rx="11" fill="url(#' + p + 'st)"/>' +
-      '<rect x="0" y="0" width="112" height="7" rx="3.5" fill="#6a635b"/>' +
-      '<circle cx="26" cy="24" r="8" fill="#efe9dd"/><circle cx="26" cy="24" r="3" fill="#c97f5d"/>' +
-      '<rect x="64" y="18" width="30" height="11" rx="5" fill="#8d7159"/>' +
-      '<rect x="36" y="44" width="8" height="46" rx="4" fill="#9b948b" transform="rotate(-12 40 44)"/>' +
-      '<circle cx="31" cy="92" r="4" fill="#56504a"/>' +
+      shadow(p, 60, 134, 64, 7, 0.16) +
+      '<rect x="0" y="0" width="116" height="48" rx="11" fill="url(#' + p + 'st)" ' + ol(2.2) + '/>' +
+      '<rect x="2" y="2" width="112" height="7" rx="3.5" fill="#6d665d"/>' +
+      '<circle cx="26" cy="24" r="8.5" fill="#fdf8ec" ' + ol(1.7) + '/><circle cx="26" cy="24" r="3" fill="#d9876a"/>' +
+      '<rect x="64" y="18" width="32" height="12" rx="5" fill="#c9a36a" ' + ol(1.6) + '/>' +
+      '<rect x="36" y="44" width="8" height="46" rx="4" fill="#9b948b" ' + ol(1.7) + ' transform="rotate(-12 40 44)"/>' +
+      '<circle cx="31" cy="92" r="4.5" fill="#46413a"/>' +
       '<g id="milk-steam" opacity="0">' +
-      '<path d="M33 96 q-6 12 2 22 q6 10 -2 18" stroke="#ffffff" stroke-opacity="0.8" stroke-width="5" fill="none" stroke-linecap="round"/>' +
-      '<path d="M44 98 q-4 10 2 16" stroke="#ffffff" stroke-opacity="0.55" stroke-width="4" fill="none" stroke-linecap="round"/></g>' +
+      '<path d="M33 96 q-6 12 2 22 q6 10 -2 18" stroke="#ffffff" stroke-opacity="0.85" stroke-width="5" fill="none" stroke-linecap="round"/>' +
+      '<path d="M44 98 q-4 10 2 16" stroke="#ffffff" stroke-opacity="0.6" stroke-width="4" fill="none" stroke-linecap="round"/></g>' +
       '</g>' +
       counter(p) +
+      cloth(250, 156, '#aed0c2') + saucerStack(290, 158, 3) +
       '</svg>';
   }
 
-  /* steam pitcher (draggable DOM element) */
   function pitcherSvg() {
     return '<svg viewBox="0 0 90 78" class="drag-svg">' +
-      '<ellipse cx="42" cy="72" rx="28" ry="5" fill="#3c352d" opacity="0.18"/>' +
-      '<path d="M14 10 h52 l-7 58 h-38 z" fill="#d8d3ca"/>' +
-      '<path d="M14 10 h52 l-1.5 9 h-49 z" fill="#eceae5"/>' +
-      '<path d="M14 10 h22 l-4 58 h-11 z" fill="#c4beb4" opacity="0.6"/>' +
-      '<path d="M66 14 l16 8 -17 7" fill="#d8d3ca"/>' +
+      '<ellipse cx="42" cy="72" rx="28" ry="5" fill="#6b543c" opacity="0.2"/>' +
+      '<path d="M14 10 h52 l-7 58 h-38 z" fill="#e3ded3" ' + ol(2) + '/>' +
+      '<path d="M15.5 11.5 h49 l-1.6 8 h-46 z" fill="#f4f1ea"/>' +
+      '<path d="M14 10 h22 l-4 58 h-11 z" fill="#cfc8ba" opacity="0.55"/>' +
+      '<path d="M66 14 l16 8 -17 7" fill="#e3ded3" ' + ol(2) + '/>' +
       '<clipPath id="pitclip"><path d="M16 12 h48 l-6.4 54 h-35 z"/></clipPath>' +
       '<g clip-path="url(#pitclip)"><rect id="milk-fill" x="10" y="34" width="64" height="46" fill="#fcfbf8"/>' +
       '<rect id="milk-foam" x="10" y="28" width="64" height="8" fill="#ffffff"/></g>' +
       '</svg>';
   }
 
-  /* --- the pass: tray, cup, pour & art --- */
+  /* --- the pass (cup-host + pass-stream preserved) --- */
 
   function scenePass() {
     var p = 'sp';
-    return open(p) + wall(p) + pendant(52, 20) +
-      framedArch(294, 52) +
-      '<text x="22" y="56" font-size="9" letter-spacing="3" fill="#a59a88" font-family="system-ui,sans-serif">THE PASS</text>' +
-      shelfThin(p, 20, 70, 96) + cupRow(30, 56, 3) +
-      // walnut serving board
-      shadow(p, 180, 178, 70, 7, 0.18) +
-      '<rect x="112" y="160" width="136" height="12" rx="6" fill="url(#' + p + 'ct)"/>' +
-      '<rect x="112" y="160" width="136" height="4" rx="2" fill="#ffffff" opacity="0.35"/>' +
-      // cup host (st-build injects the ceramic cup here)
+    return open(p) + wall(p) +
+      tiles(0, 116, 360, 54) +
+      pendant(46, 16) + plantHang(330, 84) +
+      '<text x="20" y="44" font-size="9" letter-spacing="3" fill="#b3996e" font-family="system-ui,sans-serif">THE PASS</text>' +
+      framedPrint(p, 282, 40) +
+      shelfPlank(p, 14, 64, 110) + cupStack(22, 54, 2) + mug(52, 46, '#f2cfc4') + jar(80, 38, 24, '#e9c178', 0.6) +
+      // serving board + doily
+      shadow(p, 180, 180, 74, 7, 0.18) +
+      '<rect x="108" y="158" width="144" height="13" rx="6.5" fill="url(#' + p + 'ct)" ' + ol(2.2) + '/>' +
+      '<rect x="110" y="160" width="140" height="3.5" rx="1.75" fill="#ffffff" opacity="0.45"/>' +
+      '<ellipse cx="180" cy="158" rx="44" ry="5" fill="#ffffff" opacity="0.6"/>' +
       '<g id="cup-host"></g>' +
-      // pour stream host
       '<g id="pass-stream" opacity="0"><rect x="176" y="74" width="5" height="46" rx="2.5" fill="#fcfbf8"/></g>' +
       counter(p) +
+      bell(86, 148) + saucerStack(272, 156, 3) + vasePlant(308, 138) +
       '</svg>';
   }
 
-  /* ceramic cup with live liquid; placed in #cup-host (cup centred on x=180, base y=160) */
   function passCup(liquidColor, fillFrac, artTier, cremaLine) {
     var topY = 92, botY = 156, lipW = 64, baseW = 48;
     var h = botY - topY;
@@ -440,24 +657,71 @@ CG.svg = (function () {
       (fillFrac > 0 ? '<rect x="120" y="' + lvl + '" width="120" height="80" fill="' + liquidColor + '"/>' +
         (cremaLine ? '<rect x="120" y="' + lvl + '" width="120" height="4" fill="#caa468"/>' : '') : '') +
       '</g>' + art +
-      '<path d="M' + (180 - lipW / 2) + ' ' + topY + ' h' + lipW + ' l-' + ((lipW - baseW) / 2) + ' ' + h + ' h-' + baseW + ' z" fill="#faf7f1" opacity="0.28"/>' +
-      '<path d="M' + (180 - lipW / 2) + ' ' + topY + ' h' + lipW + ' l-' + ((lipW - baseW) / 2) + ' ' + h + ' a6 6 0 0 1 -6 4 h-' + (baseW - 12) + ' a6 6 0 0 1 -6 -4 z" fill="none" stroke="#efe9dd" stroke-width="3.5"/>' +
-      '<path d="M' + (180 + lipW / 2 - 2) + ' ' + (topY + 12) + ' q16 4 12 18 q-3 12 -16 12" fill="none" stroke="#efe9dd" stroke-width="6" stroke-linecap="round"/>' +
+      '<path d="M' + (180 - lipW / 2) + ' ' + topY + ' h' + lipW + ' l-' + ((lipW - baseW) / 2) + ' ' + h + ' h-' + baseW + ' z" fill="#fdf8ec" opacity="0.3"/>' +
+      '<path d="M' + (180 - lipW / 2) + ' ' + topY + ' h' + lipW + ' l-' + ((lipW - baseW) / 2) + ' ' + h + ' a6 6 0 0 1 -6 4 h-' + (baseW - 12) + ' a6 6 0 0 1 -6 -4 z" fill="none" ' + ol(3) + '/>' +
+      '<path d="M' + (180 + lipW / 2 - 2) + ' ' + (topY + 12) + ' q16 4 12 18 q-3 12 -16 12" fill="none" stroke="' + O + '" stroke-width="8" stroke-linecap="round"/>' +
+      '<path d="M' + (180 + lipW / 2 - 2) + ' ' + (topY + 12) + ' q16 4 12 18 q-3 12 -16 12" fill="none" stroke="#fdf8ec" stroke-width="4" stroke-linecap="round"/>' +
       '</g>';
   }
 
-  /* ============ customers (soft, no outlines) ============ */
+  /* ============ machine portraits (upgrade screen) ============ */
+
+  function machinePortrait(key) {
+    var p = 'mp' + key;
+    var inner = '';
+    if (key === 'grinder') {
+      inner = '<g transform="translate(62,28) scale(1.5)">' +
+        '<rect x="6" y="34" width="44" height="72" rx="10" fill="url(#' + p + 'st)" ' + ol(2) + '/>' +
+        '<rect x="8" y="36" width="40" height="7" rx="3.5" fill="#6d665d"/>' +
+        '<path d="M12 34 h32 l-5 -24 h-22 z" fill="#ffffff" fill-opacity="0.7" ' + ol(1.8) + '/>' +
+        '<ellipse cx="22" cy="20" rx="4" ry="2.8" fill="#7e5634"/><ellipse cx="32" cy="16" rx="4" ry="2.8" fill="#6e4a2c"/>' +
+        '<circle cx="28" cy="64" r="8.5" fill="#c9a36a" ' + ol(1.7) + '/><circle cx="28" cy="64" r="3" fill="#9c7950"/>' +
+        '<rect x="20" y="90" width="16" height="11" rx="3.5" fill="#2e2a25" ' + ol(1.4) + '/></g>';
+    } else if (key === 'roaster') {
+      inner = '<g transform="translate(38,36) scale(1.0)">' +
+        '<rect x="0" y="86" width="124" height="14" rx="6" fill="url(#' + p + 'ct)" ' + ol(2) + '/>' +
+        '<rect x="6" y="0" width="112" height="88" rx="16" fill="#f3ead6" ' + ol(2.2) + '/>' +
+        '<circle cx="62" cy="44" r="33" fill="url(#' + p + 'st)" ' + ol(2.2) + '/>' +
+        '<circle cx="62" cy="44" r="26" fill="#241f1a"/>' + beanGroup(14, '#8a5e38') +
+        '<circle cx="104" cy="16" r="6.5" fill="#d9876a" ' + ol(1.6) + '/></g>';
+    } else if (key === 'kettle') {
+      inner = '<g transform="translate(36,52) scale(1.45)">' +
+        '<path d="M34 30 q-2 40 28 40 q30 0 28 -40 z" fill="#46413a" ' + ol(2) + '/>' +
+        '<path d="M35 31 q-2 8 1 13 l51 0 q3 -5 1 -13 z" fill="#5b554d"/>' +
+        '<path d="M34 32 q-16 2 -26 16 l-6 -3 q10 -18 30 -19 z" fill="#46413a" ' + ol(1.8) + '/>' +
+        '<rect x="40" y="20" width="44" height="10" rx="5" fill="#2e2a25" ' + ol(1.7) + '/>' +
+        '<path d="M48 18 q14 -14 28 0" fill="none" stroke="#c9a36a" stroke-width="7" stroke-linecap="round"/></g>';
+    } else if (key === 'pitcher') {
+      inner = '<g transform="translate(56,46) scale(1.35)">' +
+        '<path d="M14 10 h52 l-7 58 h-38 z" fill="#e3ded3" ' + ol(2) + '/>' +
+        '<path d="M15.5 11.5 h49 l-1.6 8 h-46 z" fill="#f4f1ea"/>' +
+        '<path d="M66 14 l16 8 -17 7" fill="#e3ded3" ' + ol(2) + '/>' +
+        '<path d="M26 30 q14 -9 28 0" fill="none" stroke="#f2cfc4" stroke-width="3" stroke-linecap="round"/></g>';
+    } else if (key === 'decor') {
+      inner = plantHang(58, 60) + plantPot('x', 130, 138, 1.5) + framedPrint(p, 100, 36);
+    } else {
+      inner = '<g transform="translate(58,40)">' +
+        '<rect x="20" y="0" width="56" height="40" rx="8" fill="#4b5a50" ' + ol(2) + '/>' +
+        '<text x="48" y="18" text-anchor="middle" font-size="9" fill="#f3ead6" font-family="Georgia,serif" font-style="italic">welcome</text>' +
+        '<rect x="14" y="6" width="6" height="120" rx="3" fill="#c9a36a" ' + ol(1.8) + '/>' +
+        bell(64, 64) + '</g>';
+    }
+    return '<svg viewBox="0 0 200 190" class="portrait-svg">' + defs(p) +
+      shadow(p, 100, 172, 64, 8, 0.18) + inner + '</svg>';
+  }
+
+  /* ============ characters ============ */
 
   function hairSvg(c) {
     var h = c.hairColor;
     switch (c.hair) {
       case 'bun':
-        return '<circle cx="50" cy="16" r="9" fill="' + h + '"/>' +
+        return '<circle cx="50" cy="16" r="9" fill="' + h + '" ' + ol(1.6) + '/>' +
                '<path d="M28 38 a22 20 0 0 1 44 0 l-4 -2 a18 16 0 0 0 -36 0 z" fill="' + h + '"/>';
       case 'beanie':
         return '<path d="M27 36 a23 21 0 0 1 46 0 z" fill="' + h + '"/>' +
-               '<rect x="26" y="32" width="48" height="8" rx="4" fill="' + h + '"/>' +
-               '<rect x="26" y="32" width="48" height="3" rx="1.5" fill="#ffffff" opacity="0.25"/>';
+               '<rect x="26" y="32" width="48" height="8" rx="4" fill="' + h + '" ' + ol(1.5) + '/>' +
+               '<circle cx="50" cy="14" r="4" fill="' + h + '" ' + ol(1.5) + '/>';
       case 'pony':
         return '<path d="M28 40 a22 22 0 0 1 44 0 l-5 -3 a17 17 0 0 0 -34 0 z" fill="' + h + '"/>' +
                '<path d="M68 30 q12 4 8 26 q-3 14 -8 16 q4 -16 0 -26 q-2 -8 -6 -12 z" fill="' + h + '"/>';
@@ -465,16 +729,16 @@ CG.svg = (function () {
         return '<path d="M28 38 a22 20 0 0 1 44 0 l-6 -2 a16 14 0 0 0 -32 0 z" fill="' + h + '"/>';
       case 'pigtails':
         return '<path d="M30 38 a20 18 0 0 1 40 0 l-5 -2 a15 13 0 0 0 -30 0 z" fill="' + h + '"/>' +
-               '<circle cx="24" cy="42" r="7" fill="' + h + '"/><circle cx="76" cy="42" r="7" fill="' + h + '"/>';
+               '<circle cx="24" cy="42" r="7" fill="' + h + '" ' + ol(1.5) + '/><circle cx="76" cy="42" r="7" fill="' + h + '" ' + ol(1.5) + '/>';
       case 'curly':
         return '<circle cx="36" cy="26" r="8" fill="' + h + '"/><circle cx="50" cy="20" r="9" fill="' + h + '"/>' +
                '<circle cx="64" cy="26" r="8" fill="' + h + '"/><circle cx="29" cy="36" r="6" fill="' + h + '"/>' +
                '<circle cx="71" cy="36" r="6" fill="' + h + '"/>';
       case 'flower':
         return '<path d="M28 40 a22 21 0 0 1 44 0 l-4 -2 a18 17 0 0 0 -36 0 z" fill="' + h + '"/>' +
-               '<g transform="translate(68,24)"><circle r="3.2" cx="0" cy="-4" fill="#dca3ae"/>' +
-               '<circle r="3.2" cx="4" cy="2" fill="#dca3ae"/><circle r="3.2" cx="-4" cy="2" fill="#dca3ae"/>' +
-               '<circle r="2.2" fill="#d9b87c"/></g>';
+               '<g transform="translate(68,24)"><circle r="3.2" cx="0" cy="-4" fill="#eba7b0"/>' +
+               '<circle r="3.2" cx="4" cy="2" fill="#eba7b0"/><circle r="3.2" cx="-4" cy="2" fill="#eba7b0"/>' +
+               '<circle r="2.2" fill="#e9c178"/></g>';
       case 'bald':
         return '<ellipse cx="42" cy="22" rx="6" ry="3" fill="#ffffff" opacity="0.3"/>';
       default: return '';
@@ -486,14 +750,14 @@ CG.svg = (function () {
       case 'mustache':
         return '<path d="M40 53 q5 -4 10 0 q5 -4 10 0 q-5 6 -10 3 q-5 3 -10 -3z" fill="#6e5a48"/>';
       case 'scarf':
-        return '<path d="M34 66 q16 9 32 0 l-2 8 q-14 7 -28 0 z" fill="#b87c66"/>' +
-               '<rect x="56" y="70" width="9" height="16" rx="4" fill="#b87c66"/>';
+        return '<path d="M34 66 q16 9 32 0 l-2 8 q-14 7 -28 0 z" fill="#cb8870" ' + ol(1.4) + '/>' +
+               '<rect x="56" y="70" width="9" height="16" rx="4" fill="#cb8870" ' + ol(1.4) + '/>';
       case 'freckles':
         return '<g fill="#c08a5c"><circle cx="36" cy="48" r="1.2"/><circle cx="40" cy="50" r="1.2"/>' +
                '<circle cx="64" cy="48" r="1.2"/><circle cx="60" cy="50" r="1.2"/></g>';
       case 'phone':
-        return '<rect x="73" y="74" width="11" height="18" rx="2.5" fill="#56504a" transform="rotate(8 78 82)"/>' +
-               '<rect x="75" y="77" width="7" height="11" rx="1" fill="#cfe3d6" transform="rotate(8 78 82)"/>';
+        return '<rect x="73" y="74" width="11" height="18" rx="2.5" fill="#5b554d" ' + ol(1.4) + ' transform="rotate(8 78 82)"/>' +
+               '<rect x="75" y="77" width="7" height="11" rx="1" fill="#cfe0d5" transform="rotate(8 78 82)"/>';
       default: return '';
     }
   }
@@ -505,7 +769,7 @@ CG.svg = (function () {
       brows = '<line x1="37" y1="36" x2="46" y2="40" stroke="' + INK + '" stroke-width="2.4" stroke-linecap="round"/>' +
               '<line x1="63" y1="36" x2="54" y2="40" stroke="' + INK + '" stroke-width="2.4" stroke-linecap="round"/>';
       mouth = '<path d="M42 58 q8 -7 16 0" stroke="' + INK + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
-      extra = '<circle cx="34" cy="50" r="4" fill="#cf8676" opacity="0.5"/><circle cx="66" cy="50" r="4" fill="#cf8676" opacity="0.5"/>';
+      extra = '<circle cx="34" cy="50" r="4" fill="#e08d77" opacity="0.55"/><circle cx="66" cy="50" r="4" fill="#e08d77" opacity="0.55"/>';
     } else if (mood === 'annoyed') {
       eyes = '<circle cx="42" cy="43" r="2.6" fill="' + INK + '"/><circle cx="58" cy="43" r="2.6" fill="' + INK + '"/>';
       brows = '<line x1="38" y1="37" x2="46" y2="38.5" stroke="' + INK + '" stroke-width="2.2" stroke-linecap="round"/>' +
@@ -517,7 +781,7 @@ CG.svg = (function () {
     } else {
       eyes = '<circle cx="42" cy="43" r="2.8" fill="' + INK + '"/><circle cx="58" cy="43" r="2.8" fill="' + INK + '"/>';
       mouth = '<path d="M42 55 q8 8 16 0" stroke="' + INK + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
-      extra = '<circle cx="34" cy="50" r="4" fill="#e2ab8f" opacity="0.45"/><circle cx="66" cy="50" r="4" fill="#e2ab8f" opacity="0.45"/>';
+      extra = '<circle cx="34" cy="50" r="4" fill="#f0b89c" opacity="0.5"/><circle cx="66" cy="50" r="4" fill="#f0b89c" opacity="0.5"/>';
     }
     return brows + eyes + mouth + extra;
   }
@@ -525,11 +789,10 @@ CG.svg = (function () {
   function customer(charId, mood) {
     var c = CG.data.CHARACTERS[charId];
     return '<svg viewBox="0 0 100 110" class="cust-svg" aria-label="' + c.name + '">' +
-      '<ellipse cx="50" cy="107" rx="26" ry="3.5" fill="#3c352d" opacity="0.14"/>' +
-      '<path d="M26 110 v-22 a24 22 0 0 1 48 0 v22 z" fill="' + c.top + '"/>' +
-      '<path d="M26 110 v-22 a24 22 0 0 1 48 0 v6 l-48 0 z" fill="#ffffff" opacity="0.12"/>' +
-      '<circle cx="50" cy="44" r="22" fill="' + c.skin + '"/>' +
-      '<path d="M30 36 a22 22 0 0 1 40 -4" fill="#ffffff" opacity="0.1"/>' +
+      '<ellipse cx="50" cy="107" rx="26" ry="3.5" fill="#6b543c" opacity="0.16"/>' +
+      '<path d="M26 110 v-22 a24 22 0 0 1 48 0 v22 z" fill="' + c.top + '" ' + ol(1.8) + '/>' +
+      '<path d="M27.5 96 a22.5 20.5 0 0 1 45 -4 v4 z" fill="#ffffff" opacity="0.14"/>' +
+      '<circle cx="50" cy="44" r="22" fill="' + c.skin + '" ' + ol(1.8) + '/>' +
       hairSvg(c) + faceSvg(mood || 'happy') + accessorySvg(c) +
       '</svg>';
   }
@@ -538,7 +801,7 @@ CG.svg = (function () {
     var r = 17, circ = 2 * Math.PI * r;
     var off = circ * (1 - pct / 100);
     return '<svg viewBox="0 0 40 40" class="ring-svg">' +
-      '<circle cx="20" cy="20" r="' + r + '" fill="none" stroke="#2e2a2618" stroke-width="4"/>' +
+      '<circle cx="20" cy="20" r="' + r + '" fill="none" stroke="#8a705a30" stroke-width="4"/>' +
       '<circle cx="20" cy="20" r="' + r + '" fill="none" stroke="' + color + '" stroke-width="4" ' +
       'stroke-linecap="round" stroke-dasharray="' + circ.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '" ' +
       'transform="rotate(-90 20 20)"/></svg>';
@@ -549,17 +812,17 @@ CG.svg = (function () {
   function drink(ticket) {
     var d = CG.data;
     var r = d.RECIPES[ticket.recipe];
-    var milkColor = r.milk ? '#e9dbc6' : null;
+    var milkColor = r.milk ? '#efe0c8' : null;
     var liquid = r.milk ? '#c89a6c' : '#7a4e28';
     var art = r.art ? '<g transform="translate(50,33) scale(0.85)"><path d="M0 8 C-9 1 -8 -6 -2 -6 C0 -6 0 -3 0 -3 C0 -3 0 -6 2 -6 C8 -6 9 1 0 8 z" fill="#fcfbf8"/></g>' : '';
     return '<svg viewBox="0 0 100 110" class="drink-svg">' +
-      '<ellipse cx="50" cy="100" rx="30" ry="4" fill="#3c352d" opacity="0.16"/>' +
-      '<path d="M26 28 h48 l-6 62 a6 6 0 0 1 -6 5 h-24 a6 6 0 0 1 -6 -5 z" fill="#faf7f1"/>' +
+      '<ellipse cx="50" cy="100" rx="30" ry="4" fill="#6b543c" opacity="0.18"/>' +
+      '<path d="M26 28 h48 l-6 62 a6 6 0 0 1 -6 5 h-24 a6 6 0 0 1 -6 -5 z" fill="#fdf8ec" ' + ol(2.2) + '/>' +
       '<path d="M29 32 h42 l-5 54 a4 4 0 0 1 -4 3 h-22 a4 4 0 0 1 -4 -3 z" fill="' + liquid + '"/>' +
       (milkColor ? '<path d="M29 32 h42 l-1.6 17 h-39 z" fill="' + milkColor + '"/>' : '<path d="M29 32 h42 l-0.5 5 h-41 z" fill="#caa468"/>') +
       art +
-      '<path d="M74 38 q15 3 12 17 q-3 13 -16 12" fill="none" stroke="#efe9dd" stroke-width="5.5" stroke-linecap="round"/>' +
-      '<path d="M26 28 h48 l-1 9 h-46 z" fill="#ffffff" opacity="0.35"/>' +
+      '<path d="M74 38 q15 3 12 17 q-3 13 -16 12" fill="none" stroke="' + O + '" stroke-width="7.5" stroke-linecap="round"/>' +
+      '<path d="M74 38 q15 3 12 17 q-3 13 -16 12" fill="none" stroke="#fdf8ec" stroke-width="4" stroke-linecap="round"/>' +
       '</svg>';
   }
 
@@ -577,10 +840,10 @@ CG.svg = (function () {
     return '<span class="tagpills">' + pills.join('') + '</span>';
   }
 
-  /* ============ icons (thin line, minimal) ============ */
+  /* ============ icons ============ */
 
   function icon(name) {
-    var s = 'fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"';
+    var s = 'fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"';
     var inner = '';
     switch (name) {
       case 'order':
@@ -613,6 +876,9 @@ CG.svg = (function () {
       case 'star':
         inner = '<path d="M20 4 l4.6 10 11 1.3 -8.2 7.4 2.4 10.9 -9.8 -5.8 -9.8 5.8 2.4 -10.9 -8.2 -7.4 11 -1.3 z" fill="currentColor"/>';
         break;
+      case 'coin':
+        inner = '<circle cx="20" cy="20" r="14" ' + s + '/><text x="20" y="26" text-anchor="middle" font-size="16" font-weight="bold" fill="currentColor">$</text>';
+        break;
       case 'pause':
         inner = '<line x1="15" y1="10" x2="15" y2="30" ' + s + '/><line x1="25" y1="10" x2="25" y2="30" ' + s + '/>';
         break;
@@ -636,18 +902,32 @@ CG.svg = (function () {
     return '<span class="stars">' + out + '</span>';
   }
 
-  /* title mark: ceramic cup, soft steam */
+  /* title: a busy little brew-bar vignette */
   function logo() {
-    return '<svg viewBox="0 0 220 150" class="logo-svg">' +
-      '<defs><filter id="lgb" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter></defs>' +
-      '<ellipse cx="110" cy="134" rx="58" ry="7" fill="#3c352d" opacity="0.14" filter="url(#lgb)"/>' +
-      '<path d="M64 52 h92 l-10 70 a10 10 0 0 1 -10 8 h-52 a10 10 0 0 1 -10 -8 z" fill="#faf7f1"/>' +
-      '<path d="M64 52 h92 l-2 14 h-88 z" fill="#ffffff" opacity="0.55"/>' +
-      '<path d="M70 58 h80 l-4 26 h-72 z" fill="#c89a6c"/>' +
-      '<g transform="translate(110,74) scale(1.15)"><path d="M0 8 C-9 1 -8 -6 -2 -6 C0 -6 0 -3 0 -3 C0 -3 0 -6 2 -6 C8 -6 9 1 0 8 z" fill="#fcfbf8"/></g>' +
-      '<path d="M156 62 q22 4 18 24 q-4 18 -24 16" fill="none" stroke="#e3dccd" stroke-width="8" stroke-linecap="round"/>' +
-      '<g stroke="#d8d0c0" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.9">' +
-      '<path d="M92 40 q5 -9 0 -18"/><path d="M112 42 q5 -10 0 -20"/><path d="M132 40 q5 -9 0 -18"/></g>' +
+    var p = 'lg';
+    return '<svg viewBox="0 0 260 170" class="logo-svg">' + defs(p) +
+      shadow(p, 130, 158, 92, 8, 0.16) +
+      '<rect x="18" y="132" width="224" height="14" rx="7" fill="url(#' + p + 'ct)" ' + ol(2.2) + '/>' +
+      // latte cup with heart
+      '<g transform="translate(58,46)">' +
+      '<path d="M8 18 h74 l-8 56 a8 8 0 0 1 -8 6.5 h-42 a8 8 0 0 1 -8 -6.5 z" fill="#fdf8ec" ' + ol(2.6) + '/>' +
+      '<path d="M14 25 h62 l-4 26 h-54 z" fill="#c89a6c"/>' +
+      '<g transform="translate(45,38) scale(1.2)"><path d="M0 8 C-9 1 -8 -6 -2 -6 C0 -6 0 -3 0 -3 C0 -3 0 -6 2 -6 C8 -6 9 1 0 8 z" fill="#fcfbf8"/></g>' +
+      '<path d="M82 28 q18 3 15 19 q-3 15 -19 13" fill="none" stroke="' + O + '" stroke-width="8.5" stroke-linecap="round"/>' +
+      '<path d="M82 28 q18 3 15 19 q-3 15 -19 13" fill="none" stroke="#fdf8ec" stroke-width="4.5" stroke-linecap="round"/>' +
+      '<g stroke="#ddd0b2" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.95">' +
+      '<path d="M22 10 q5 -8 0 -16"/><path d="M44 12 q5 -9 0 -18"/><path d="M66 10 q5 -8 0 -16"/></g>' +
+      '</g>' +
+      // V60 beside it
+      '<g transform="translate(170,72)">' +
+      '<path d="M0 0 h52 l-18 32 h-16 z" fill="#fdf8ec" ' + ol(2.2) + '/>' +
+      '<path d="M5 10 h42 l-2 4.5 h-38 z" fill="#c9a36a" ' + ol(1.4) + '/>' +
+      '<path d="M22 32 h8 v5 h-8 z" fill="#ddd0b2" ' + ol(1.2) + '/>' +
+      '<path d="M2 42 h48 l-4 18 h-40 z" fill="#ffffff" fill-opacity="0.4" ' + ol(2) + '/>' +
+      '</g>' +
+      // beans
+      '<g ' + ol(1.2) + '><ellipse cx="36" cy="124" rx="6" ry="4.2" fill="#7e5634" transform="rotate(-20 36 124)"/>' +
+      '<ellipse cx="226" cy="120" rx="6" ry="4.2" fill="#8a5e38" transform="rotate(28 226 120)"/></g>' +
       '</svg>';
   }
 
@@ -660,6 +940,7 @@ CG.svg = (function () {
     portafilter: portafilter, kettle: kettle,
     sceneMilk: sceneMilk, pitcherSvg: pitcherSvg,
     scenePass: scenePass, passCup: passCup,
+    machinePortrait: machinePortrait,
     drink: drink, tagPills: tagPills,
     icon: icon, stars: stars, logo: logo
   };
