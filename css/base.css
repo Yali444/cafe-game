@@ -262,43 +262,71 @@ body {
   position: absolute; inset: 0;
   display: none;
   flex-direction: column;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  padding: 4px 16px 16px;
+  overflow: hidden;
+  padding: 0;
 }
 .station-panel.active { display: flex; }
 
-.station-head { margin-bottom: 10px; }
+/* floating header chips over the full-bleed scene */
+.station-head { position: relative; z-index: 7; padding: 10px 14px 0; pointer-events: none; }
 .station-head h2 {
+  display: inline-block;
   font-family: var(--serif);
   font-weight: 800;
-  font-size: 24px;
+  font-size: 18px;
   color: var(--ink);
+  background: rgba(253, 248, 236, 0.94);
+  border: 2px solid var(--edge);
+  border-radius: 999px;
+  padding: 5px 16px;
+  box-shadow: var(--shadow-soft);
 }
-.station-head .hint { font-size: 13px; color: var(--ink-soft); min-height: 18px; margin-top: 2px; }
+.station-head .hint {
+  display: block;
+  width: fit-content;
+  max-width: 92%;
+  font-size: 12px;
+  color: var(--ink-soft);
+  background: rgba(253, 248, 236, 0.92);
+  border: 1.5px solid var(--edge);
+  border-radius: 14px;
+  padding: 4px 11px;
+  margin-top: 6px;
+  min-height: 0;
+}
 .station-head .note { color: var(--clay); }
 
+/* floating control dock over the counter */
 .station-controls {
+  position: relative;
+  z-index: 7;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 9px;
   align-items: stretch;
-  padding-top: 14px;
+  margin-top: auto;
+  padding: 10px 14px 12px;
 }
-.control-note { text-align: center; font-size: 13px; color: var(--ink-soft); padding: 8px 0; }
+#panel-build .station-controls { margin-top: 0; }
+.control-note {
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  background: rgba(253, 248, 236, 0.9);
+  border: 1.5px solid var(--edge);
+  border-radius: 999px;
+  padding: 7px 12px;
+  margin: 0 auto;
+}
 
 /* ---------- illustrated scenes ---------- */
 
 .scene-wrap {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 3 / 2;
-  border: 2.5px solid var(--edge);
-  border-radius: 22px;
+  position: absolute;
+  inset: 0;
   overflow: hidden;
   background: #f7e8c3;
-  flex: 0 0 auto;
-  box-shadow: var(--shadow-lift);
 }
 .scene-wrap .scene-svg, .scene-host, .scene-overlays { position: absolute; inset: 0; width: 100%; height: 100%; }
 .scene-host .scene-svg { position: absolute; inset: 0; }
@@ -312,13 +340,14 @@ body {
 }
 .scene-actors .cust-slot { width: 26%; max-width: 112px; }
 .bubble-layer {
-  position: absolute; left: 8px; right: 8px; top: 6px;
-  z-index: 6;
+  position: absolute; left: 10px; right: 10px; top: 86px;
+  z-index: 8;
   pointer-events: none;
 }
 .bubble-layer .speech-bubble { pointer-events: auto; margin: 0; }
 #roast-crackles { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
 #roast-zones { position: absolute; inset: 0; z-index: 5; }
+.scene-overlays { padding-top: 84px; }
 
 .scene-zone {
   position: absolute;
@@ -370,15 +399,15 @@ body {
 
 .bloom-ring, .steep-ring {
   position: absolute;
-  left: 31%; top: 22%;
-  width: 18%; aspect-ratio: 1;
+  left: 27%; top: 46%;
+  width: 16%; aspect-ratio: 1;
   border-radius: 50%;
   border: 3px solid var(--clay);
   opacity: 0.85;
   pointer-events: none;
   z-index: 4;
 }
-.steep-ring { left: 42%; top: 14%; width: 17%; border-color: rgba(110,86,68,0.3); }
+.steep-ring { left: 36%; top: 51%; width: 17%; border-color: rgba(110,86,68,0.3); }
 .steep-ring span {
   position: absolute; inset: -3px;
   border-radius: 50%;
@@ -437,6 +466,7 @@ body {
 }
 
 /* pass holding chips */
+#pass-list { position: relative; z-index: 7; margin-top: auto; padding: 0 12px; }
 .pass-chip {
   position: relative;
   display: inline-flex;
@@ -464,9 +494,9 @@ body {
 
 .thermo-overlay {
   position: absolute;
-  top: 10px; right: 10px; bottom: 12px;
-  width: 50px;
-  z-index: 5;
+  top: 16%; right: 8px; bottom: 40%;
+  width: 44px;
+  z-index: 6;
   display: flex; flex-direction: column; align-items: center; gap: 5px;
 }
 .thermo-track, .gauge-track {
@@ -512,7 +542,7 @@ body {
 
 .gauges-overlay {
   position: absolute;
-  top: 10px; right: 10px; bottom: 12px;
+  top: 17%; right: 8px; bottom: 28%;
   display: flex; gap: 8px;
   z-index: 6;
 }

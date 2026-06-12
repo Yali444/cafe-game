@@ -8,7 +8,7 @@ CG.svg = (function () {
 
   function ol(extra) { return 'stroke="' + O + '" stroke-width="' + (extra || OW) + '" stroke-linejoin="round"'; }
 
-  /* ============ scene plumbing (360x240, counter slab y168-184, front to 240) ============ */
+  /* ============ scene plumbing (portrait 360x540, counter slab y420-440, front to 540) ============ */
 
   function defs(p) {
     return '<defs>' +
@@ -27,15 +27,29 @@ CG.svg = (function () {
   }
 
   function open(p, cls) {
-    return '<svg viewBox="0 0 360 240" class="scene-svg ' + (cls || '') + '" preserveAspectRatio="xMidYMid slice">' + defs(p);
+    return '<svg viewBox="0 0 360 540" class="scene-svg ' + (cls || '') + '" preserveAspectRatio="xMidYMax slice">' + defs(p);
   }
 
   function wall(p) {
     var stripes = '', x;
     for (x = 8; x < 380; x += 34) {
-      stripes += '<rect x="' + x + '" y="-5" width="15" height="250" fill="#fbf2da" opacity="0.6"/>';
+      stripes += '<rect x="' + x + '" y="-5" width="15" height="550" fill="#fbf2da" opacity="0.6"/>';
     }
-    return '<rect x="-5" y="-5" width="370" height="250" fill="url(#' + p + 'w)"/>' + stripes;
+    return '<rect x="-5" y="-5" width="370" height="550" fill="url(#' + p + 'w)"/>' + stripes +
+      '<rect x="-5" y="252" width="370" height="7" fill="#e3cf9f"/>' +
+      '<rect x="-5" y="252" width="370" height="2.5" fill="#ffffff" opacity="0.5"/>';
+  }
+
+  /* a tall window with soft sky, curtain ties */
+  function windowFrame(p, x, y, w, h) {
+    return shadow(p, x + w / 2, y + h + 6, w / 2, 5, 0.1) +
+      '<rect x="' + (x - 6) + '" y="' + (y - 6) + '" width="' + (w + 12) + '" height="' + (h + 12) + '" rx="10" fill="#fdf8ec" ' + ol(2.4) + '/>' +
+      '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="5" fill="#cfe4ea"/>' +
+      '<circle cx="' + (x + w * 0.7) + '" cy="' + (y + h * 0.22) + '" r="' + (w * 0.13) + '" fill="#fff6dd"/>' +
+      '<path d="M' + x + ' ' + (y + h * 0.62) + ' q' + (w * 0.25) + ' -14 ' + (w * 0.5) + ' 0 q' + (w * 0.25) + ' -12 ' + (w * 0.5) + ' 2 l0 ' + (h * 0.38) + ' h-' + w + ' z" fill="#a7c48b" opacity="0.9"/>' +
+      '<path d="M' + x + ' ' + (y + h * 0.74) + ' q' + (w * 0.3) + ' -10 ' + (w * 0.6) + ' 0 q' + (w * 0.2) + ' -8 ' + (w * 0.4) + ' 2 l0 ' + (h * 0.26) + ' h-' + w + ' z" fill="#90ad75" opacity="0.9"/>' +
+      '<line x1="' + (x + w / 2) + '" y1="' + y + '" x2="' + (x + w / 2) + '" y2="' + (y + h) + '" stroke="' + O + '" stroke-width="2.4"/>' +
+      '<line x1="' + x + '" y1="' + (y + h / 2) + '" x2="' + (x + w) + '" y2="' + (y + h / 2) + '" stroke="' + O + '" stroke-width="2.4"/>';
   }
 
   /* white tiled backsplash band */
@@ -59,11 +73,12 @@ CG.svg = (function () {
   function counter(p) {
     var planks = '', x;
     for (x = 44; x < 360; x += 72) {
-      planks += '<line x1="' + x + '" y1="190" x2="' + x + '" y2="240" stroke="#8f6d47" stroke-width="2" opacity="0.5"/>';
+      planks += '<line x1="' + x + '" y1="448" x2="' + x + '" y2="540" stroke="#8f6d47" stroke-width="2.2" opacity="0.5"/>';
     }
-    return '<rect x="-6" y="184" width="372" height="60" fill="url(#' + p + 'wd)"/>' + planks +
-      '<rect x="-6" y="168" width="372" height="18" rx="6" fill="url(#' + p + 'ct)" ' + ol(2.2) + '/>' +
-      '<rect x="-2" y="170.5" width="364" height="4" rx="2" fill="#ffffff" opacity="0.45"/>';
+    return '<rect x="-6" y="440" width="372" height="106" fill="url(#' + p + 'wd)"/>' + planks +
+      '<rect x="-6" y="488" width="372" height="4" fill="#8f6d47" opacity="0.4"/>' +
+      '<rect x="-6" y="420" width="372" height="22" rx="7" fill="url(#' + p + 'ct)" ' + ol(2.4) + '/>' +
+      '<rect x="-2" y="423" width="364" height="5" rx="2.5" fill="#ffffff" opacity="0.45"/>';
   }
 
   function shadow(p, x, y, rx, ry, op) {
@@ -300,50 +315,50 @@ CG.svg = (function () {
       '<rect x="' + x + '" y="' + y + '" width="38" height="12" rx="4" fill="#d8c8a8" ' + ol(1.7) + '/>' + beans;
   }
 
-  /* ============ scenes ============ */
+  /* ============ scenes (portrait 360x540) ============ */
 
   /* --- order: front of house --- */
 
   function sceneOrderBack() {
     var p = 'so';
     return open(p, 'scene-back') + wall(p) +
-      tiles(0, 118, 360, 52) +
-      pendant(50, 18) + pendant(310, 30) +
-      chalkMenu(p, 142, 30, 92, 70) +
-      framedPrint(p, 96, 42) +
-      shelfPlank(p, 14, 70, 72) + cupStack(20, 60, 2, '#f2cfc4') + jar(52, 44, 24, '#b98e5c', 0.7) +
-      shelfPlank(p, 248, 64, 98) + mug(254, 46, '#aed0c2') + mug(276, 46, '#f2cfc4') + bottle(300, 38) + plantPot(p, 332, 62, 0.55) +
-      plantHang(338, 90) +
+      pendant(56, 22) + pendant(304, 44) +
+      windowFrame(p, 24, 96, 108, 130) +
+      chalkMenu(p, 170, 100, 128, 94) +
+      shelfPlank(p, 158, 234, 120) + cupStack(166, 224, 2, '#f2cfc4') + jar(204, 208, 24, '#b98e5c', 0.7) + bottle(234, 204) + mug(262, 216, '#aed0c2') +
+      shelfPlank(p, 18, 262, 110) + mug(26, 244, '#f2cfc4') + cupStack(54, 252, 2) + jar(90, 236, 24, '#a87f4f', 0.55) +
+      plantHang(332, 104) +
+      tiles(0, 300, 360, 122) +
       '</svg>';
   }
 
   function sceneOrderFront() {
     var p = 'sf';
     return open(p, 'scene-front-svg') + counter(p) +
-      register(p, 18, 132) +
-      pastryDome(p, 84, 138) +
-      menuCard(140, 150) +
-      vasePlant(288, 138) +
-      tipJar(322, 142) +
+      register(p, 16, 384) +
+      pastryDome(p, 86, 390) +
+      menuCard(146, 400) +
+      vasePlant(286, 388) +
+      tipJar(322, 394) +
       '</svg>';
   }
 
   /* --- roastery --- */
 
-  var ROAST_BAG_X = [186, 232, 278];
+  var ROAST_BAG_X = [196, 248, 300];
 
   function sceneRoast() {
     var p = 'sr';
     return open(p) + wall(p) +
-      tiles(0, 122, 360, 48) +
-      pendant(174, 14) +
-      shelfPlank(p, 14, 50, 130) +
-      jar(20, 24, 24, '#a87f4f', 0.8) + jar(46, 24, 24, '#7e5634', 0.55) + jar(72, 24, 24, '#94a06b', 0.7) +
-      cupStack(102, 41, 2) +
-      '<text x="160" y="56" font-size="9" letter-spacing="3" fill="#b3996e" font-family="system-ui,sans-serif">ROASTERY</text>' +
-      // drum roaster (ids + drum coords preserved: group (28,76), drum cx62 cy44)
-      '<g transform="translate(28,76)">' +
-      shadow(p, 62, 100, 66, 7, 0.18) +
+      pendant(178, 18) +
+      windowFrame(p, 232, 92, 100, 122) +
+      '<text x="18" y="86" font-size="10" letter-spacing="3" fill="#b3996e" font-family="system-ui,sans-serif">ROASTERY</text>' +
+      shelfPlank(p, 14, 130, 152) +
+      jar(22, 104, 24, '#a87f4f', 0.8) + jar(48, 104, 24, '#7e5634', 0.55) + jar(74, 104, 24, '#94a06b', 0.7) +
+      cupStack(106, 121, 2) + sack(p, 132, 178) +
+      tiles(0, 300, 360, 122) +
+      '<g transform="translate(14,270) scale(1.5)">' +
+      shadow(p, 62, 100, 66, 6, 0.18) +
       '<rect x="0" y="86" width="124" height="14" rx="6" fill="url(#' + p + 'ct)" ' + ol(2) + '/>' +
       '<rect x="6" y="0" width="112" height="88" rx="16" fill="#f3ead6" ' + ol(2.2) + '/>' +
       '<rect x="8" y="2" width="108" height="9" rx="4.5" fill="#ffffff" opacity="0.6"/>' +
@@ -361,7 +376,6 @@ CG.svg = (function () {
       '<circle cx="74" cy="-16" r="9" fill="#dcd3c2" opacity="0.65"/><circle cx="52" cy="-18" r="6" fill="#dcd3c2" opacity="0.55"/></g>' +
       '</g>' +
       counter(p) +
-      coolingTray(p, 152, 150) +
       '<g id="roast-bags"></g>' +
       '</svg>';
   }
@@ -385,12 +399,12 @@ CG.svg = (function () {
       var x = ROAST_BAG_X[i];
       var q = quality[o];
       return '<g' + (selected === o ? ' class="bag-sel"' : '') + '>' +
-        beanBag(p, x, 126, o, 0.92) +
-        '<g transform="translate(' + x + ',106)">' +
-        '<rect x="-14" y="-10" width="28" height="17" rx="8.5" fill="' + (inv[o] > 0 ? '#5b554d' : '#c2af8d') + '" ' + ol(1.5) + '/>' +
-        '<text x="0" y="2.5" text-anchor="middle" font-size="10" font-weight="700" fill="#fdf8ec" font-family="system-ui,sans-serif">' + inv[o] + '</text>' +
+        beanBag(p, x, 364, o, 1.05) +
+        '<g transform="translate(' + x + ',340)">' +
+        '<rect x="-15" y="-11" width="30" height="19" rx="9.5" fill="' + (inv[o] > 0 ? '#5b554d' : '#c2af8d') + '" ' + ol(1.5) + '/>' +
+        '<text x="0" y="3.5" text-anchor="middle" font-size="11" font-weight="700" fill="#fdf8ec" font-family="system-ui,sans-serif">' + inv[o] + '</text>' +
         '</g>' +
-        (q != null ? '<text x="' + x + '" y="183" text-anchor="middle" font-size="7.5" font-weight="600" fill="#fdf8ec" font-family="system-ui,sans-serif">q ' + Math.round(q) + '</text>' : '') +
+        (q != null ? '<text x="' + x + '" y="466" text-anchor="middle" font-size="9" font-weight="600" fill="#fdf8ec" font-family="system-ui,sans-serif">q ' + Math.round(q) + '</text>' : '') +
         '</g>';
     }).join('');
   }
@@ -414,18 +428,18 @@ CG.svg = (function () {
 
   function brewWallCommon(p, label) {
     return wall(p) +
-      tiles(40, 50, 280, 120) +
-      pendant(24, 14) +
-      '<text x="50" y="44" font-size="9" letter-spacing="3" fill="#b3996e" font-family="system-ui,sans-serif">' + label + '</text>' +
-      shelfPlank(p, 236, 28, 110) + jar(244, 4, 22, '#7e5634', 0.7) + jar(268, 4, 22, '#a87f4f', 0.5) + mug(294, 6, '#f2cfc4') + mug(316, 6, '#aed0c2');
+      pendant(28, 18) +
+      windowFrame(p, 22, 86, 100, 118) +
+      '<text x="138" y="86" font-size="10" letter-spacing="3" fill="#b3996e" font-family="system-ui,sans-serif">' + label + '</text>' +
+      shelfPlank(p, 224, 142, 122) + jar(232, 116, 22, '#7e5634', 0.7) + jar(258, 116, 22, '#a87f4f', 0.5) + mug(286, 124, '#f2cfc4') + mug(312, 124, '#aed0c2') +
+      tiles(0, 300, 360, 122);
   }
 
-  /* espresso: reference-style wide sage machine, two heads; ids + glass geometry preserved */
+  /* espresso: wide sage machine; ids + inner glass geometry preserved */
   function sceneBrewEspresso() {
     var p = 'se';
     return open(p) + brewWallCommon(p, 'BREW BAR') +
-      // grinder with full hopper
-      '<g transform="translate(24,62)">' +
+      '<g transform="translate(2,282) scale(1.3)">' +
       shadow(p, 28, 110, 32, 6, 0.18) +
       '<rect x="6" y="34" width="44" height="72" rx="10" fill="url(#' + p + 'st)" ' + ol(2) + '/>' +
       '<rect x="8" y="36" width="40" height="7" rx="3.5" fill="#6d665d"/>' +
@@ -436,9 +450,8 @@ CG.svg = (function () {
       '<circle cx="28" cy="64" r="3" fill="#9c7950"/>' +
       '<rect x="20" y="90" width="16" height="11" rx="3.5" fill="#2e2a25" ' + ol(1.4) + '/>' +
       '</g>' +
-      // machine: wide sage body, two group heads, cup rail
-      '<g transform="translate(110,78)">' +
-      shadow(p, 88, 94, 92, 8, 0.2) +
+      '<g transform="translate(58,290) scale(1.45)">' +
+      shadow(p, 88, 94, 92, 7, 0.2) +
       '<rect x="0" y="0" width="176" height="58" rx="13" fill="url(#' + p + 'sg)" ' + ol(2.4) + '/>' +
       '<rect x="2" y="2" width="172" height="9" rx="4.5" fill="#ffffff" opacity="0.4"/>' +
       '<rect x="-4" y="-8" width="184" height="10" rx="5" fill="#c9a36a" ' + ol(2) + '/>' +
@@ -449,21 +462,18 @@ CG.svg = (function () {
       '<line x1="88" y1="26" x2="84" y2="21" stroke="' + O + '" stroke-width="1.6" stroke-linecap="round"/>' +
       '<rect x="118" y="20" width="34" height="12" rx="5" fill="#fdf8ec" ' + ol(1.7) + '/>' +
       '<circle cx="166" cy="26" r="5.5" fill="#f2cfc4" ' + ol(1.5) + '/>' +
-      // two group heads; the LEFT one is the live dock
       '<rect x="56" y="56" width="38" height="14" rx="5.5" fill="#46413a" ' + ol(1.8) + '/>' +
       '<path d="M70 70 h12 v8 h-12 z" fill="#2e2a25"/>' +
       '<rect x="120" y="56" width="38" height="14" rx="5.5" fill="#46413a" ' + ol(1.8) + '/>' +
       '<path d="M134 70 h12 v8 h-12 z" fill="#2e2a25"/>' +
       '<rect x="146" y="58" width="40" height="8" rx="4" fill="#c9a36a" ' + ol(1.7) + '/>' +
       '<g id="esp-pf-dock" opacity="0"><rect x="50" y="68" width="50" height="9" rx="4.5" fill="#c9a36a" ' + ol(1.7) + '/><rect x="92" y="69.5" width="26" height="6" rx="3" fill="#a9845a"/></g>' +
-      '<g id="esp-stream" opacity="0"><rect x="73" y="80" width="5" height="26" rx="2.5" fill="#8a5a30"/></g>' +
-      // body columns to the counter + drip tray
+      '<g id="esp-stream" opacity="0"><rect x="73" y="78" width="5" height="16" rx="2.5" fill="#8a5a30"/></g>' +
       '<rect x="2" y="56" width="28" height="34" rx="8" fill="url(#' + p + 'sg)" ' + ol(2) + '/>' +
       '<rect x="146" y="66" width="28" height="24" rx="8" fill="url(#' + p + 'sg)" ' + ol(2) + '/>' +
       '<rect x="30" y="84" width="118" height="8" rx="4" fill="#9b948b" ' + ol(1.6) + '/>' +
       '</g>' +
-      // shot glass under the left head (inner geometry preserved for st-brew)
-      '<g id="esp-glass" transform="translate(167,150)">' +
+      '<g id="esp-glass" transform="translate(150,368) scale(1.4)">' +
       '<clipPath id="' + p + 'gc"><path d="M1 1 h30 l-3 30 a4 4 0 0 1 -4 3 h-16 a4 4 0 0 1 -4 -3 z"/></clipPath>' +
       '<g clip-path="url(#' + p + 'gc)"><rect id="esp-fill" x="0" y="34" width="32" height="36" fill="#8a5a30"/>' +
       '<rect x="0" y="34" width="32" height="3" fill="#caa468" id="esp-crema"/></g>' +
@@ -471,7 +481,7 @@ CG.svg = (function () {
       '<line id="esp-target" x1="-7" y1="13" x2="39" y2="13" stroke="#d9876a" stroke-width="2.5" stroke-dasharray="4 3"/>' +
       '</g>' +
       counter(p) +
-      tamper(86, 154) + cloth(308, 156) + brewScale(p, 300, 142, 40) +
+      tamper(78, 400) + cloth(322, 404, '#aed0c2') +
       '</svg>';
   }
 
@@ -485,12 +495,12 @@ CG.svg = (function () {
       '</svg>';
   }
 
-  /* v60: stand group + server ids preserved (translate(96,52)) */
+  /* v60: stand + server (inner ids preserved) */
   function sceneBrewV60() {
     var p = 'sv';
     return open(p) + brewWallCommon(p, 'SLOW BAR') +
-      '<g transform="translate(96,52)">' +
-      shadow(p, 44, 124, 56, 7, 0.18) +
+      '<g transform="translate(56,220) scale(1.62)">' +
+      shadow(p, 44, 124, 56, 6, 0.18) +
       '<rect x="-8" y="114" width="104" height="11" rx="5.5" fill="#4f4a43" ' + ol(1.8) + '/>' +
       '<rect x="62" y="116.5" width="20" height="6" rx="3" fill="#cfe0d5"/>' +
       '<g id="v60-server">' +
@@ -509,7 +519,7 @@ CG.svg = (function () {
       '<g id="v60-drip" opacity="0"><rect x="41.5" y="60" width="4" height="14" rx="2" fill="#8a5a30"/></g>' +
       '</g>' +
       counter(p) +
-      filterBox(214, 148) + timer(252, 148) + mug(282, 152, '#f2cfc4') + brewScale(p, 312, 154, 36) +
+      filterBox(238, 398) + timer(276, 398) + brewScale(p, 312, 406, 40) +
       '</svg>';
   }
 
@@ -527,12 +537,12 @@ CG.svg = (function () {
       '</svg>';
   }
 
-  /* aeropress (group translate(128,44), ids preserved) */
+  /* aeropress (inner ids preserved) */
   function sceneBrewAero() {
     var p = 'sa';
     return open(p) + brewWallCommon(p, 'BREW BAR') +
-      '<g transform="translate(128,44)">' +
-      shadow(p, 52, 132, 56, 7, 0.18) +
+      '<g transform="translate(76,214) scale(1.55)">' +
+      shadow(p, 52, 132, 56, 6, 0.18) +
       '<rect x="-4" y="122" width="112" height="11" rx="5.5" fill="#4f4a43" ' + ol(1.8) + '/>' +
       '<g><clipPath id="' + p + 'ac"><path d="M22 78 h60 l-5 42 h-50 z"/></clipPath>' +
       '<g clip-path="url(#' + p + 'ac)"><rect id="aero-fill" x="18" y="120" width="68" height="46" fill="#7a4e28"/></g>' +
@@ -545,16 +555,16 @@ CG.svg = (function () {
       '</g>' +
       '</g>' +
       counter(p) +
-      mug(58, 150, '#f2cfc4') + mug(82, 152, '#aed0c2') + timer(258, 148) + jar(290, 138, 26, '#a87f4f', 0.6) +
+      mug(262, 398, '#f2cfc4') + mug(290, 402, '#aed0c2') + timer(322, 398) +
       '</svg>';
   }
 
-  /* batch brewer (group translate(124,56), ids preserved) */
+  /* batch brewer (inner ids preserved) */
   function sceneBrewBatch() {
     var p = 'sb';
     return open(p) + brewWallCommon(p, 'BREW BAR') +
-      '<g transform="translate(124,56)">' +
-      shadow(p, 56, 118, 60, 7, 0.18) +
+      '<g transform="translate(64,247) scale(1.5)">' +
+      shadow(p, 56, 118, 60, 6, 0.18) +
       '<rect x="0" y="0" width="34" height="112" rx="9" fill="#f3ead6" ' + ol(2.2) + '/>' +
       '<rect x="2" y="2" width="30" height="8" rx="4" fill="#ffffff" opacity="0.7"/>' +
       '<rect x="0" y="0" width="112" height="22" rx="9" fill="#f3ead6" ' + ol(2.2) + '/>' +
@@ -569,23 +579,24 @@ CG.svg = (function () {
       '<rect x="34" y="106" width="78" height="9" rx="4.5" fill="#4f4a43" ' + ol(1.7) + '/>' +
       '</g>' +
       counter(p) +
-      mug(54, 150, '#f2cfc4') + mug(78, 152, '#e9c178') + jar(268, 140, 26, '#fdf8ec', 0.8) + cloth(304, 156, '#f2cfc4') +
+      mug(262, 400, '#f2cfc4') + jar(294, 390, 26, '#fdf8ec', 0.8) + cloth(324, 406, '#f2cfc4') +
       '</svg>';
   }
 
-  /* --- milk bar (machine group translate(118,48); steam id preserved) --- */
+  /* --- milk bar (machine inner coords preserved) --- */
 
   function sceneMilk() {
     var p = 'sm';
     return open(p) + wall(p) +
-      tiles(90, 48, 270, 122) +
-      pendant(330, 18) +
-      '<text x="20" y="44" font-size="9" letter-spacing="3" fill="#b3996e" font-family="system-ui,sans-serif">MILK BAR</text>' +
-      fridge(p, 18, 58, 110) +
-      shelfPlank(p, 168, 40, 100) +
-      bottle(176, 14, '#fdfdfd') + bottle(196, 14, '#f2cfc4') + mug(218, 22, '#aed0c2') + mug(242, 22, '#fdf8ec') +
-      '<g transform="translate(118,48)">' +
-      shadow(p, 60, 134, 64, 7, 0.16) +
+      pendant(326, 20) +
+      '<text x="20" y="86" font-size="10" letter-spacing="3" fill="#b3996e" font-family="system-ui,sans-serif">MILK BAR</text>' +
+      shelfPlank(p, 170, 130, 120) +
+      bottle(178, 104, '#fdfdfd') + bottle(198, 104, '#f2cfc4') + mug(222, 112, '#aed0c2') + mug(248, 112, '#fdf8ec') +
+      framedPrint(p, 302, 110) +
+      tiles(0, 300, 360, 122) +
+      fridge(p, 14, 242, 178) +
+      '<g transform="translate(96,160) scale(1.5)">' +
+      shadow(p, 60, 134, 64, 6, 0.16) +
       '<rect x="0" y="0" width="116" height="48" rx="11" fill="url(#' + p + 'st)" ' + ol(2.2) + '/>' +
       '<rect x="2" y="2" width="112" height="7" rx="3.5" fill="#6d665d"/>' +
       '<circle cx="26" cy="24" r="8.5" fill="#fdf8ec" ' + ol(1.7) + '/><circle cx="26" cy="24" r="3" fill="#d9876a"/>' +
@@ -597,7 +608,7 @@ CG.svg = (function () {
       '<path d="M44 98 q-4 10 2 16" stroke="#ffffff" stroke-opacity="0.6" stroke-width="4" fill="none" stroke-linecap="round"/></g>' +
       '</g>' +
       counter(p) +
-      cloth(250, 156, '#aed0c2') + saucerStack(290, 158, 3) +
+      cloth(288, 404, '#aed0c2') + saucerStack(330, 410, 3) +
       '</svg>';
   }
 
@@ -619,48 +630,48 @@ CG.svg = (function () {
   function scenePass() {
     var p = 'sp';
     return open(p) + wall(p) +
-      tiles(0, 116, 360, 54) +
-      pendant(46, 16) + plantHang(330, 84) +
-      '<text x="20" y="44" font-size="9" letter-spacing="3" fill="#b3996e" font-family="system-ui,sans-serif">THE PASS</text>' +
-      framedPrint(p, 282, 40) +
-      shelfPlank(p, 14, 64, 110) + cupStack(22, 54, 2) + mug(52, 46, '#f2cfc4') + jar(80, 38, 24, '#e9c178', 0.6) +
-      // serving board + doily
-      shadow(p, 180, 180, 74, 7, 0.18) +
-      '<rect x="108" y="158" width="144" height="13" rx="6.5" fill="url(#' + p + 'ct)" ' + ol(2.2) + '/>' +
-      '<rect x="110" y="160" width="140" height="3.5" rx="1.75" fill="#ffffff" opacity="0.45"/>' +
-      '<ellipse cx="180" cy="158" rx="44" ry="5" fill="#ffffff" opacity="0.6"/>' +
+      pendant(44, 18) +
+      windowFrame(p, 234, 92, 102, 126) +
+      '<text x="20" y="86" font-size="10" letter-spacing="3" fill="#b3996e" font-family="system-ui,sans-serif">THE PASS</text>' +
+      shelfPlank(p, 14, 142, 122) + cupStack(22, 132, 2) + mug(52, 124, '#f2cfc4') + jar(82, 116, 24, '#e9c178', 0.6) +
+      plantHang(330, 240) +
+      tiles(0, 300, 360, 122) +
+      shadow(p, 180, 428, 80, 7, 0.18) +
+      '<rect x="92" y="404" width="176" height="16" rx="8" fill="url(#' + p + 'ct)" ' + ol(2.4) + '/>' +
+      '<rect x="94" y="406" width="172" height="4.5" rx="2.25" fill="#ffffff" opacity="0.45"/>' +
+      '<ellipse cx="180" cy="404" rx="58" ry="6" fill="#ffffff" opacity="0.6"/>' +
       '<g id="cup-host"></g>' +
-      '<g id="pass-stream" opacity="0"><rect x="176" y="74" width="5" height="46" rx="2.5" fill="#fcfbf8"/></g>' +
+      '<g id="pass-stream" opacity="0"><rect x="175" y="120" width="7" height="112" rx="3.5" fill="#fcfbf8"/></g>' +
       counter(p) +
-      bell(86, 148) + saucerStack(272, 156, 3) + vasePlant(308, 138) +
+      bell(56, 396) + saucerStack(300, 406, 3) + vasePlant(330, 384) +
       '</svg>';
   }
 
   function passCup(liquidColor, fillFrac, artTier, cremaLine) {
-    var topY = 92, botY = 156, lipW = 64, baseW = 48;
+    var topY = 240, botY = 400, lipW = 116, baseW = 86;
     var h = botY - topY;
-    var lvl = botY - 4 - Math.max(0, Math.min(1, fillFrac)) * (h - 14);
+    var lvl = botY - 8 - Math.max(0, Math.min(1, fillFrac)) * (h - 28);
     var art = '';
     if (artTier === 'heart') {
-      art = '<g transform="translate(180,' + (lvl + 9) + ') scale(0.9)"><path d="M0 8 C-9 1 -8 -6 -2 -6 C0 -6 0 -3 0 -3 C0 -3 0 -6 2 -6 C8 -6 9 1 0 8 z" fill="#fcfbf8"/></g>';
+      art = '<g transform="translate(180,' + (lvl + 20) + ') scale(2)"><path d="M0 8 C-9 1 -8 -6 -2 -6 C0 -6 0 -3 0 -3 C0 -3 0 -6 2 -6 C8 -6 9 1 0 8 z" fill="#fcfbf8"/></g>';
     } else if (artTier === 'tulip') {
-      art = '<g transform="translate(180,' + (lvl + 8) + ')" fill="#fcfbf8">' +
+      art = '<g transform="translate(180,' + (lvl + 18) + ') scale(2)" fill="#fcfbf8">' +
         '<path d="M0 9 C-7 4 -6 -1 -1.5 -1 C0 -1 0 1 0 1 C0 1 0 -1 1.5 -1 C6 -1 7 4 0 9z"/>' +
         '<path d="M0 1 C-5 -3 -4 -7 -1 -7 C0 -7 0 -5 0 -5 C0 -5 0 -7 1 -7 C4 -7 5 -3 0 1z" transform="translate(0,-4)"/></g>';
     } else if (artTier === 'rosetta') {
-      art = '<g transform="translate(180,' + (lvl + 6) + ')" stroke="#fcfbf8" stroke-width="2.6" fill="none" stroke-linecap="round">' +
+      art = '<g transform="translate(180,' + (lvl + 14) + ') scale(2)" stroke="#fcfbf8" stroke-width="2.4" fill="none" stroke-linecap="round">' +
         '<path d="M0 14 l0 -18"/><path d="M-8 10 q8 -3 16 0"/><path d="M-7 5 q7 -3 14 0"/><path d="M-5.5 0 q5.5 -2.5 11 0"/><path d="M-4 -4.5 q4 -2 8 0"/></g>';
     }
     return '<g>' +
-      '<clipPath id="spcup"><path d="M' + (180 - lipW / 2 + 2) + ' ' + (topY + 2) + ' h' + (lipW - 4) + ' l-' + ((lipW - baseW) / 2 - 1) + ' ' + (h - 6) + ' a5 5 0 0 1 -5 4 h-' + (baseW - 14) + ' a5 5 0 0 1 -5 -4 z"/></clipPath>' +
+      '<clipPath id="spcup"><path d="M' + (180 - lipW / 2 + 3) + ' ' + (topY + 3) + ' h' + (lipW - 6) + ' l-' + ((lipW - baseW) / 2 - 1.5) + ' ' + (h - 9) + ' a7 7 0 0 1 -7 6 h-' + (baseW - 20) + ' a7 7 0 0 1 -7 -6 z"/></clipPath>' +
       '<g clip-path="url(#spcup)">' +
-      (fillFrac > 0 ? '<rect x="120" y="' + lvl + '" width="120" height="80" fill="' + liquidColor + '"/>' +
-        (cremaLine ? '<rect x="120" y="' + lvl + '" width="120" height="4" fill="#caa468"/>' : '') : '') +
+      (fillFrac > 0 ? '<rect x="100" y="' + lvl + '" width="160" height="180" fill="' + liquidColor + '"/>' +
+        (cremaLine ? '<rect x="100" y="' + lvl + '" width="160" height="7" fill="#caa468"/>' : '') : '') +
       '</g>' + art +
       '<path d="M' + (180 - lipW / 2) + ' ' + topY + ' h' + lipW + ' l-' + ((lipW - baseW) / 2) + ' ' + h + ' h-' + baseW + ' z" fill="#fdf8ec" opacity="0.3"/>' +
-      '<path d="M' + (180 - lipW / 2) + ' ' + topY + ' h' + lipW + ' l-' + ((lipW - baseW) / 2) + ' ' + h + ' a6 6 0 0 1 -6 4 h-' + (baseW - 12) + ' a6 6 0 0 1 -6 -4 z" fill="none" ' + ol(3) + '/>' +
-      '<path d="M' + (180 + lipW / 2 - 2) + ' ' + (topY + 12) + ' q16 4 12 18 q-3 12 -16 12" fill="none" stroke="' + O + '" stroke-width="8" stroke-linecap="round"/>' +
-      '<path d="M' + (180 + lipW / 2 - 2) + ' ' + (topY + 12) + ' q16 4 12 18 q-3 12 -16 12" fill="none" stroke="#fdf8ec" stroke-width="4" stroke-linecap="round"/>' +
+      '<path d="M' + (180 - lipW / 2) + ' ' + topY + ' h' + lipW + ' l-' + ((lipW - baseW) / 2) + ' ' + h + ' a9 9 0 0 1 -9 7 h-' + (baseW - 18) + ' a9 9 0 0 1 -9 -7 z" fill="none" ' + ol(5) + '/>' +
+      '<path d="M' + (180 + lipW / 2 - 3) + ' ' + (topY + 24) + ' q30 8 22 36 q-6 24 -30 24" fill="none" stroke="' + O + '" stroke-width="14" stroke-linecap="round"/>' +
+      '<path d="M' + (180 + lipW / 2 - 3) + ' ' + (topY + 24) + ' q30 8 22 36 q-6 24 -30 24" fill="none" stroke="#fdf8ec" stroke-width="7" stroke-linecap="round"/>' +
       '</g>';
   }
 

@@ -76,7 +76,7 @@ CG.stations.roast = (function () {
     zonesEl.innerHTML = unlocked.map(function (o, i) {
       var x = CG.svg.ROAST_BAG_X[i];
       return '<button class="scene-zone" data-origin="' + o + '" aria-label="' + d.ORIGINS[o].name + '"' +
-        ' style="left:' + ((x - 27) / 360 * 100) + '%;top:37%;width:' + (54 / 360 * 100) + '%;height:42%"></button>';
+        ' style="left:' + ((x - 30) / 360 * 100) + '%;top:58%;width:' + (60 / 360 * 100) + '%;height:26%"></button>';
     }).join('');
     zonesEl.querySelectorAll('.scene-zone').forEach(function (z) {
       z.addEventListener('click', function () {
@@ -192,8 +192,8 @@ CG.stations.roast = (function () {
   function spark() {
     var s = document.createElement('div');
     s.className = 'crack-spark';
-    s.style.left = (14 + Math.random() * 22) + '%';
-    s.style.top = (34 + Math.random() * 26) + '%';
+    s.style.left = (22 + Math.random() * 12) + '%';
+    s.style.top = (55 + Math.random() * 12) + '%';
     cracklesEl.appendChild(s);
     setTimeout(function () { if (s.parentNode) s.parentNode.removeChild(s); }, 500);
   }

@@ -141,7 +141,7 @@ CG.stations.brew = (function () {
     var win = CG.upgradeValue('grinder') * 100;
 
     overlayEl.innerHTML =
-      '<div class="dial-plate" style="left:6%;top:8%;width:46%">' +
+      '<div class="dial-plate" style="left:5%;top:26%;width:52%">' +
       '  <span class="dial-label">grind dial</span>' +
       '  <div class="dial-track" id="dial-track">' +
       '    <div class="dial-window" style="left:' + (dial.center - win / 2) + '%;width:' + win + '%"></div>' +
@@ -184,8 +184,8 @@ CG.stations.brew = (function () {
     msgEl.textContent = 'Lock the portafilter into the group head.';
     controlsEl.innerHTML = '<p class="control-note">Drag it up to the machine.</p>';
     overlayEl.innerHTML =
-      '<div class="drag-el" id="pf" style="left:36%;top:72%;width:26%">' + CG.svg.portafilter() + '</div>' +
-      '<div class="dock-zone" id="pf-zone" style="left:45%;top:52%;width:22%;height:18%"></div>';
+      '<div class="drag-el" id="pf" style="left:64%;top:80%;width:26%">' + CG.svg.portafilter() + '</div>' +
+      '<div class="dock-zone" id="pf-zone" style="left:34%;top:62%;width:26%;height:16%"></div>';
 
     var pf = overlayEl.querySelector('#pf');
     var zone = overlayEl.querySelector('#pf-zone');
@@ -254,10 +254,10 @@ CG.stations.brew = (function () {
   function setupV60() {
     phase = 'v60';
     v60 = { level: 0, phase: 0, targets: [28, 56, 88], scores: [], pouring: false,
-            bloomT: 0, penalty: 0, kx: 64, ky: 16, grabbed: false, pid: null };
+            bloomT: 0, penalty: 0, kx: 64, ky: 28, grabbed: false, pid: null };
     spendBean();
     overlayEl.innerHTML =
-      '<div class="drag-el kettle-el" id="kettle" style="left:66%;top:18%;width:25%">' + CG.svg.kettle() + '</div>' +
+      '<div class="drag-el kettle-el" id="kettle" style="left:58%;top:24%;width:30%">' + CG.svg.kettle() + '</div>' +
       '<div class="pour-stream hidden" id="kstream"></div>' +
       '<div class="bloom-ring hidden" id="bloom"></div>';
     controlsEl.innerHTML = '<p class="control-note" id="v60-note">Bloom first — pour gently to the first line, then release.</p>';
@@ -287,9 +287,9 @@ CG.stations.brew = (function () {
       v60.kx = d.clamp((e.clientX - host.left) / host.width * 100, 0, 100);
       v60.ky = d.clamp((e.clientY - host.top) / host.height * 100, 0, 100);
       kettleEl.style.left = d.clamp(v60.kx - 15, -6, 76) + '%';
-      kettleEl.style.top = d.clamp(v60.ky - 14, -4, 70) + '%';
+      kettleEl.style.top = d.clamp(v60.ky - 12, -2, 78) + '%';
       // spout over the dripper? (dripper ≈ x 30–48%, y 22–48% of scene)
-      var over = v60.kx > 26 && v60.kx < 52 && v60.ky > 14 && v60.ky < 56;
+      var over = v60.kx > 18 && v60.kx < 52 && v60.ky > 38 && v60.ky < 62;
       setPouring(over);
     }
   }
@@ -401,7 +401,7 @@ CG.stations.brew = (function () {
   }
 
   function startPress() {
-    overlayEl.innerHTML = '<div class="dock-zone hot press-zone" id="press-zone" style="left:38%;top:10%;width:26%;height:36%"><span>hold to press</span></div>';
+    overlayEl.innerHTML = '<div class="dock-zone hot press-zone" id="press-zone" style="left:30%;top:38%;width:25%;height:15%"><span>hold to press</span></div>';
     msgEl.textContent = 'Press slowly and steadily to the bottom.';
     controlsEl.innerHTML = '<p class="control-note">Lifting off mid-press costs you.</p>';
     var zone = overlayEl.querySelector('#press-zone');

@@ -82,7 +82,7 @@ CG.stations.milk = (function () {
     msgEl.textContent = 'Hold the pitcher — raise it for foam, lower it for heat. Release inside both bands.';
     controlsEl.innerHTML = '<p class="control-note">Tip near the surface stretches; deep heats.</p>';
 
-    overlayEl.innerHTML = '<div class="drag-el pitcher-el" id="pitcher" style="left:32%;top:54%;width:26%">' + CG.svg.pitcherSvg() + '</div>';
+    overlayEl.innerHTML = '<div class="drag-el pitcher-el" id="pitcher" style="left:26%;top:56%;width:28%">' + CG.svg.pitcherSvg() + '</div>';
     var pitcher = overlayEl.querySelector('#pitcher');
     var pid = null;
 
@@ -111,9 +111,9 @@ CG.stations.milk = (function () {
 
     function movePitcher(e) {
       var host = overlayEl.getBoundingClientRect();
-      var y = d.clamp((e.clientY - host.top) / host.height, 0.3, 0.86);
-      pos = (y - 0.3) / 0.56;                  // 0 high (foam) .. 1 low (heat)
-      pitcher.style.top = (y * 100 - 10) + '%';
+      var y = d.clamp((e.clientY - host.top) / host.height, 0.42, 0.8);
+      pos = (y - 0.42) / 0.38;                 // 0 high (foam) .. 1 low (heat)
+      pitcher.style.top = (y * 100 - 9) + '%';
     }
   }
 

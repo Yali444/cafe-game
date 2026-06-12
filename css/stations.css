@@ -25,7 +25,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  padding: 12px 0 0;
   justify-content: center;
 }
 .comp {
