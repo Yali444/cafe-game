@@ -37,21 +37,15 @@ CG.stations.milk = (function () {
 
   function targets() { return d.RECIPES[ticket.recipe].milk; }
   function isArt() { return !!d.RECIPES[ticket.recipe].art; }
-  function use3d() { return CG.gfx && CG.gfx.available(); }
-  function showCup() { if (use3d()) CG.gfx.showMilkCup(); else cupEl.classList.remove('hidden'); }
+  function showCup() { cupEl.classList.remove('hidden'); }
 
-  function setBackdrop() {
-    var is3d = CG.gfx && CG.gfx.available();
-    if (is3d) { sceneWrapEl.classList.add('show3d'); stageEl.innerHTML = ''; }
-    else { sceneWrapEl.classList.remove('show3d'); stageEl.innerHTML = CG.svg.sceneMilk(); }
-  }
+  function setBackdrop() { stageEl.innerHTML = CG.svg.sceneMilk(); }
 
   function enter() {
     holding = false;
     overlayEl.innerHTML = '';
     metersEl.classList.add('hidden'); metersEl.innerHTML = '';
     cupEl.classList.add('hidden'); cupEl.innerHTML = '';
-    if (use3d()) CG.gfx.hideMilkCup();
     setBackdrop();
     ticket = CG.tickets.pickFor('milk');
     phase = 'pick';
@@ -158,8 +152,7 @@ CG.stations.milk = (function () {
 
   function renderCup() {
     var f = Math.max(fill, phase === 'pour' ? 0.85 : fill);
-    if (use3d()) CG.gfx.setMilkCup(f, artTierFor());
-    else cupEl.innerHTML = CG.svg.latteCup(f, artTierFor(), '#c89a6c');
+    cupEl.innerHTML = CG.svg.latteCup(f, artTierFor(), '#c89a6c');
   }
 
   function artTierFor() {
@@ -229,8 +222,8 @@ CG.stations.milk = (function () {
     overlayEl.innerHTML = '';
     metersEl.classList.add('hidden');
     fill = Math.max(fill, 0.85);
-    if (use3d()) { CG.gfx.showMilkCup(); CG.gfx.setMilkCup(fill, tier); }
-    else { cupEl.classList.remove('hidden'); cupEl.innerHTML = CG.svg.latteCup(fill, tier, '#c89a6c'); }
+    cupEl.classList.remove('hidden');
+    cupEl.innerHTML = CG.svg.latteCup(fill, tier, '#c89a6c');
 
     msgEl.textContent = 'Milk poured — ' + score + (tier ? ' · ' + tier : '') + '. Serve it.';
     controlsEl.innerHTML = '<button class="btn btn-confirm btn-wide" id="milk-serve">Serve ' +
@@ -242,7 +235,7 @@ CG.stations.milk = (function () {
     ticket = null;
   }
 
-  function exit() { holding = false; phase = 'pick'; ticket = null; if (use3d()) CG.gfx.hideMilkCup(); }
+  function exit() { holding = false; phase = 'pick'; ticket = null; }
 
   return { init: init, enter: enter, exit: exit, update: update, resetDay: exit };
 })();

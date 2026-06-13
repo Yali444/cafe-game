@@ -94,12 +94,7 @@ CG.stations.brew = (function () {
     return CG.svg.sceneBrewEspresso();
   }
 
-  // espresso uses the 3D bar as a backdrop; the other modes keep their 2D scene
-  function setBackdrop(m) {
-    var is3d = (m === 'espresso') && CG.gfx && CG.gfx.available();
-    if (is3d) { sceneWrapEl.classList.add('show3d'); stageEl.innerHTML = ''; }
-    else { sceneWrapEl.classList.remove('show3d'); stageEl.innerHTML = sceneFor(m); }
-  }
+  function setBackdrop(m) { stageEl.innerHTML = sceneFor(m); }
 
   function spendBean() {
     if (mode === 'batch' || !ticket.origin) return;
@@ -199,17 +194,23 @@ CG.stations.brew = (function () {
     }
   }
 
-  /* ---- the pull: hold to pour a slow shot into the real 3D glass ---- */
+  /* ---- the pull: hold to pour a slow shot; the cup fills in the scene ---- */
   function startPull() {
     phase = 'shot';
     pull = { level: 0, pouring: false, score: 0 };
-    if (CG.gfx && CG.gfx.available()) CG.gfx.showEspressoGlass();
+    paintCup();
+    var stream = stageEl.querySelector('#esp-stream');
+    if (stream) stream.setAttribute('opacity', '0');
     overlayEl.innerHTML = '<div class="pour-status" id="shot-status">hold to pour</div>';
-    msgEl.textContent = 'Hold to pull the shot — let go when the crema reaches the ring.';
+    msgEl.textContent = 'Hold to pull the shot — let go when the crema reaches the line.';
     controlsEl.innerHTML = '<button class="btn btn-primary btn-wide hold-pour" id="hold-pour">Hold to pour</button>';
 
     var btn = controlsEl.querySelector('#hold-pour');
-    var down = function (e) { e.preventDefault(); pull.pouring = true; btn.classList.add('held'); CG.audio.play('pour'); };
+    var down = function (e) {
+      e.preventDefault(); pull.pouring = true; btn.classList.add('held');
+      var s = stageEl.querySelector('#esp-stream'); if (s) s.setAttribute('opacity', '1');
+      CG.audio.play('pour');
+    };
     var up = function () { if (phase === 'shot' && pull.pouring) endPull(); };
     btn.addEventListener('pointerdown', down);
     btn.addEventListener('pointerup', up);
@@ -217,11 +218,22 @@ CG.stations.brew = (function () {
     btn.addEventListener('pointerleave', up);
   }
 
+  // map the 0..100 fill level to the scene cup's liquid + crema (y grows downward)
+  function paintCup() {
+    var y = 33 - Math.min(pull.level, 112) / 100 * 31;
+    var fill = stageEl.querySelector('#esp-fill');
+    if (fill) fill.setAttribute('y', y);
+    var crema = stageEl.querySelector('#esp-crema');
+    if (crema) crema.setAttribute('y', y);
+  }
+
   function pullUpdate(dt) {
     if (phase !== 'shot' || !pull.pouring) return;
     pull.level = Math.min(118, pull.level + PULL_RATE * dt);
+    paintCup();
     var inBand = Math.abs(pull.level - PULL_TARGET) <= PULL_BAND;
-    if (CG.gfx && CG.gfx.available()) CG.gfx.setEspressoFill(pull.level / 100, inBand);
+    var target = stageEl.querySelector('#esp-target');
+    if (target) target.setAttribute('stroke', inBand ? '#5aa45a' : '#c98d5e');
     var status = overlayEl.querySelector('#shot-status');
     if (status) {
       if (pull.level > PULL_TARGET + PULL_BAND) { status.textContent = 'too much'; status.className = 'pour-status over'; }
@@ -236,12 +248,13 @@ CG.stations.brew = (function () {
     pull.pouring = false;
     var btn = controlsEl.querySelector('#hold-pour');
     if (btn) btn.classList.remove('held');
+    var stream = stageEl.querySelector('#esp-stream');
+    if (stream) stream.setAttribute('opacity', '0');
     var over = pull.level > PULL_TARGET + PULL_BAND;
     var score = over
       ? d.clamp(60 - (pull.level - (PULL_TARGET + PULL_BAND)) * 3, 15, 60)
       : d.clamp(100 - Math.abs(pull.level - PULL_TARGET) / PULL_BAND * 45, 0, 100);
     pull.score = score;
-    if (CG.gfx && CG.gfx.available()) CG.gfx.hideEspressoGlass();
     finishBrew(0.4 * dial.score + 0.6 * score);
   }
 
@@ -509,7 +522,6 @@ CG.stations.brew = (function () {
 
   function exit() {
     if (phase !== 'done' && ticket) refundBean();
-    if (CG.gfx && CG.gfx.available()) CG.gfx.hideEspressoGlass();
     phase = 'pick';
     ticket = null;
     batch.brewing = false;
