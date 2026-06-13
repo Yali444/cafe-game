@@ -675,38 +675,66 @@ CG.svg = (function () {
       '</g>';
   }
 
-  /* standalone latte cup for the milk bar (steam → pour → serve) */
+  /* standalone latte cup for the milk bar — drawn 3/4 top-down (bird's-eye)
+     so the latte art reads as poured onto the crema surface, not the side wall */
   function latteCup(fillFrac, artTier, liquid) {
     liquid = liquid || '#c89a6c';
-    var cx = 58, topY = 30, botY = 118, lipW = 92, baseW = 62;
-    var h = botY - topY, lip = lipW / 2, base = baseW / 2;
+    var cx = 58;
     var f = Math.max(0, Math.min(1, fillFrac));
-    var lvl = botY - 8 - f * (h - 22);
+    // mug silhouette: wide rim ellipse up top, tapering to a smaller base
+    var rimCy = 50, rimRx = 42, rimRy = 17;
+    var baseCy = 120, baseRx = 30, baseRy = 10;
+    // coffee surface sits deep & small when empty, rises to the rim when full
+    var surfCy = 70 - f * (70 - rimCy);
+    var surfRx = 26 + f * (rimRx - 5 - 26);
+    var surfRy = surfRx * (rimRy / rimRx);
+
+    // latte art, drawn in a circular design space then foreshortened onto the ellipse
     var art = '';
-    if (f > 0.4 && artTier) {
-      var ay = lvl + 18;
+    if (f > 0.35 && artTier) {
+      var sc = surfRx / 20, sq = surfRy / surfRx;
+      var inner = '';
       if (artTier === 'heart') {
-        art = '<g transform="translate(' + cx + ',' + ay + ') scale(2)"><path d="M0 8 C-9 1 -8 -6 -2 -6 C0 -6 0 -3 0 -3 C0 -3 0 -6 2 -6 C8 -6 9 1 0 8 z" fill="#fcfbf8"/></g>';
+        inner = '<path d="M0 -12 C-10 -22 -22 -6 0 11 C22 -6 10 -22 0 -12 Z" fill="#fcfbf8"/>';
       } else if (artTier === 'tulip') {
-        art = '<g transform="translate(' + cx + ',' + (ay - 2) + ') scale(2)" fill="#fcfbf8">' +
-          '<path d="M0 9 C-7 4 -6 -1 -1.5 -1 C0 -1 0 1 0 1 C0 1 0 -1 1.5 -1 C6 -1 7 4 0 9z"/>' +
-          '<path d="M0 1 C-5 -3 -4 -7 -1 -7 C0 -7 0 -5 0 -5 C0 -5 0 -7 1 -7 C4 -7 5 -3 0 1z" transform="translate(0,-4)"/></g>';
+        inner = '<g fill="#fcfbf8">' +
+          '<path d="M0 -4 C-10 -14 -20 -1 0 12 C20 -1 10 -14 0 -4 Z"/>' +
+          '<path d="M0 -12 C-7 -19 -14 -9 0 0 C14 -9 7 -19 0 -12 Z"/></g>';
       } else if (artTier === 'rosetta') {
-        art = '<g transform="translate(' + cx + ',' + (ay - 4) + ') scale(1.9)" stroke="#fcfbf8" stroke-width="2.4" fill="none" stroke-linecap="round">' +
-          '<path d="M0 14 l0 -18"/><path d="M-8 10 q8 -3 16 0"/><path d="M-7 5 q7 -3 14 0"/><path d="M-5.5 0 q5.5 -2.5 11 0"/><path d="M-4 -4.5 q4 -2 8 0"/></g>';
+        inner = '<g stroke="#fcfbf8" stroke-width="2.1" fill="none" stroke-linecap="round" stroke-linejoin="round">' +
+          '<path d="M-18 0 H15"/>' +
+          '<path d="M-13 0 q5 -7 12 -6"/><path d="M-13 0 q5 7 12 6"/>' +
+          '<path d="M-7 0 q5 -7 12 -6"/><path d="M-7 0 q5 7 12 6"/>' +
+          '<path d="M-1 0 q4 -6 10 -5"/><path d="M-1 0 q4 6 10 5"/>' +
+          '<path d="M5 0 q3 -5 8 -4"/><path d="M5 0 q3 5 8 4"/></g>';
       }
+      art = '<g clip-path="url(#lcsurf)"><g transform="translate(' + cx + ',' + surfCy.toFixed(1) +
+        ') scale(' + sc.toFixed(3) + ',' + (sc * sq).toFixed(3) + ')">' + inner + '</g></g>';
     }
+
     return '<svg viewBox="0 0 116 150" class="latte-cup-svg">' +
-      '<ellipse cx="' + cx + '" cy="' + (botY + 14) + '" rx="40" ry="6" fill="#6b543c" opacity="0.16"/>' +
-      '<clipPath id="lcclip"><path d="M' + (cx - lip + 3) + ' ' + (topY + 3) + ' h' + (lipW - 6) + ' l-' + ((lipW - baseW) / 2 - 1.5) + ' ' + (h - 9) + ' a6 6 0 0 1 -6 5 h-' + (baseW - 16) + ' a6 6 0 0 1 -6 -5 z"/></clipPath>' +
-      '<g clip-path="url(#lcclip)">' +
-      (f > 0 ? '<rect x="0" y="' + lvl + '" width="116" height="160" fill="' + liquid + '"/>' +
-        '<rect x="0" y="' + lvl + '" width="116" height="5" fill="#caa468" opacity="0.7"/>' : '') +
-      '</g>' + art +
-      '<path d="M' + (cx - lip) + ' ' + topY + ' h' + lipW + ' l-' + ((lipW - baseW) / 2) + ' ' + h + ' a8 8 0 0 1 -8 7 h-' + (baseW - 16) + ' a8 8 0 0 1 -8 -7 z" fill="#fdf8ec" opacity="0.25"/>' +
-      '<path d="M' + (cx - lip) + ' ' + topY + ' h' + lipW + ' l-' + ((lipW - baseW) / 2) + ' ' + h + ' a8 8 0 0 1 -8 7 h-' + (baseW - 16) + ' a8 8 0 0 1 -8 -7 z" fill="none" ' + ol(4.5) + '/>' +
-      '<path d="M' + (cx + lip - 3) + ' ' + (topY + 18) + ' q26 6 19 32 q-6 20 -26 20" fill="none" stroke="' + O + '" stroke-width="11" stroke-linecap="round"/>' +
-      '<path d="M' + (cx + lip - 3) + ' ' + (topY + 18) + ' q26 6 19 32 q-6 20 -26 20" fill="none" stroke="#fdf8ec" stroke-width="5.5" stroke-linecap="round"/>' +
+      // contact shadow
+      '<ellipse cx="' + cx + '" cy="' + (baseCy + 9) + '" rx="34" ry="6" fill="#6b543c" opacity="0.16"/>' +
+      // mug body: back of rim arcs over the top, walls taper to the base front
+      '<path d="M' + (cx - rimRx) + ' ' + rimCy + ' A ' + rimRx + ' ' + rimRy + ' 0 0 1 ' + (cx + rimRx) + ' ' + rimCy +
+        ' L ' + (cx + baseRx) + ' ' + baseCy + ' A ' + baseRx + ' ' + baseRy + ' 0 0 0 ' + (cx - baseRx) + ' ' + baseCy + ' Z" ' +
+        'fill="#fdf8ec" ' + ol(4.5) + '/>' +
+      // side shading on the lower body
+      '<path d="M' + (cx + rimRx - 2) + ' ' + (rimCy + 4) + ' L ' + (cx + baseRx) + ' ' + baseCy +
+        ' A ' + baseRx + ' ' + baseRy + ' 0 0 0 ' + (cx + baseRx - 13) + ' ' + (baseCy + 4) + ' Z" fill="#000" opacity="0.05"/>' +
+      // handle (top-down loop on the right)
+      '<path d="M' + (cx + rimRx - 6) + ' ' + (rimCy + 2) + ' q22 -4 22 12 q0 14 -20 11" fill="none" stroke="' + O + '" stroke-width="9" stroke-linecap="round"/>' +
+      '<path d="M' + (cx + rimRx - 6) + ' ' + (rimCy + 2) + ' q22 -4 22 12 q0 14 -20 11" fill="none" stroke="#fdf8ec" stroke-width="4" stroke-linecap="round"/>' +
+      // rim opening: outer ellipse (ceramic lip) + inner wall well
+      '<ellipse cx="' + cx + '" cy="' + rimCy + '" rx="' + rimRx + '" ry="' + rimRy + '" fill="#fdf8ec" ' + ol(4) + '/>' +
+      '<ellipse cx="' + cx + '" cy="' + (rimCy + 1) + '" rx="' + (rimRx - 4) + '" ry="' + (rimRy - 1.5) + '" fill="#e7d9bf"/>' +
+      // coffee surface
+      '<clipPath id="lcsurf"><ellipse cx="' + cx + '" cy="' + surfCy.toFixed(1) + '" rx="' + surfRx.toFixed(1) + '" ry="' + surfRy.toFixed(1) + '"/></clipPath>' +
+      (f > 0
+        ? '<ellipse cx="' + cx + '" cy="' + surfCy.toFixed(1) + '" rx="' + surfRx.toFixed(1) + '" ry="' + surfRy.toFixed(1) + '" fill="' + liquid + '"/>' +
+          '<ellipse cx="' + cx + '" cy="' + (surfCy - surfRy * 0.28).toFixed(1) + '" rx="' + (surfRx * 0.74).toFixed(1) + '" ry="' + (surfRy * 0.5).toFixed(1) + '" fill="#fff" opacity="0.10"/>'
+        : '') +
+      art +
       '</svg>';
   }
 
