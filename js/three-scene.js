@@ -354,8 +354,63 @@ CG.gfx = (function () {
     renderer.render(scene, camera);
   }
 
+  /* ---------- brew bar: espresso machine backdrop ---------- */
+  function buildBrew() {
+    var g = new T.Group();
+    g.add(counterBase(COL.wood));
+    // machine body
+    var body = meshOf(new T.BoxGeometry(2.0, 0.85, 0.85), mat(COL.sage, 0.45, 0.15));
+    body.position.set(0, 1.42, -0.15); g.add(body);
+    var top = meshOf(new T.BoxGeometry(2.1, 0.12, 0.95), mat(COL.sageDk, 0.4, 0.2));
+    top.position.set(0, 1.9, -0.15); g.add(top);
+    // cup stack on the warming top
+    for (var i = 0; i < 3; i++) {
+      var cup = meshOf(new T.CylinderGeometry(0.1, 0.08, 0.12, 16), mat(COL.cream, 0.5, 0));
+      cup.position.set(-0.7 + i * 0.34, 2.02, -0.15); g.add(cup);
+    }
+    // two group heads with portafilter handles
+    [-0.45, 0.45].forEach(function (gx) {
+      var head = meshOf(new T.CylinderGeometry(0.13, 0.16, 0.22, 18), mat(COL.steel, 0.3, 0.7));
+      head.position.set(gx, 1.12, 0.32); g.add(head);
+      var handle = meshOf(new T.CylinderGeometry(0.035, 0.035, 0.34, 10), mat(0x2e2a25, 0.5, 0.2));
+      handle.rotation.z = Math.PI / 2; handle.position.set(gx + 0.28, 1.05, 0.34); g.add(handle);
+      var knob = meshOf(new T.SphereGeometry(0.05, 12, 10), mat(0x2e2a25, 0.5, 0.2));
+      knob.position.set(gx + 0.46, 1.05, 0.34); g.add(knob);
+    });
+    // steam wand
+    var wand = meshOf(new T.CylinderGeometry(0.02, 0.02, 0.4, 8), mat(COL.steelDk, 0.3, 0.7));
+    wand.position.set(0.92, 1.16, 0.3); wand.rotation.x = 0.3; g.add(wand);
+    // two round pressure gauges
+    [-0.25, 0.25].forEach(function (gx) {
+      var gauge = meshOf(new T.CylinderGeometry(0.11, 0.11, 0.06, 18), mat(COL.cream, 0.4, 0.1));
+      gauge.rotation.x = Math.PI / 2; gauge.position.set(gx, 1.55, 0.29); g.add(gauge);
+    });
+    g.add(plant(-1.7, 0.93, 0.2));
+    sets.brew = g; g.visible = false; scene.add(g);
+  }
+
+  /* ---------- milk bar backdrop ---------- */
+  function buildMilk() {
+    var g = new T.Group();
+    g.add(counterBase(COL.counter));
+    // fridge at left
+    var fridge = meshOf(new T.BoxGeometry(0.9, 1.7, 0.8), mat(COL.cream, 0.5, 0.1));
+    fridge.position.set(-1.6, 0.85, -0.1); g.add(fridge);
+    var fh = meshOf(new T.BoxGeometry(0.06, 0.4, 0.06), mat(COL.steelDk, 0.3, 0.6));
+    fh.position.set(-1.18, 1.0, 0.32); g.add(fh);
+    // machine flank with steam wand (focal)
+    var mbody = meshOf(new T.BoxGeometry(1.0, 0.8, 0.7), mat(COL.sage, 0.45, 0.15));
+    mbody.position.set(0.5, 1.4, -0.2); g.add(mbody);
+    var wand = meshOf(new T.CylinderGeometry(0.025, 0.02, 0.5, 8), mat(COL.steelDk, 0.3, 0.7));
+    wand.position.set(0.1, 1.15, 0.25); wand.rotation.x = 0.35; g.add(wand);
+    g.add(plant(1.7, 0.93, 0.1));
+    sets.milk = g; g.visible = false; scene.add(g);
+  }
+
   function buildAll() {
     buildCounter();
+    buildBrew();
+    buildMilk();
   }
 
   return {

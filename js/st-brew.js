@@ -3,7 +3,7 @@ CG.stations.brew = (function () {
   'use strict';
 
   var d = CG.data;
-  var panel, msgEl, stageEl, overlayEl, controlsEl;
+  var panel, msgEl, stageEl, overlayEl, controlsEl, sceneWrapEl;
   var ticket = null;
   var mode = null;            // espresso | v60 | aero | batch
   var phase = 'pick';
@@ -11,8 +11,10 @@ CG.stations.brew = (function () {
 
   /* espresso state */
   var dial = { center: 55, v: 50, dragging: false, score: 0 };
-  var shot = { fill: 0, running: false };
-  var PULL_TARGET = 65;
+  var pull = { level: 0, pouring: false, score: 0 };
+  var PULL_TARGET = 70;       // crema should reach 70% of the glass
+  var PULL_BAND = 12;         // ± tolerance (generous, readable)
+  var PULL_RATE = 25;         // %/sec — slow & steady so you can stop on the line
 
   /* v60 state */
   var v60 = { level: 0, phase: 0, targets: [28, 56, 88], scores: [], pouring: false,
@@ -37,6 +39,7 @@ CG.stations.brew = (function () {
     stageEl = panel.querySelector('#brew-stage');
     overlayEl = panel.querySelector('#brew-overlays');
     controlsEl = panel.querySelector('#brew-controls');
+    sceneWrapEl = panel.querySelector('.scene-wrap');
     CG.events.on('ticketschange', function () { if (active() && phase === 'pick') enter(); });
     CG.events.on('inventorychange', function () { if (active() && phase === 'pick') enter(); });
   }
@@ -54,14 +57,14 @@ CG.stations.brew = (function () {
     ticket = CG.tickets.pickFor('brew');
     if (!ticket) {
       mode = 'espresso';
-      stageEl.innerHTML = sceneFor(mode);
+      setBackdrop(mode);
       stageEl.classList.add('dim');
       msgEl.textContent = 'Nothing to brew right now.';
       controlsEl.innerHTML = '';
       return;
     }
     mode = d.RECIPES[ticket.recipe].brew;
-    stageEl.innerHTML = sceneFor(mode);
+    setBackdrop(mode);
     stageEl.classList.remove('dim');
     var cust = CG.customers.byId(ticket.customerId);
     var name = d.CHARACTERS[cust.charId].name;
@@ -89,6 +92,13 @@ CG.stations.brew = (function () {
     if (m === 'aero') return CG.svg.sceneBrewAero();
     if (m === 'batch') return CG.svg.sceneBrewBatch();
     return CG.svg.sceneBrewEspresso();
+  }
+
+  // espresso uses the 3D bar as a backdrop; the other modes keep their 2D scene
+  function setBackdrop(m) {
+    var is3d = (m === 'espresso') && CG.gfx && CG.gfx.available();
+    if (is3d) { sceneWrapEl.classList.add('show3d'); stageEl.innerHTML = ''; }
+    else { sceneWrapEl.classList.remove('show3d'); stageEl.innerHTML = sceneFor(m); }
   }
 
   function spendBean() {
@@ -140,25 +150,25 @@ CG.stations.brew = (function () {
     });
   }
 
-  /* ================= espresso: dial → dock → stop the shot ================= */
+  /* ================= espresso: grind dial → hold-to-pour, stop in the band ================= */
 
   function setupEspresso() {
     phase = 'dial';
-    dial.center = 35 + Math.random() * 40;
+    dial.center = 30 + Math.random() * 40;
     dial.v = 8;
     dial.dragging = false;
-    shot = { fill: 0, running: false };
+    pull = { level: 0, pouring: false, score: 0 };
     var win = CG.upgradeValue('grinder') * 100;
 
     overlayEl.innerHTML =
-      '<div class="dial-plate" style="left:5%;top:26%;width:52%">' +
-      '  <span class="dial-label">grind dial</span>' +
+      '<div class="dial-plate" style="left:8%;right:8%;top:30%;width:auto">' +
+      '  <span class="dial-label">grind — line up the dial</span>' +
       '  <div class="dial-track" id="dial-track">' +
       '    <div class="dial-window" style="left:' + (dial.center - win / 2) + '%;width:' + win + '%"></div>' +
       '    <div class="dial-knob" id="dial-knob" style="left:' + dial.v + '%"></div>' +
       '  </div>' +
       '</div>';
-    controlsEl.innerHTML = '<p class="control-note">Drag the dial into the sweet spot, then let go.</p>';
+    controlsEl.innerHTML = '<p class="control-note">Drag the dial into the green band, then let go.</p>';
 
     var track = overlayEl.querySelector('#dial-track');
     var knob = overlayEl.querySelector('#dial-knob');
@@ -176,7 +186,7 @@ CG.stations.brew = (function () {
       dial.score = Math.round(d.clamp(100 - Math.abs(dial.v - dial.center) / half * 50, 0, 100));
       CG.audio.play(dial.score >= 50 ? 'chime' : 'buzz');
       spendBean();
-      setupDock();
+      startPull();
     };
     track.addEventListener('pointerup', release);
     track.addEventListener('pointercancel', release);
@@ -189,73 +199,80 @@ CG.stations.brew = (function () {
     }
   }
 
-  function setupDock() {
-    phase = 'dock';
-    msgEl.textContent = 'Lock the portafilter into the group head.';
-    controlsEl.innerHTML = '<p class="control-note">Drag it up to the machine.</p>';
-    overlayEl.innerHTML =
-      '<div class="drag-el" id="pf" style="left:64%;top:80%;width:26%">' + CG.svg.portafilter() + '</div>' +
-      '<div class="dock-zone" id="pf-zone" style="left:34%;top:62%;width:26%;height:16%"></div>';
-
-    var pf = overlayEl.querySelector('#pf');
-    var zone = overlayEl.querySelector('#pf-zone');
-    var grabbed = false;
-
-    pf.addEventListener('pointerdown', function (e) {
-      e.preventDefault();
-      pf.setPointerCapture(e.pointerId);
-      grabbed = true;
-      pf.classList.add('grabbed');
-    });
-    pf.addEventListener('pointermove', function (e) {
-      if (!grabbed) return;
-      var host = overlayEl.getBoundingClientRect();
-      var x = (e.clientX - host.left) / host.width * 100;
-      var y = (e.clientY - host.top) / host.height * 100;
-      pf.style.left = d.clamp(x - 13, 0, 78) + '%';
-      pf.style.top = d.clamp(y - 8, 0, 84) + '%';
-      zone.classList.toggle('hot', overZone(pf, zone));
-    });
-    var drop = function () {
-      if (!grabbed) return;
-      grabbed = false;
-      pf.classList.remove('grabbed');
-      if (overZone(pf, zone)) {
-        CG.audio.play('select');
-        startShot();
-      }
-    };
-    pf.addEventListener('pointerup', drop);
-    pf.addEventListener('pointercancel', drop);
-  }
-
-  function overZone(el, zone) {
-    var a = el.getBoundingClientRect(), b = zone.getBoundingClientRect();
-    var cx = a.left + a.width / 2, cy = a.top + a.height / 2;
-    return cx > b.left && cx < b.right && cy > b.top && cy < b.bottom;
-  }
-
-  function startShot() {
+  /* ---- the pull: hold to pour a slow shot, release in the green band ---- */
+  function startPull() {
     phase = 'shot';
-    shot.running = true;
-    shot.fill = 0;
-    overlayEl.innerHTML = '<button class="scene-zone full-zone" id="shot-stop" aria-label="Stop the shot"></button>';
-    var dock = stageEl.querySelector('#esp-pf-dock');
-    if (dock) dock.setAttribute('opacity', '1');
-    var stream = stageEl.querySelector('#esp-stream');
-    if (stream) stream.setAttribute('opacity', '1');
-    CG.audio.play('pour');
-    msgEl.textContent = 'The shot is running — tap to stop at the line.';
-    controlsEl.innerHTML = '<p class="control-note">Watch the crema rise…</p>';
-    overlayEl.querySelector('#shot-stop').addEventListener('pointerdown', stopShot);
+    pull = { level: 0, pouring: false, score: 0 };
+    var topY = PULL_TARGET + PULL_BAND, botY = PULL_TARGET - PULL_BAND; // band edges (0=bottom)
+    // gauge in glass coords: y grows downward, 150=bottom, 30=top → 120px travel
+    function gy(lvl) { return 150 - lvl / 100 * 120; }
+    overlayEl.innerHTML =
+      '<div class="shot-gauge">' +
+      '<svg viewBox="0 0 100 165" class="shot-svg">' +
+      '<defs><clipPath id="glassclip"><path d="M28 22 h44 l-4 124 a8 8 0 0 1 -8 7 h-20 a8 8 0 0 1 -8 -7 z"/></clipPath></defs>' +
+      // target band (clearly marked, high contrast)
+      '<rect x="20" y="' + gy(topY) + '" width="60" height="' + (gy(botY) - gy(topY)) + '" rx="3" class="band" id="band"/>' +
+      '<line x1="20" y1="' + gy(PULL_TARGET) + '" x2="80" y2="' + gy(PULL_TARGET) + '" class="bandline"/>' +
+      '<text x="50" y="' + (gy(topY) - 4) + '" text-anchor="middle" class="bandlabel">stop in the band</text>' +
+      // glass contents
+      '<g clip-path="url(#glassclip)">' +
+      '<rect id="esp-liquid" x="22" y="150" width="56" height="0" fill="#2a160c"/>' +
+      '<rect id="esp-cap" x="22" y="150" width="56" height="0" fill="#e6c389"/>' +
+      '</g>' +
+      // glass outline
+      '<path d="M28 22 h44 l-4 124 a8 8 0 0 1 -8 7 h-20 a8 8 0 0 1 -8 -7 z" class="glass"/>' +
+      '</svg>' +
+      '<div class="shot-status" id="shot-status">hold to pour</div>' +
+      '</div>';
+    msgEl.textContent = 'Hold to pull the shot — release when the crema reaches the line.';
+    controlsEl.innerHTML = '<button class="btn btn-primary btn-wide hold-pour" id="hold-pour">Hold to pour</button>';
+
+    var btn = controlsEl.querySelector('#hold-pour');
+    var down = function (e) { e.preventDefault(); pull.pouring = true; btn.classList.add('held'); CG.audio.play('pour'); };
+    var up = function () { if (phase === 'shot' && pull.pouring) endPull(); };
+    btn.addEventListener('pointerdown', down);
+    btn.addEventListener('pointerup', up);
+    btn.addEventListener('pointercancel', up);
+    btn.addEventListener('pointerleave', up);
   }
 
-  function stopShot() {
+  function pullUpdate(dt) {
+    if (phase !== 'shot' || !pull.pouring) return;
+    pull.level = Math.min(118, pull.level + PULL_RATE * dt);
+    paintGauge();
+    var off = Math.abs(pull.level - PULL_TARGET);
+    var inBand = off <= PULL_BAND;
+    var band = overlayEl.querySelector('#band');
+    var status = overlayEl.querySelector('#shot-status');
+    if (band) band.classList.toggle('on', inBand);
+    if (status) {
+      if (pull.level > PULL_TARGET + PULL_BAND) { status.textContent = 'too much!'; status.className = 'shot-status over'; }
+      else if (inBand) { status.textContent = 'perfect — let go!'; status.className = 'shot-status good'; }
+      else { status.textContent = 'keep pouring…'; status.className = 'shot-status'; }
+    }
+    if (pull.level >= 118) endPull(); // overflowed
+  }
+
+  function paintGauge() {
+    function gy(lvl) { return 150 - lvl / 100 * 120; }
+    var capH = 7;
+    var topY = gy(Math.min(pull.level, 100));
+    var liquid = overlayEl.querySelector('#esp-liquid');
+    var cap = overlayEl.querySelector('#esp-cap');
+    if (cap) { cap.setAttribute('y', topY); cap.setAttribute('height', capH); }
+    if (liquid) { liquid.setAttribute('y', topY + capH); liquid.setAttribute('height', Math.max(0, 150 - (topY + capH))); }
+  }
+
+  function endPull() {
     if (phase !== 'shot') return;
-    shot.running = false;
-    var stream = stageEl.querySelector('#esp-stream');
-    if (stream) stream.setAttribute('opacity', '0');
-    var score = shot.fill > 110 ? 20 : d.clamp(100 - Math.abs(shot.fill - PULL_TARGET) * 4, 0, 100);
+    pull.pouring = false;
+    var btn = controlsEl.querySelector('#hold-pour');
+    if (btn) btn.classList.remove('held');
+    var over = pull.level > PULL_TARGET + PULL_BAND;
+    var score = over
+      ? d.clamp(60 - (pull.level - (PULL_TARGET + PULL_BAND)) * 3, 15, 60)
+      : d.clamp(100 - Math.abs(pull.level - PULL_TARGET) / PULL_BAND * 45, 0, 100);
+    pull.score = score;
     finishBrew(0.4 * dial.score + 0.6 * score);
   }
 
@@ -515,15 +532,7 @@ CG.stations.brew = (function () {
   /* ---------- per-frame ---------- */
 
   function update(dt) {
-    if (phase === 'shot' && shot.running) {
-      var rate = 22 + 40 * Math.sin(Math.PI * Math.min(shot.fill, 100) / 100);
-      shot.fill += rate * dt;
-      var fill = stageEl.querySelector('#esp-fill');
-      if (fill) fill.setAttribute('y', 33 - Math.min(shot.fill, 112) / 100 * 31);
-      var crema = stageEl.querySelector('#esp-crema');
-      if (crema) crema.setAttribute('y', 33 - Math.min(shot.fill, 112) / 100 * 31);
-      if (shot.fill > 115) stopShot();
-    }
+    if (phase === 'shot') pullUpdate(dt);
     if (phase === 'v60') v60Update(dt);
     if (phase === 'aero') aeroUpdate(dt);
     if (phase === 'batch') batchUpdate(dt);

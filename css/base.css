@@ -487,6 +487,35 @@ body {
   transform: scale(0);
 }
 
+/* espresso bar shows the 3D scene behind the overlays */
+.scene-wrap.show3d { background: transparent; }
+
+/* espresso shot gauge — clear glass, high-contrast crema, marked target band */
+.shot-gauge {
+  position: absolute; left: 50%; top: 47%;
+  transform: translate(-50%, -50%);
+  width: 44%; max-width: 200px;
+  display: flex; flex-direction: column; align-items: center;
+  z-index: 6;
+}
+.shot-svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 8px 16px rgba(60, 40, 25, 0.25)); }
+.shot-svg .glass { fill: rgba(255, 255, 255, 0.18); stroke: #b79c86; stroke-width: 2.4; }
+.shot-svg .band { fill: rgba(158, 181, 133, 0.32); stroke: #9eb585; stroke-width: 1.5; transition: fill 0.15s, stroke 0.15s; }
+.shot-svg .band.on { fill: rgba(116, 196, 110, 0.78); stroke: #3f9e46; }
+.shot-svg .bandline { stroke: #3f8e44; stroke-width: 2; stroke-dasharray: 5 3; }
+.shot-svg .bandlabel { fill: #3f8e44; font: 700 9px var(--sans); }
+.shot-status {
+  margin-top: 8px; font-weight: 800; font-size: 13px;
+  color: var(--ink-soft);
+  background: rgba(253, 248, 236, 0.94);
+  border: 1.5px solid var(--edge); border-radius: 999px;
+  padding: 5px 14px; box-shadow: var(--shadow-soft);
+}
+.shot-status.good { color: #2f8e3a; border-color: #9eb585; }
+.shot-status.over { color: var(--bad); border-color: var(--bad); }
+.btn.hold-pour { touch-action: none; }
+.btn.hold-pour.held { transform: scale(0.97); filter: brightness(0.95); }
+
 /* dial-in plate (espresso) */
 .dial-plate {
   position: absolute;
