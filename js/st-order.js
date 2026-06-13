@@ -36,12 +36,14 @@ CG.stations.order = (function () {
     }
 
     queueEl.innerHTML = queued.map(function (c) {
-      return '<button class="cust-slot' + (openCustId === c.id ? ' talking' : '') + '" data-cid="' + c.id + '">' +
+      var arr = c.arriving ? ' just-arrived' : '';
+      return '<button class="cust-slot' + (openCustId === c.id ? ' talking' : '') + arr + '" data-cid="' + c.id + '">' +
         '<span class="cust-name">' + CG.data.CHARACTERS[c.charId].name + '</span>' +
         '<span class="cust-ring" data-ring="' + c.id + '">' + CG.svg.patienceRing(c.patience, CG.moodColor(c.patience)) + '</span>' +
         '<span class="cust-body">' + CG.svg.customer(c.charId, c.mood) + '</span>' +
         '</button>';
-    }).join('') || '<div class="queue-empty">' + (CG.state.service.closed ? 'Doors are closed.' : 'A quiet moment…') + '</div>';
+    }).join('') || '<div class="queue-empty">' + (CG.state.service.closed ? 'That\'s everyone for today.' : 'A quiet moment… the next guest is on their way.') + '</div>';
+    queued.forEach(function (c) { c.arriving = false; });
 
     waitEl.innerHTML = waiting.length
       ? '<span class="wait-label">Waiting</span>' + waiting.map(function (c) {
@@ -68,6 +70,10 @@ CG.stations.order = (function () {
     var char = CG.data.CHARACTERS[c.charId];
     bubbleEl.innerHTML =
       '<div class="speech-bubble">' +
+      '<div class="sb-head">' +
+      '<span class="sb-portrait">' + CG.svg.customer(c.charId, c.mood) + '</span>' +
+      '<span class="sb-who">' + char.name + '</span>' +
+      '</div>' +
       '<p class="sb-text">“' + greeting(char) + ' ' + CG.customers.orderText(c.order) + ', please.”</p>' +
       CG.svg.tagPills(c.order) +
       '<button class="btn btn-primary btn-take">Take the order · ' + CG.data.fmtMoney(CG.data.priceOf(c.order)) + '</button>' +

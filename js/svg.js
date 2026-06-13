@@ -675,6 +675,41 @@ CG.svg = (function () {
       '</g>';
   }
 
+  /* standalone latte cup for the milk bar (steam → pour → serve) */
+  function latteCup(fillFrac, artTier, liquid) {
+    liquid = liquid || '#c89a6c';
+    var cx = 58, topY = 30, botY = 118, lipW = 92, baseW = 62;
+    var h = botY - topY, lip = lipW / 2, base = baseW / 2;
+    var f = Math.max(0, Math.min(1, fillFrac));
+    var lvl = botY - 8 - f * (h - 22);
+    var art = '';
+    if (f > 0.4 && artTier) {
+      var ay = lvl + 18;
+      if (artTier === 'heart') {
+        art = '<g transform="translate(' + cx + ',' + ay + ') scale(2)"><path d="M0 8 C-9 1 -8 -6 -2 -6 C0 -6 0 -3 0 -3 C0 -3 0 -6 2 -6 C8 -6 9 1 0 8 z" fill="#fcfbf8"/></g>';
+      } else if (artTier === 'tulip') {
+        art = '<g transform="translate(' + cx + ',' + (ay - 2) + ') scale(2)" fill="#fcfbf8">' +
+          '<path d="M0 9 C-7 4 -6 -1 -1.5 -1 C0 -1 0 1 0 1 C0 1 0 -1 1.5 -1 C6 -1 7 4 0 9z"/>' +
+          '<path d="M0 1 C-5 -3 -4 -7 -1 -7 C0 -7 0 -5 0 -5 C0 -5 0 -7 1 -7 C4 -7 5 -3 0 1z" transform="translate(0,-4)"/></g>';
+      } else if (artTier === 'rosetta') {
+        art = '<g transform="translate(' + cx + ',' + (ay - 4) + ') scale(1.9)" stroke="#fcfbf8" stroke-width="2.4" fill="none" stroke-linecap="round">' +
+          '<path d="M0 14 l0 -18"/><path d="M-8 10 q8 -3 16 0"/><path d="M-7 5 q7 -3 14 0"/><path d="M-5.5 0 q5.5 -2.5 11 0"/><path d="M-4 -4.5 q4 -2 8 0"/></g>';
+      }
+    }
+    return '<svg viewBox="0 0 116 150" class="latte-cup-svg">' +
+      '<ellipse cx="' + cx + '" cy="' + (botY + 14) + '" rx="40" ry="6" fill="#6b543c" opacity="0.16"/>' +
+      '<clipPath id="lcclip"><path d="M' + (cx - lip + 3) + ' ' + (topY + 3) + ' h' + (lipW - 6) + ' l-' + ((lipW - baseW) / 2 - 1.5) + ' ' + (h - 9) + ' a6 6 0 0 1 -6 5 h-' + (baseW - 16) + ' a6 6 0 0 1 -6 -5 z"/></clipPath>' +
+      '<g clip-path="url(#lcclip)">' +
+      (f > 0 ? '<rect x="0" y="' + lvl + '" width="116" height="160" fill="' + liquid + '"/>' +
+        '<rect x="0" y="' + lvl + '" width="116" height="5" fill="#caa468" opacity="0.7"/>' : '') +
+      '</g>' + art +
+      '<path d="M' + (cx - lip) + ' ' + topY + ' h' + lipW + ' l-' + ((lipW - baseW) / 2) + ' ' + h + ' a8 8 0 0 1 -8 7 h-' + (baseW - 16) + ' a8 8 0 0 1 -8 -7 z" fill="#fdf8ec" opacity="0.25"/>' +
+      '<path d="M' + (cx - lip) + ' ' + topY + ' h' + lipW + ' l-' + ((lipW - baseW) / 2) + ' ' + h + ' a8 8 0 0 1 -8 7 h-' + (baseW - 16) + ' a8 8 0 0 1 -8 -7 z" fill="none" ' + ol(4.5) + '/>' +
+      '<path d="M' + (cx + lip - 3) + ' ' + (topY + 18) + ' q26 6 19 32 q-6 20 -26 20" fill="none" stroke="' + O + '" stroke-width="11" stroke-linecap="round"/>' +
+      '<path d="M' + (cx + lip - 3) + ' ' + (topY + 18) + ' q26 6 19 32 q-6 20 -26 20" fill="none" stroke="#fdf8ec" stroke-width="5.5" stroke-linecap="round"/>' +
+      '</svg>';
+  }
+
   /* ============ machine portraits (upgrade screen) ============ */
 
   function machinePortrait(key) {
@@ -773,37 +808,53 @@ CG.svg = (function () {
     }
   }
 
-  function faceSvg(mood) {
-    var eyes, brows = '', mouth, extra = '';
-    if (mood === 'angry') {
-      eyes = '<circle cx="42" cy="43" r="2.6" fill="' + INK + '"/><circle cx="58" cy="43" r="2.6" fill="' + INK + '"/>';
-      brows = '<line x1="37" y1="36" x2="46" y2="40" stroke="' + INK + '" stroke-width="2.4" stroke-linecap="round"/>' +
-              '<line x1="63" y1="36" x2="54" y2="40" stroke="' + INK + '" stroke-width="2.4" stroke-linecap="round"/>';
-      mouth = '<path d="M42 58 q8 -7 16 0" stroke="' + INK + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
-      extra = '<circle cx="34" cy="50" r="4" fill="#e08d77" opacity="0.55"/><circle cx="66" cy="50" r="4" fill="#e08d77" opacity="0.55"/>';
-    } else if (mood === 'annoyed') {
-      eyes = '<circle cx="42" cy="43" r="2.6" fill="' + INK + '"/><circle cx="58" cy="43" r="2.6" fill="' + INK + '"/>';
-      brows = '<line x1="38" y1="37" x2="46" y2="38.5" stroke="' + INK + '" stroke-width="2.2" stroke-linecap="round"/>' +
-              '<line x1="62" y1="37" x2="54" y2="38.5" stroke="' + INK + '" stroke-width="2.2" stroke-linecap="round"/>';
-      mouth = '<path d="M43 57 q7 -3.5 14 0" stroke="' + INK + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
-    } else if (mood === 'neutral') {
-      eyes = '<circle cx="42" cy="43" r="2.8" fill="' + INK + '"/><circle cx="58" cy="43" r="2.8" fill="' + INK + '"/>';
-      mouth = '<line x1="44" y1="57" x2="56" y2="57" stroke="' + INK + '" stroke-width="2.4" stroke-linecap="round"/>';
-    } else {
-      eyes = '<circle cx="42" cy="43" r="2.8" fill="' + INK + '"/><circle cx="58" cy="43" r="2.8" fill="' + INK + '"/>';
-      mouth = '<path d="M42 55 q8 8 16 0" stroke="' + INK + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
-      extra = '<circle cx="34" cy="50" r="4" fill="#f0b89c" opacity="0.5"/><circle cx="66" cy="50" r="4" fill="#f0b89c" opacity="0.5"/>';
+  // bigger, rounder eyes with a catchlight — the main "cute" lever
+  function eyePair(r, blink) {
+    var hl = '<circle cx="43.4" cy="41.4" r="1.4" fill="#ffffff"/><circle cx="59.4" cy="41.4" r="1.4" fill="#ffffff"/>';
+    if (blink) {
+      return '<path d="M38 43 q4 3 8 0" stroke="' + INK + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
+             '<path d="M54 43 q4 3 8 0" stroke="' + INK + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
     }
-    return brows + eyes + mouth + extra;
+    return '<circle cx="42" cy="43" r="' + r + '" fill="' + INK + '"/><circle cx="58" cy="43" r="' + r + '" fill="' + INK + '"/>' + hl;
+  }
+
+  function faceSvg(mood) {
+    var eyes, brows = '', mouth, blush = '';
+    if (mood === 'angry') {
+      eyes = eyePair(3.4);
+      brows = '<line x1="36" y1="35" x2="46" y2="39" stroke="' + INK + '" stroke-width="2.4" stroke-linecap="round"/>' +
+              '<line x1="64" y1="35" x2="54" y2="39" stroke="' + INK + '" stroke-width="2.4" stroke-linecap="round"/>';
+      mouth = '<path d="M42 59 q8 -7 16 0" stroke="' + INK + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
+      blush = '<ellipse cx="33" cy="52" rx="5" ry="3.2" fill="#e08d77" opacity="0.55"/><ellipse cx="67" cy="52" rx="5" ry="3.2" fill="#e08d77" opacity="0.55"/>';
+    } else if (mood === 'annoyed') {
+      eyes = eyePair(3.4);
+      brows = '<line x1="37" y1="37" x2="46" y2="38.5" stroke="' + INK + '" stroke-width="2.2" stroke-linecap="round"/>' +
+              '<line x1="63" y1="37" x2="54" y2="38.5" stroke="' + INK + '" stroke-width="2.2" stroke-linecap="round"/>';
+      mouth = '<path d="M43 58 q7 -3 14 0" stroke="' + INK + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
+    } else if (mood === 'neutral') {
+      eyes = eyePair(3.6);
+      mouth = '<path d="M44 57 q6 2 12 0" stroke="' + INK + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
+      blush = '<ellipse cx="33" cy="52" rx="4.5" ry="3" fill="#f0b89c" opacity="0.4"/><ellipse cx="67" cy="52" rx="4.5" ry="3" fill="#f0b89c" opacity="0.4"/>';
+    } else {
+      eyes = eyePair(3.8);
+      mouth = '<path d="M41 55 q9 9 18 0" stroke="' + INK + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
+              '<path d="M44 56 q6 5 12 0z" fill="#e58c80" opacity="0.5"/>';
+      blush = '<ellipse cx="33" cy="52" rx="5" ry="3.2" fill="#f0a890" opacity="0.55"/><ellipse cx="67" cy="52" rx="5" ry="3.2" fill="#f0a890" opacity="0.55"/>';
+    }
+    return blush + brows + eyes + mouth;
   }
 
   function customer(charId, mood) {
     var c = CG.data.CHARACTERS[charId];
+    var collar = c.collar || c.top;
     return '<svg viewBox="0 0 100 110" class="cust-svg" aria-label="' + c.name + '">' +
-      '<ellipse cx="50" cy="107" rx="26" ry="3.5" fill="#6b543c" opacity="0.16"/>' +
-      '<path d="M26 110 v-22 a24 22 0 0 1 48 0 v22 z" fill="' + c.top + '" ' + ol(1.8) + '/>' +
-      '<path d="M27.5 96 a22.5 20.5 0 0 1 45 -4 v4 z" fill="#ffffff" opacity="0.14"/>' +
-      '<circle cx="50" cy="44" r="22" fill="' + c.skin + '" ' + ol(1.8) + '/>' +
+      '<ellipse cx="50" cy="108" rx="28" ry="3.6" fill="#6b543c" opacity="0.16"/>' +
+      '<rect x="45" y="61" width="10" height="13" rx="5" fill="' + c.skin + '" ' + ol(1.6) + '/>' +
+      '<path d="M21 110 v-19 a27 23 0 0 1 58 0 v19 z" fill="' + c.top + '" ' + ol(2) + '/>' +
+      '<path d="M23 94 a25 21 0 0 1 54 -2 v2 z" fill="#ffffff" opacity="0.13"/>' +
+      '<path d="M39 69 q11 10 22 0 l-5 13 q-6 4 -12 0 z" fill="' + collar + '" ' + ol(1.5) + '/>' +
+      '<circle cx="50" cy="44" r="22" fill="' + c.skin + '" ' + ol(2) + '/>' +
+      '<path d="M30 36 a20 20 0 0 1 40 0 a20 14 0 0 0 -40 0z" fill="#ffffff" opacity="0.10"/>' +
       hairSvg(c) + faceSvg(mood || 'happy') + accessorySvg(c) +
       '</svg>';
   }
@@ -950,7 +1001,7 @@ CG.svg = (function () {
     sceneBrewAero: sceneBrewAero, sceneBrewBatch: sceneBrewBatch,
     portafilter: portafilter, kettle: kettle,
     sceneMilk: sceneMilk, pitcherSvg: pitcherSvg,
-    scenePass: scenePass, passCup: passCup,
+    scenePass: scenePass, passCup: passCup, latteCup: latteCup,
     machinePortrait: machinePortrait,
     drink: drink, tagPills: tagPills,
     icon: icon, stars: stars, logo: logo

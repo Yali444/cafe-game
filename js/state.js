@@ -27,7 +27,11 @@
       clock: 0,
       dayLength: CG.data.dayLength(day),
       closed: false,
-      spawnQueue: [],
+      guestsTotal: CG.data.dayCustomerCount(day),
+      guestsSpawned: 0,
+      guestsServed: 0,
+      pendingSpawn: 1.5,       // seconds until the next guest walks in (null = nobody pending)
+      charQueue: [],           // shuffled charIds for the day
       customers: [],
       tickets: [],
       nextId: 1,
@@ -36,7 +40,6 @@
       roastInventory: { colombia: 6, ethiopia: 0, kenya: 0 }, // a starter batch of the house bean
       roastQuality: { colombia: 72, ethiopia: null, kenya: null },
       batchCarafe: 0,          // cups left in the batch-brew carafe
-      holding: { brew: null, milk: null }, // {ticketId, type, score}
       earnedToday: 0,
       tipsToday: 0,
       lostToday: 0,

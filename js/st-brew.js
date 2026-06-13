@@ -51,16 +51,6 @@ CG.stations.brew = (function () {
     var sv = CG.state.service;
     overlayEl.innerHTML = '';
     phase = 'pick';
-    if (sv.holding.brew) {
-      ticket = null;
-      mode = sv.holding.brew.type;
-      stageEl.innerHTML = sceneFor(mode);
-      stageEl.classList.remove('dim');
-      msgEl.textContent = (mode === 'espresso' ? 'A shot' : 'A brew') + ' is ready on the pass shelf.';
-      controlsEl.innerHTML = '<button class="btn btn-primary btn-wide" id="goto-pass">Take it to the Pass →</button>';
-      controlsEl.querySelector('#goto-pass').addEventListener('click', function () { CG.main.switchStation('build'); });
-      return;
-    }
     ticket = CG.tickets.pickFor('brew');
     if (!ticket) {
       mode = 'espresso';
@@ -117,17 +107,37 @@ CG.stations.brew = (function () {
   }
 
   function finishBrew(score) {
-    var sv = CG.state.service;
     phase = 'done';
     beanSpent = false;
     overlayEl.innerHTML = '';
-    sv.holding.brew = { ticketId: ticket.id, type: mode, score: Math.round(score) };
+    score = Math.round(score);
+    var t = ticket;
+    var isMilk = !!d.RECIPES[t.recipe].milk;
+    CG.tickets.completeStep(t, 'brew', score);
     CG.audio.play(score >= 85 ? 'fanfare' : 'chime');
     CG.ui.updateHUD();
-    msgEl.textContent = (mode === 'espresso' ? 'Shot pulled' : 'Brew done') + ' — ' + Math.round(score) + '.';
-    controlsEl.innerHTML = '<button class="btn btn-primary btn-wide" id="goto-pass2">Take it to the Pass →</button>';
-    controlsEl.querySelector('#goto-pass2').addEventListener('click', function () { CG.main.switchStation('build'); });
+
+    if (isMilk) {
+      // shot pulled — hand off to the milk bar to finish the drink
+      msgEl.textContent = (mode === 'espresso' ? 'Shot pulled' : 'Brew done') + ' — ' + score + '. Now steam the milk.';
+      controlsEl.innerHTML = '<button class="btn btn-primary btn-wide" id="goto-milk">Steam the milk →</button>';
+      controlsEl.querySelector('#goto-milk').addEventListener('click', function () { CG.main.switchStation('milk'); });
+    } else {
+      // black coffee — serve right here
+      renderServe(t, (mode === 'espresso' ? 'Shot pulled' : 'Brew done') + ' — ' + score + '.');
+    }
     ticket = null;
+  }
+
+  function renderServe(t, headline) {
+    msgEl.textContent = headline + ' Serve it while it\'s hot.';
+    controlsEl.innerHTML = '<button class="btn btn-confirm btn-wide" id="brew-serve">Serve ' +
+      d.RECIPES[t.recipe].name + ' →</button>';
+    controlsEl.querySelector('#brew-serve').addEventListener('click', function () {
+      CG.tickets.serve(t);
+      // move on to the next thing to brew
+      enter();
+    });
   }
 
   /* ================= espresso: dial → dock → stop the shot ================= */

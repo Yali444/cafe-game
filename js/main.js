@@ -3,7 +3,7 @@ CG.main = (function () {
   'use strict';
 
   var $ = function (sel) { return document.querySelector(sel); };
-  var STATION_ORDER = ['order', 'roast', 'brew', 'milk', 'build'];
+  var STATION_ORDER = ['order', 'roast', 'brew', 'milk'];
   var lastTs = 0;
   var hudTimer = 0;
 
@@ -43,8 +43,6 @@ CG.main = (function () {
     setBadge('roast', lowBeans ? '!' : 0);
     setBadge('brew', CG.tickets.needing('brew').length);
     setBadge('milk', CG.tickets.needing('milk').length);
-    var buildable = CG.tickets.open().filter(CG.tickets.readyToServe).length;
-    setBadge('build', (sv.holding.brew || sv.holding.milk) ? '●' : buildable || 0);
   }
 
   function setBadge(station, val) {
@@ -79,7 +77,7 @@ CG.main = (function () {
     CG.save.save();
     $('#intro-day').textContent = 'Day ' + s.day;
     $('#intro-info').innerHTML =
-      '<p>' + CG.data.dayCustomerCount(s.day) + ' customers expected</p>' +
+      '<p>' + CG.data.dayCustomerCount(s.day) + ' guests will drop by today — one at a time.</p>' +
       (fresh.length ? '<p class="intro-new">NEW: ' + fresh.join(' · ') + '</p>' : '');
     CG.ui.showScreen('dayintro');
   }
@@ -106,13 +104,7 @@ CG.main = (function () {
     if (CG.state.screen !== 'service' || CG.state.paused || !CG.state.service) return;
 
     var sv = CG.state.service;
-    sv.clock += dt;
-
-    if (!sv.closed && sv.clock >= sv.dayLength) {
-      sv.closed = true;
-      CG.customers.closeDoors();
-      CG.ui.toast('Closing time! Finish the open orders.');
-    }
+    sv.clock += dt; // cosmetic time-of-day only
 
     CG.customers.update(dt);
     var st = CG.stations[sv.activeStation];
@@ -125,11 +117,11 @@ CG.main = (function () {
       updateBadges();
     }
 
-    // day complete: doors closed, queue cleared, every ticket served
-    if (sv.closed &&
-        CG.customers.unresolved().length === 0 &&
-        sv.tickets.every(function (t) { return t.status === 'served'; }) &&
-        sv.spawnQueue.length === 0) {
+    // day complete: every expected guest has been served and the counter is empty
+    if (!sv.closed &&
+        sv.guestsServed >= sv.guestsTotal &&
+        CG.customers.unresolved().length === 0) {
+      sv.closed = true;
       endDay();
     }
   }
@@ -155,7 +147,7 @@ CG.main = (function () {
     // tab bar
     var bar = $('#tabbar');
     bar.innerHTML = STATION_ORDER.map(function (k) {
-      var labels = { order: 'Counter', roast: 'Roast', brew: 'Brew', milk: 'Milk', build: 'Pass' };
+      var labels = { order: 'Counter', roast: 'Roast', brew: 'Brew', milk: 'Milk' };
       return '<button class="tab-btn" data-station="' + k + '">' +
         CG.svg.icon(k) + '<span>' + labels[k] + '</span><span class="badge hidden"></span></button>';
     }).join('');

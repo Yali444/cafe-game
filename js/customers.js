@@ -56,37 +56,27 @@ CG.customers = (function () {
       ' — something ' + o.flavor;
   }
 
-  /* ---------- day scheduling ---------- */
+  /* ---------- day scheduling (one guest at a time) ---------- */
 
   function startDay() {
     var s = CG.state, sv = s.service;
-    var count = d.dayCustomerCount(s.day);
     var ids = Object.keys(d.CHARACTERS).filter(function (cid) {
       var c = d.CHARACTERS[cid];
       return !c.minDay || s.day >= c.minDay;
     });
 
-    var times = [];
-    var usable = sv.dayLength - 15;
-    for (var i = 0; i < count; i++) {
-      var base = 4 + (usable - 4) * (i / count);
-      times.push(Math.max(2, base + (Math.random() * 14 - 7)));
-    }
-    if (s.day >= 3 && count >= 6) {
-      var mid = usable * (0.4 + Math.random() * 0.2);
-      times[Math.floor(count / 2) - 1] = mid;
-      times[Math.floor(count / 2)] = mid + 5;
-      times[Math.floor(count / 2) + 1] = mid + 11;
-    }
-    times.sort(function (a, b) { return a - b; });
-
+    // build the day's guest list, avoiding the same regular twice in a row
+    var queue = [];
     var lastChar = null;
-    sv.spawnQueue = times.map(function (t) {
+    for (var i = 0; i < sv.guestsTotal; i++) {
       var cid;
       do { cid = pick(ids); } while (cid === lastChar && ids.length > 1);
       lastChar = cid;
-      return { at: t, charId: cid };
-    });
+      queue.push(cid);
+    }
+    sv.charQueue = queue;
+    sv.guestsSpawned = 0;
+    sv.pendingSpawn = 1.5; // the first guest takes a beat to arrive
   }
 
   function spawn(charId) {
@@ -95,14 +85,15 @@ CG.customers = (function () {
     var cust = {
       id: 'c' + (sv.nextId++),
       charId: charId,
-      status: 'queued',          // queued -> waiting -> done | left
+      status: 'queued',          // queued -> waiting -> done
       patience: 100,
       order: rollOrder(char),
       mood: 'happy',
-      ringTimer: 0
+      ringTimer: 0,
+      arriving: true
     };
     sv.customers.push(cust);
-    CG.audio.play('select');
+    CG.audio.play('ding');
     CG.events.emit('queuechange');
     return cust;
   }
@@ -111,11 +102,19 @@ CG.customers = (function () {
 
   function update(dt) {
     var s = CG.state, sv = s.service;
+    var active = unresolved();
 
-    while (sv.spawnQueue.length && sv.spawnQueue[0].at <= sv.clock && !sv.closed) {
-      spawn(sv.spawnQueue.shift().charId);
+    // schedule the next guest only once the counter is clear
+    if (active.length === 0 && sv.guestsSpawned < sv.guestsTotal) {
+      if (sv.pendingSpawn == null) sv.pendingSpawn = d.nextArrivalDelay();
+      sv.pendingSpawn -= dt;
+      if (sv.pendingSpawn <= 0) {
+        sv.pendingSpawn = null;
+        spawn(sv.charQueue[sv.guestsSpawned++]);
+      }
     }
 
+    // patience is a slow, forgiving wait meter — it floors but never makes a guest leave
     var decayPerSec = 100 / d.patienceSeconds(s.day) * CG.upgradeValue('decor');
     var changed = false;
 
@@ -127,15 +126,7 @@ CG.customers = (function () {
       if (char.patienceFloor) c.patience = Math.max(char.patienceFloor, c.patience);
 
       var mood = CG.moodFor(c.patience);
-      if (mood !== c.mood) { c.mood = mood; changed = true; if (mood === 'angry') CG.audio.play('buzz'); }
-
-      if (c.patience <= 0 && c.status === 'queued') {
-        c.status = 'left';
-        sv.lostToday++;
-        CG.ui.toast(char.name + ' left without ordering', 'bad');
-        CG.audio.play('buzz');
-        changed = true;
-      }
+      if (mood !== c.mood) { c.mood = mood; changed = true; }
 
       c.ringTimer += dt;
       if (c.ringTimer > 0.25 && Math.abs(before - c.patience) > 0.01) {

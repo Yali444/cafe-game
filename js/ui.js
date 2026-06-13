@@ -33,21 +33,11 @@ CG.ui = (function () {
     if (sv) {
       $('#hud-clock').textContent = sv.closed ? 'CLOSED' : clockLabel();
       var fill = $('#hud-clockfill');
-      fill.style.transform = 'scaleX(' + Math.min(sv.clock / sv.dayLength, 1).toFixed(3) + ')';
-      // holding slots
-      var hb = $('#hold-brew'), hm = $('#hold-milk');
-      hb.classList.toggle('full', !!sv.holding.brew);
-      hm.classList.toggle('full', !!sv.holding.milk);
-      hb.title = sv.holding.brew ? 'Shot ready for ' + ticketOwnerName(sv.holding.brew.ticketId) : 'No shot in hand';
-      hm.title = sv.holding.milk ? 'Milk ready for ' + ticketOwnerName(sv.holding.milk.ticketId) : 'No milk in hand';
+      var prog = sv.guestsTotal ? sv.guestsServed / sv.guestsTotal : 0;
+      fill.style.transform = 'scaleX(' + Math.min(prog, 1).toFixed(3) + ')';
+      var g = $('#hud-guests');
+      if (g) g.textContent = '☕ ' + sv.guestsServed + '/' + sv.guestsTotal;
     }
-  }
-
-  function ticketOwnerName(ticketId) {
-    var t = CG.tickets.byId(ticketId);
-    if (!t) return '?';
-    var c = CG.customers.byId(t.customerId);
-    return c ? CG.data.CHARACTERS[c.charId].name : '?';
   }
 
   /* ---------- toasts ---------- */
@@ -121,8 +111,6 @@ CG.ui = (function () {
 
   function init() {
     $('#btn-pause').innerHTML = CG.svg.icon('pause');
-    $('#hold-brew').innerHTML = CG.svg.icon('brew');
-    $('#hold-milk').innerHTML = CG.svg.icon('milk');
     $('#btn-pause').addEventListener('click', function () { setPaused(true); });
     $('#btn-resume').addEventListener('click', function () { setPaused(false); });
     $('#btn-restart-day').addEventListener('click', function () {

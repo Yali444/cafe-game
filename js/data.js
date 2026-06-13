@@ -40,21 +40,21 @@ CG.data = (function () {
 
   /* 8 regulars */
   var CHARACTERS = {
-    mabel:  { name: 'Mabel',  skin: '#eec9a7', hair: 'bun',      hairColor: '#d8d3cb', top: '#b9a0ad',
+    mabel:  { name: 'Mabel',  skin: '#f0cba8', hair: 'bun',      hairColor: '#d6d0c6', top: '#c79bb4', collar: '#a87e98',
               patienceMult: 1.4, prefersNewest: true },
-    dex:    { name: 'Dex',    skin: '#c08a5c', hair: 'beanie',   hairColor: '#5b6770', top: '#8da0ab',
+    dex:    { name: 'Dex',    skin: '#c98f5f', hair: 'beanie',   hairColor: '#5b6770', top: '#7fa0b3', collar: '#5f8295',
               patienceMult: 0.7, only: ['espresso', 'batch'] },
-    priya:  { name: 'Priya',  skin: '#b5763f', hair: 'pony',     hairColor: '#3a2e33', top: '#7c98ad',
+    priya:  { name: 'Priya',  skin: '#bd7a42', hair: 'pony',     hairColor: '#36292e', top: '#e0a26b', collar: '#c5824c',
               patienceMult: 1.0, tipBonusAt90: 0.3 },
-    hank:   { name: 'Hank',   skin: '#e2b186', hair: 'short',    hairColor: '#7a6248', top: '#c08a72', accessory: 'mustache',
+    hank:   { name: 'Hank',   skin: '#e7b78c', hair: 'short',    hairColor: '#7a6248', top: '#cf8f76', collar: '#b06f57', accessory: 'mustache',
               patienceMult: 1.0, forceOrigin: 'colombia' },
-    junie:  { name: 'Junie',  skin: '#f2d2ae', hair: 'pigtails', hairColor: '#cd8d57', top: '#d9c08a', accessory: 'freckles',
+    junie:  { name: 'Junie',  skin: '#f5d6b2', hair: 'pigtails', hairColor: '#e09a52', top: '#f1d27f', collar: '#d9b75c', accessory: 'freckles',
               patienceMult: 1.0, only: ['latte', 'flatwhite', 'cortado'] },
-    theo:   { name: 'Theo',   skin: '#d09c68', hair: 'curly',    hairColor: '#46362b', top: '#7fA38f', accessory: 'scarf',
+    theo:   { name: 'Theo',   skin: '#d6a06c', hair: 'curly',    hairColor: '#46362b', top: '#86b59c', collar: '#5f9079', accessory: 'scarf',
               patienceMult: 1.0, only: ['v60'], minDay: 3 },
-    rosa:   { name: 'Rosa',   skin: '#c48653', hair: 'flower',   hairColor: '#2e2a26', top: '#c97f5d',
+    rosa:   { name: 'Rosa',   skin: '#cd8a57', hair: 'flower',   hairColor: '#2e2a26', top: '#e08a6a', collar: '#c26a4c',
               patienceMult: 1.0, patienceFloor: 25 },
-    marcus: { name: 'Marcus', skin: '#8d5a3b', hair: 'bald',     hairColor: '#000000', top: '#6f7b8a', accessory: 'phone',
+    marcus: { name: 'Marcus', skin: '#95603f', hair: 'bald',     hairColor: '#000000', top: '#6f8a9b', collar: '#516b7c', accessory: 'phone',
               patienceMult: 1.0, prefersComplex: true }
   };
 
@@ -86,9 +86,12 @@ CG.data = (function () {
 
   var TIP_RATES = [0, 0, 0.05, 0.10, 0.18, 0.25]; // by stars 1..5
 
-  function dayCustomerCount(day) { return Math.min(4 + day, 14); }
+  function dayCustomerCount(day) { return Math.min(3 + day, 10); }
   function dayLength(day) { return Math.min(120 + day * 20, 360); }
-  function patienceSeconds(day) { return Math.min(45 + day * 5, 75); }
+  // one-at-a-time: patience is a slow, forgiving wait meter, never a rush
+  function patienceSeconds(day) { return Math.min(90 + day * 6, 150); }
+  // gentle pause between guests (seconds), lightly jittered
+  function nextArrivalDelay() { return 3 + Math.random() * 2; }
 
   function priceOf(ticket) { return RECIPES[ticket.recipe].price; }
 
@@ -122,6 +125,7 @@ CG.data = (function () {
     BATCH_ORIGIN: BATCH_ORIGIN, BATCH_CARAFE: BATCH_CARAFE,
     RECIPES: RECIPES, CHARACTERS: CHARACTERS, UNLOCKS: UNLOCKS, UPGRADES: UPGRADES, TIP_RATES: TIP_RATES,
     dayCustomerCount: dayCustomerCount, dayLength: dayLength, patienceSeconds: patienceSeconds,
+    nextArrivalDelay: nextArrivalDelay,
     priceOf: priceOf, starsFor: starsFor, applyUnlocks: applyUnlocks,
     clamp: clamp, fmtMoney: fmtMoney
   };

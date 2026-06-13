@@ -15,25 +15,6 @@ CG.tickets = (function () {
 
   /* ---------- creation ---------- */
 
-  function buildComponents(order) {
-    var recipe = d.RECIPES[order.recipe];
-    var comps = [];
-    if (recipe.brew === 'espresso') {
-      comps.push({ id: 'shot', label: 'Espresso shot', kind: 'shot', done: false, score: null });
-    } else if (recipe.brew) {
-      comps.push({ id: 'filter', label: 'Pour to the line', kind: 'pour', done: false, score: 0 });
-    }
-    if (recipe.milk) {
-      comps.push({
-        id: 'milkpour',
-        label: recipe.art ? 'Free-pour the art' : 'Pour the milk',
-        kind: recipe.art ? 'art' : 'pour',
-        done: false, score: 0
-      });
-    }
-    return comps;
-  }
-
   function createTicket(cust) {
     var sv = CG.state.service;
     var o = cust.order;
@@ -45,10 +26,10 @@ CG.tickets = (function () {
       origin: o.origin,
       steps: {
         brew: { done: false, score: 0 },
-        milk: recipe.milk ? { done: false, score: 0 } : null,
-        pass: { done: false, score: 0 }
+        milk: recipe.milk ? { done: false, score: 0 } : null
       },
-      components: buildComponents(o),
+      // where the drink is finished & served
+      serveStation: recipe.milk ? 'milk' : 'brew',
       status: 'taken'
     };
     sv.tickets.push(t);
@@ -66,11 +47,10 @@ CG.tickets = (function () {
   }
 
   function needing(step) {
-    var sv = CG.state.service;
     return open().filter(function (t) {
       if (!t.steps[step] || t.steps[step].done) return false;
-      var hold = step === 'brew' ? sv.holding.brew : step === 'milk' ? sv.holding.milk : null;
-      if (hold && hold.ticketId === t.id) return false;
+      // milk only after the shot has been pulled
+      if (step === 'milk' && t.steps.brew && !t.steps.brew.done) return false;
       return true;
     });
   }
@@ -98,7 +78,9 @@ CG.tickets = (function () {
   }
 
   function readyToServe(ticket) {
-    return ticket.components.every(function (c) { return c.done; });
+    if (!ticket.steps.brew.done) return false;
+    if (ticket.steps.milk && !ticket.steps.milk.done) return false;
+    return true;
   }
 
   /* ---------- serve & scoring ---------- */
@@ -106,14 +88,8 @@ CG.tickets = (function () {
   function makeScore(ticket) {
     var sv = CG.state.service;
     var parts = [];
-    parts.push({ w: 0.40, v: ticket.steps.brew.score });
-    if (ticket.steps.milk) parts.push({ w: 0.25, v: ticket.steps.milk.score });
-    var passComps = ticket.components.filter(function (c) { return c.score != null; });
-    if (passComps.length) {
-      var passScore = passComps.reduce(function (a, c) { return a + c.score; }, 0) / passComps.length;
-      ticket.steps.pass.score = Math.round(passScore);
-      parts.push({ w: 0.20, v: passScore });
-    }
+    parts.push({ w: 0.45, v: ticket.steps.brew.score });
+    if (ticket.steps.milk) parts.push({ w: 0.30, v: ticket.steps.milk.score });
     if (ticket.origin) {
       var q = sv.roastQuality[ticket.origin];
       parts.push({ w: 0.15, v: q == null ? 70 : q });
@@ -145,6 +121,7 @@ CG.tickets = (function () {
 
     ticket.status = 'served';
     cust.status = 'done';
+    sv.guestsServed++;
     cust.mood = stars >= 3 ? 'happy' : stars === 2 ? 'neutral' : 'annoyed';
     if (sv.selectedTicketId === ticket.id) {
       var next = open()[0];
@@ -193,14 +170,12 @@ CG.tickets = (function () {
       var char = d.CHARACTERS[cust.charId];
       var sel = sv.selectedTicketId === t.id ? ' sel' : '';
       var ring = CG.moodColor(cust.patience);
-      var passDone = t.components.every(function (c) { return c.done; });
       return '<button class="mini-ticket' + sel + '" data-tid="' + t.id + '" style="--ring:' + ring + '">' +
         '<span class="mt-name">' + char.name + '</span>' +
         '<span class="mt-drink">' + d.RECIPES[t.recipe].name +
         (t.origin ? ' · <em>' + d.ORIGINS[t.origin].short + '</em>' : '') + '</span>' +
         '<span class="mt-steps">' +
         stepIcon('B', t.steps.brew) + stepIcon('M', t.steps.milk) +
-        '<span class="tstep ' + (passDone ? 'done' : '') + '">P</span>' +
         '</span></button>';
     }).join('');
 
@@ -220,10 +195,7 @@ CG.tickets = (function () {
     var r = d.RECIPES[t.recipe];
     var steps = [];
     steps.push((t.steps.brew.done ? '✓' : '○') + ' ' + (r.brew === 'espresso' ? 'Pull the shot' : r.brew === 'v60' ? 'Brew the V60' : r.brew === 'aero' ? 'Brew the AeroPress' : 'Draw from the batch'));
-    if (t.steps.milk) steps.push((t.steps.milk.done ? '✓' : '○') + ' Steam the milk');
-    t.components.forEach(function (c) {
-      if (c.kind !== 'shot') steps.push((c.done ? '✓' : '○') + ' ' + c.label);
-    });
+    if (t.steps.milk) steps.push((t.steps.milk.done ? '✓' : '○') + ' Steam & pour the milk' + (r.art ? ' art' : ''));
     CG.ui.showModal(
       '<div class="recipe-card">' +
       '<h3 class="rc-title">' + r.name + '</h3>' +
