@@ -37,8 +37,8 @@
       nextId: 1,
       activeStation: 'order',
       selectedTicketId: null,
-      roastInventory: { colombia: 6, ethiopia: 0, kenya: 0 }, // a starter batch of the house bean
-      roastQuality: { colombia: 72, ethiopia: null, kenya: null },
+      roastInventory: { colombia: 6, ethiopia: 5, kenya: 5 }, // a starter batch of every origin
+      roastQuality: { colombia: 72, ethiopia: 70, kenya: 70 },
       batchCarafe: 0,          // cups left in the batch-brew carafe
       earnedToday: 0,
       tipsToday: 0,

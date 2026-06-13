@@ -259,6 +259,21 @@ body {
 .hold-slot.full { background: var(--clay); color: #fbf7f2; box-shadow: var(--shadow-soft); }
 .hold-slot.full .icon-svg { opacity: 1; }
 
+/* ---------- 3D canvas (sits behind the DOM HUD) ---------- */
+#gl-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 0;
+  touch-action: none;
+}
+#screen-service > #hud,
+#screen-service > #station-panels,
+#screen-service > #ticket-strip,
+#screen-service > #tabbar { position: relative; z-index: 2; }
+
 /* ---------- station panels ---------- */
 
 #station-panels {
@@ -354,6 +369,44 @@ body {
   pointer-events: none;
 }
 .bubble-layer .speech-bubble { pointer-events: auto; margin: 0; }
+/* ---------- 3D counter overlays (order station) ---------- */
+.order-3d { background: transparent; pointer-events: none; }
+.station-head.floaty { pointer-events: none; }
+.greet-prompt {
+  position: absolute; left: 0; right: 0; bottom: 20px;
+  display: flex; justify-content: center; z-index: 8;
+  pointer-events: none;
+}
+.greet-prompt .queue-empty, .greet-btn { pointer-events: auto; }
+.greet-btn {
+  font-family: var(--sans);
+  font-weight: 800; font-size: 15px; color: #fff;
+  background: linear-gradient(180deg, #e0936f, var(--clay-deep));
+  border: none; border-radius: 999px;
+  padding: 13px 26px;
+  box-shadow: var(--shadow-lift);
+  cursor: pointer;
+  animation: gentle-throb 1.8s ease-in-out infinite;
+}
+@keyframes gentle-throb { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+.order-3d .bubble-layer { top: auto; bottom: 16px; }
+
+/* bean picker inside the order bubble */
+.bean-pick { margin: 8px 0 4px; text-align: left; }
+.bean-label { font-size: 10px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-soft); }
+.bean-row { display: flex; gap: 6px; margin-top: 6px; }
+.bean-chip {
+  flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  padding: 7px 8px; border-radius: 12px;
+  border: 2px solid var(--edge); background: var(--card);
+  font-family: var(--sans); text-align: left; cursor: pointer;
+}
+.bean-chip.on { border-color: var(--sage-deep); background: rgba(158, 181, 133, 0.18); box-shadow: var(--shadow-soft); }
+.bean-dot { width: 12px; height: 12px; border-radius: 50%; box-shadow: var(--shadow-inset); }
+.bean-name { font-size: 12px; font-weight: 800; color: var(--ink); }
+.bean-pref { color: var(--clay); }
+.bean-notes { font-size: 9px; color: var(--ink-soft); line-height: 1.15; }
+
 #roast-crackles { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
 #roast-zones { position: absolute; inset: 0; z-index: 5; }
 .scene-overlays { padding-top: 84px; }

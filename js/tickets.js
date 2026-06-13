@@ -15,15 +15,17 @@ CG.tickets = (function () {
 
   /* ---------- creation ---------- */
 
-  function createTicket(cust) {
+  function createTicket(cust, originOverride) {
     var sv = CG.state.service;
     var o = cust.order;
     var recipe = d.RECIPES[o.recipe];
+    var origin = (originOverride != null) ? originOverride : o.origin;
     var t = {
       id: 't' + (sv.nextId++),
       customerId: cust.id,
       recipe: o.recipe,
-      origin: o.origin,
+      origin: origin,
+      preferOrigin: o.preferOrigin || null,
       steps: {
         brew: { done: false, score: 0 },
         milk: recipe.milk ? { done: false, score: 0 } : null
@@ -111,6 +113,8 @@ CG.tickets = (function () {
     var price = d.priceOf(ticket);
     var tipRate = d.TIP_RATES[stars];
     var quirkMod = (char.tipBonusAt90 && final >= 90) ? 1 + char.tipBonusAt90 : 1;
+    // reward matching the guest's preferred bean
+    if (ticket.preferOrigin && ticket.origin === ticket.preferOrigin) quirkMod += 0.2;
     var tip = Math.round(price * tipRate * quirkMod * 100) / 100;
 
     s.money = Math.round((s.money + price + tip) * 100) / 100;

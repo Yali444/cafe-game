@@ -11,13 +11,18 @@ CG.main = (function () {
 
   function switchStation(name) {
     var sv = CG.state.service;
-    if (!sv || sv.activeStation === name && panelVisible(name)) { highlightTab(name); return; }
+    if (!sv || sv.activeStation === name && panelVisible(name)) {
+      if (CG.gfx && CG.gfx.available()) CG.gfx.setStation(name);
+      highlightTab(name);
+      return;
+    }
     var prev = CG.stations[sv.activeStation];
     if (prev && prev.exit) prev.exit();
     sv.activeStation = name;
     document.querySelectorAll('.station-panel').forEach(function (el) {
       el.classList.toggle('active', el.id === 'panel-' + name);
     });
+    if (CG.gfx && CG.gfx.available()) CG.gfx.setStation(name);
     highlightTab(name);
     CG.audio.play('tap');
     var st = CG.stations[name];
@@ -65,6 +70,7 @@ CG.main = (function () {
     CG.tickets.renderStrip();
     CG.ui.setPaused(false, true);
     CG.ui.showScreen('service');
+    if (CG.gfx && CG.gfx.available()) CG.gfx.resize();
     switchStation('order');
     CG.stations.order.enter();
     CG.ui.updateHUD();
@@ -109,6 +115,7 @@ CG.main = (function () {
     CG.customers.update(dt);
     var st = CG.stations[sv.activeStation];
     if (st && st.update) st.update(dt);
+    if (CG.gfx && CG.gfx.available()) CG.gfx.render(dt);
 
     hudTimer += dt;
     if (hudTimer > 0.25) {
@@ -140,6 +147,9 @@ CG.main = (function () {
   function init() {
     $('#title-logo').innerHTML = CG.svg.logo();
     CG.ui.init();
+
+    // boot the 3D engine (falls back gracefully to the DOM/SVG layer if WebGL is unavailable)
+    if (CG.gfx && CG.gfx.init()) CG.gfx.buildAll();
 
     // stations build their panel DOM once
     STATION_ORDER.forEach(function (k) { CG.stations[k].init(); });

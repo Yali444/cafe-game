@@ -35,25 +35,30 @@ CG.customers = (function () {
     }
     var recipe = d.RECIPES[recipeId];
 
-    var origin = null;
+    // the player chooses the bean now; the guest only carries a soft preference
+    var origin = null, prefer = null;
     if (recipe.brew === 'batch') {
       origin = d.BATCH_ORIGIN;
     } else if (recipe.brew) {
-      if (char.forceOrigin && s.unlocked.origins.indexOf(char.forceOrigin) >= 0) origin = char.forceOrigin;
-      else origin = pick(s.unlocked.origins);
+      if (char.forceOrigin && s.unlocked.origins.indexOf(char.forceOrigin) >= 0) prefer = char.forceOrigin;
+      else if (Math.random() < 0.6) prefer = pick(s.unlocked.origins);
+      origin = prefer || pick(s.unlocked.origins); // a sensible default; player can change it
     }
 
-    return { recipe: recipeId, origin: origin };
+    return { recipe: recipeId, origin: origin, preferOrigin: prefer };
   }
 
   function orderText(order) {
     var r = d.RECIPES[order.recipe];
     if (order.recipe === 'batch') return 'Just a cup of the batch filter';
-    if (!order.origin) return 'A ' + r.name.toLowerCase();
-    var o = d.ORIGINS[order.origin];
-    if (r.milk) return 'A ' + r.name.toLowerCase() + ' on the ' + o.short;
-    return 'The ' + o.short + ' as ' + (r.name === 'Espresso' ? 'a straight shot' : (r.name === 'AeroPress' ? 'an AeroPress' : 'a ' + r.name)) +
-      ' — something ' + o.flavor;
+    var base = r.name === 'Espresso' ? 'an espresso' :
+      r.name === 'AeroPress' ? 'an AeroPress' :
+      'a ' + r.name.toLowerCase();
+    if (order.preferOrigin) {
+      var o = d.ORIGINS[order.preferOrigin];
+      return 'I\'d love ' + base + ' — the ' + o.short + ' if you have it';
+    }
+    return 'Could I get ' + base;
   }
 
   /* ---------- day scheduling (one guest at a time) ---------- */

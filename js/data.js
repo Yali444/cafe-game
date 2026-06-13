@@ -60,13 +60,9 @@ CG.data = (function () {
 
   /* applied at the start of the listed day */
   var UNLOCKS = {
-    1: { recipes: ['espresso', 'batch'], origins: ['colombia'] },
-    2: { recipes: ['latte'] },
-    3: { recipes: ['v60'], origins: ['ethiopia'] },
-    4: { recipes: ['cortado'] },
-    5: { recipes: ['flatwhite'] },
-    6: { origins: ['kenya'] },
-    7: { recipes: ['aeropress'] }
+    // everything is available from the very first day
+    1: { recipes: ['espresso', 'batch', 'latte', 'cortado', 'flatwhite', 'v60', 'aeropress'],
+         origins: ['colombia', 'ethiopia', 'kenya'] }
   };
 
   var UPGRADES = {
