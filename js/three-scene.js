@@ -32,6 +32,7 @@ CG.gfx = (function () {
   var camRig = { pos: null, target: null, toPos: null, toTarget: null, t: 1 };
   var clock = 0;
   var matCache = {};
+  var espGlass = null, milkCup = null;  // 3D vessels driven by the brew/milk stations
 
   /* ---------- material helper (cached) ---------- */
   function mat(color, rough, metal, opts) {
@@ -299,8 +300,8 @@ CG.gfx = (function () {
   var FRAMES = {
     order: { pos: [0, 1.32, 3.7], target: [0, 0.92, 0.6] },
     roast: { pos: [0, 1.5, 3.2], target: [0, 1.0, 0] },
-    brew:  { pos: [0, 1.45, 3.0], target: [0, 1.0, 0] },
-    milk:  { pos: [0, 1.45, 3.0], target: [0, 1.0, 0] }
+    brew:  { pos: [0, 1.2, 2.35], target: [0, 1.06, 0.6] },
+    milk:  { pos: [0, 1.74, 2.05], target: [0, 0.98, 0.55] }
   };
 
   function setStation(name) {
@@ -386,7 +387,56 @@ CG.gfx = (function () {
       gauge.rotation.x = Math.PI / 2; gauge.position.set(gx, 1.55, 0.29); g.add(gauge);
     });
     g.add(plant(-1.7, 0.93, 0.2));
+
+    // espresso glass on the bar (driven by the brew station's pull)
+    espGlass = buildEspressoGlass();
+    espGlass.position.set(0, 0.99, 0.62);
+    espGlass.visible = false;
+    g.add(espGlass);
+
     sets.brew = g; g.visible = false; scene.add(g);
+  }
+
+  /* a clear demitasse glass with espresso + crema and a subtle target ring */
+  function buildEspressoGlass() {
+    var grp = new T.Group();
+    var H = 0.32, rTop = 0.15, rBot = 0.115;
+    // glass shell (translucent)
+    var glassMat = new T.MeshStandardMaterial({ color: 0xeaf0f2, roughness: 0.08, metalness: 0,
+      transparent: true, opacity: 0.26, side: T.DoubleSide });
+    var shell = new T.Mesh(new T.CylinderGeometry(rTop, rBot, H, 32, 1, true), glassMat);
+    shell.position.y = H / 2; shell.castShadow = false; grp.add(shell);
+    var base = meshOf(new T.CylinderGeometry(rBot, rBot * 0.92, 0.03, 32), glassMat);
+    base.position.y = 0.015; grp.add(base);
+    // liquid (espresso) — scaled in Y by fill
+    var liq = new T.Mesh(new T.CylinderGeometry(rTop * 0.95, rBot * 0.95, 1, 32),
+      mat(0x2a160c, 0.35, 0.05));
+    liq.position.y = 0.02; liq.scale.y = 0.001; grp.add(liq);
+    // crema cap
+    var crema = new T.Mesh(new T.CylinderGeometry(rTop * 0.95, rTop * 0.95, 0.018, 32),
+      mat(0xe6c389, 0.5, 0));
+    crema.position.y = 0.02; grp.add(crema);
+    // target ring — glows green when the crema reaches it
+    var ringMat = new T.MeshStandardMaterial({ color: 0xb9c9b0, emissive: 0x223018, emissiveIntensity: 0.4, roughness: 0.5 });
+    var ring = new T.Mesh(new T.TorusGeometry(rTop * 1.02, 0.006, 8, 32), ringMat);
+    ring.rotation.x = Math.PI / 2; grp.add(ring);
+    grp.userData = { liq: liq, crema: crema, ring: ring, ringMat: ringMat, H: H, base: 0.02 };
+    return grp;
+  }
+
+  function showEspressoGlass() { if (espGlass) { espGlass.visible = true; setEspressoFill(0, false); } }
+  function hideEspressoGlass() { if (espGlass) espGlass.visible = false; }
+  function setEspressoFill(level01, inBand) {
+    if (!espGlass) return;
+    var u = espGlass.userData;
+    var h = Math.max(0.001, Math.min(1.05, level01) * u.H);
+    u.liq.scale.y = h; u.liq.position.y = u.base + h / 2;
+    u.crema.position.y = u.base + h + 0.009;
+    var ringY = u.base + 0.70 * u.H; // target at 70%
+    u.ring.position.y = ringY;
+    u.ringMat.emissive.setHex(inBand ? 0x2f8e3a : 0x223018);
+    u.ringMat.emissiveIntensity = inBand ? 1.0 : 0.35;
+    u.ringMat.color.setHex(inBand ? 0x7ec46e : 0xb9c9b0);
   }
 
   /* ---------- milk bar backdrop ---------- */
@@ -404,7 +454,59 @@ CG.gfx = (function () {
     var wand = meshOf(new T.CylinderGeometry(0.025, 0.02, 0.5, 8), mat(COL.steelDk, 0.3, 0.7));
     wand.position.set(0.1, 1.15, 0.25); wand.rotation.x = 0.35; g.add(wand);
     g.add(plant(1.7, 0.93, 0.1));
+
+    // ceramic cup on the bar (driven by the milk station)
+    milkCup = buildMilkCup();
+    milkCup.position.set(0, 0.99, 0.62);
+    milkCup.visible = false;
+    g.add(milkCup);
+
     sets.milk = g; g.visible = false; scene.add(g);
+  }
+
+  /* a rounded ceramic cup with a milk/crema surface + simple latte-art decal */
+  function buildMilkCup() {
+    var grp = new T.Group();
+    var H = 0.26, rTop = 0.2, rBot = 0.14;
+    var cupMat = mat(0xfdf6e6, 0.4, 0.05);
+    var body = meshOf(new T.CylinderGeometry(rTop, rBot, H, 36, 1, true), cupMat);
+    body.position.y = H / 2; grp.add(body);
+    var base = meshOf(new T.CylinderGeometry(rBot, rBot * 0.85, 0.03, 28), cupMat);
+    base.position.y = 0.015; grp.add(base);
+    var handle = meshOf(new T.TorusGeometry(0.07, 0.022, 12, 20, Math.PI * 1.3), cupMat);
+    handle.position.set(rTop - 0.01, H * 0.55, 0); handle.rotation.z = -0.4; grp.add(handle);
+    // coffee/milk surface
+    var surf = new T.Mesh(new T.CircleGeometry(rTop * 0.95, 40), mat(0xc89a6c, 0.55, 0));
+    surf.rotation.x = -Math.PI / 2; surf.position.y = H * 0.94; grp.add(surf);
+    // latte-art decal (a feathered leaf), hidden until poured
+    var art = new T.Group();
+    var artMat = mat(0xf3e6cf, 0.6, 0);
+    var spine = new T.Mesh(new T.BoxGeometry(rTop * 1.3, 0.004, 0.012), artMat);
+    art.add(spine);
+    for (var i = -3; i <= 3; i++) {
+      if (i === 0) continue;
+      var frond = new T.Mesh(new T.SphereGeometry(0.022, 8, 6), artMat);
+      frond.scale.set(1.6, 0.25, 0.7);
+      frond.position.set(i * 0.026, 0, 0);
+      art.add(frond);
+    }
+    art.rotation.x = -Math.PI / 2; art.position.y = H * 0.945; art.visible = false;
+    grp.add(art);
+    grp.userData = { surf: surf, art: art, H: H };
+    return grp;
+  }
+
+  function showMilkCup() { if (milkCup) { milkCup.visible = true; setMilkCup(0, null); } }
+  function hideMilkCup() { if (milkCup) milkCup.visible = false; }
+  function setMilkCup(fill01, tier) {
+    if (!milkCup) return;
+    var u = milkCup.userData;
+    u.surf.position.y = u.H * (0.55 + 0.39 * Math.min(1, fill01)); // surface rises as it fills
+    u.art.position.y = u.surf.position.y + 0.002;
+    u.art.visible = !!tier;
+    // tier scales the leaf a touch (heart small → rosetta full)
+    var s = tier === 'rosetta' ? 1 : tier === 'tulip' ? 0.82 : tier === 'heart' ? 0.6 : 0.6;
+    u.art.scale.setScalar(s);
   }
 
   function buildAll() {
@@ -417,6 +519,8 @@ CG.gfx = (function () {
     init: init, available: available, buildAll: buildAll,
     setStation: setStation, render: render, resize: resize,
     showGuest: showGuest, clearGuest: clearGuest, pickRole: pickRole,
+    showEspressoGlass: showEspressoGlass, hideEspressoGlass: hideEspressoGlass, setEspressoFill: setEspressoFill,
+    showMilkCup: showMilkCup, hideMilkCup: hideMilkCup, setMilkCup: setMilkCup,
     THREE: T
   };
 })();

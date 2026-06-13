@@ -199,32 +199,13 @@ CG.stations.brew = (function () {
     }
   }
 
-  /* ---- the pull: hold to pour a slow shot, release in the green band ---- */
+  /* ---- the pull: hold to pour a slow shot into the real 3D glass ---- */
   function startPull() {
     phase = 'shot';
     pull = { level: 0, pouring: false, score: 0 };
-    var topY = PULL_TARGET + PULL_BAND, botY = PULL_TARGET - PULL_BAND; // band edges (0=bottom)
-    // gauge in glass coords: y grows downward, 150=bottom, 30=top → 120px travel
-    function gy(lvl) { return 150 - lvl / 100 * 120; }
-    overlayEl.innerHTML =
-      '<div class="shot-gauge">' +
-      '<svg viewBox="0 0 100 165" class="shot-svg">' +
-      '<defs><clipPath id="glassclip"><path d="M28 22 h44 l-4 124 a8 8 0 0 1 -8 7 h-20 a8 8 0 0 1 -8 -7 z"/></clipPath></defs>' +
-      // target band (clearly marked, high contrast)
-      '<rect x="20" y="' + gy(topY) + '" width="60" height="' + (gy(botY) - gy(topY)) + '" rx="3" class="band" id="band"/>' +
-      '<line x1="20" y1="' + gy(PULL_TARGET) + '" x2="80" y2="' + gy(PULL_TARGET) + '" class="bandline"/>' +
-      '<text x="50" y="' + (gy(topY) - 4) + '" text-anchor="middle" class="bandlabel">stop in the band</text>' +
-      // glass contents
-      '<g clip-path="url(#glassclip)">' +
-      '<rect id="esp-liquid" x="22" y="150" width="56" height="0" fill="#2a160c"/>' +
-      '<rect id="esp-cap" x="22" y="150" width="56" height="0" fill="#e6c389"/>' +
-      '</g>' +
-      // glass outline
-      '<path d="M28 22 h44 l-4 124 a8 8 0 0 1 -8 7 h-20 a8 8 0 0 1 -8 -7 z" class="glass"/>' +
-      '</svg>' +
-      '<div class="shot-status" id="shot-status">hold to pour</div>' +
-      '</div>';
-    msgEl.textContent = 'Hold to pull the shot — release when the crema reaches the line.';
+    if (CG.gfx && CG.gfx.available()) CG.gfx.showEspressoGlass();
+    overlayEl.innerHTML = '<div class="pour-status" id="shot-status">hold to pour</div>';
+    msgEl.textContent = 'Hold to pull the shot — let go when the crema reaches the ring.';
     controlsEl.innerHTML = '<button class="btn btn-primary btn-wide hold-pour" id="hold-pour">Hold to pour</button>';
 
     var btn = controlsEl.querySelector('#hold-pour');
@@ -239,28 +220,15 @@ CG.stations.brew = (function () {
   function pullUpdate(dt) {
     if (phase !== 'shot' || !pull.pouring) return;
     pull.level = Math.min(118, pull.level + PULL_RATE * dt);
-    paintGauge();
-    var off = Math.abs(pull.level - PULL_TARGET);
-    var inBand = off <= PULL_BAND;
-    var band = overlayEl.querySelector('#band');
+    var inBand = Math.abs(pull.level - PULL_TARGET) <= PULL_BAND;
+    if (CG.gfx && CG.gfx.available()) CG.gfx.setEspressoFill(pull.level / 100, inBand);
     var status = overlayEl.querySelector('#shot-status');
-    if (band) band.classList.toggle('on', inBand);
     if (status) {
-      if (pull.level > PULL_TARGET + PULL_BAND) { status.textContent = 'too much!'; status.className = 'shot-status over'; }
-      else if (inBand) { status.textContent = 'perfect — let go!'; status.className = 'shot-status good'; }
-      else { status.textContent = 'keep pouring…'; status.className = 'shot-status'; }
+      if (pull.level > PULL_TARGET + PULL_BAND) { status.textContent = 'too much'; status.className = 'pour-status over'; }
+      else if (inBand) { status.textContent = 'perfect — let go'; status.className = 'pour-status good'; }
+      else { status.textContent = 'pouring…'; status.className = 'pour-status'; }
     }
     if (pull.level >= 118) endPull(); // overflowed
-  }
-
-  function paintGauge() {
-    function gy(lvl) { return 150 - lvl / 100 * 120; }
-    var capH = 7;
-    var topY = gy(Math.min(pull.level, 100));
-    var liquid = overlayEl.querySelector('#esp-liquid');
-    var cap = overlayEl.querySelector('#esp-cap');
-    if (cap) { cap.setAttribute('y', topY); cap.setAttribute('height', capH); }
-    if (liquid) { liquid.setAttribute('y', topY + capH); liquid.setAttribute('height', Math.max(0, 150 - (topY + capH))); }
   }
 
   function endPull() {
@@ -273,6 +241,7 @@ CG.stations.brew = (function () {
       ? d.clamp(60 - (pull.level - (PULL_TARGET + PULL_BAND)) * 3, 15, 60)
       : d.clamp(100 - Math.abs(pull.level - PULL_TARGET) / PULL_BAND * 45, 0, 100);
     pull.score = score;
+    if (CG.gfx && CG.gfx.available()) CG.gfx.hideEspressoGlass();
     finishBrew(0.4 * dial.score + 0.6 * score);
   }
 
@@ -540,6 +509,7 @@ CG.stations.brew = (function () {
 
   function exit() {
     if (phase !== 'done' && ticket) refundBean();
+    if (CG.gfx && CG.gfx.available()) CG.gfx.hideEspressoGlass();
     phase = 'pick';
     ticket = null;
     batch.brewing = false;

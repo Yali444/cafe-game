@@ -91,23 +91,25 @@
 #order-bubble { min-height: 0; }
 .speech-bubble {
   position: relative;
-  background: var(--card);
-  border: 2.5px solid var(--edge);
-  border-radius: 20px;
-  padding: 14px 16px;
+  background: rgba(253, 248, 236, 0.97);
+  border: 1px solid rgba(138, 112, 90, 0.16);
+  border-radius: 22px;
+  padding: 16px 18px;
   text-align: center;
   animation: pop-in 0.22s;
   box-shadow: var(--shadow-lift);
+  backdrop-filter: blur(5px);
 }
 .speech-bubble::after {
   content: '';
   position: absolute;
-  bottom: -10px; left: 50%;
+  bottom: -9px; left: 50%;
   transform: translateX(-50%);
-  border: 10px solid transparent;
-  border-top-color: var(--card);
+  border: 9px solid transparent;
+  border-top-color: rgba(253, 248, 236, 0.97);
   border-bottom: none;
 }
+.sb-text { font-family: var(--sans); }
 .sb-head { display: flex; align-items: center; gap: 9px; margin-bottom: 8px; }
 .sb-portrait {
   width: 44px; height: 48px; flex: none;

@@ -19,8 +19,8 @@
   --shadow-soft: 0 8px 18px rgba(107, 84, 60, 0.13), 0 2px 4px rgba(107, 84, 60, 0.08);
   --shadow-lift: 0 14px 30px rgba(107, 84, 60, 0.18), 0 3px 7px rgba(107, 84, 60, 0.10);
   --shadow-inset: inset 0 2px 5px rgba(107, 84, 60, 0.16);
-  --serif: ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", "Hiragino Maru Gothic ProN", "Trebuchet MS", sans-serif;
-  --sans: -apple-system, "SF Pro Text", "Inter", "Segoe UI", system-ui, sans-serif;
+  --serif: "Poppins", ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+  --sans: "Nunito", -apple-system, "Segoe UI", system-ui, sans-serif;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -291,33 +291,28 @@ body {
 .station-panel.active { display: flex; }
 
 /* floating header chips over the full-bleed scene */
-.station-head { position: relative; z-index: 7; padding: 10px 14px 0; pointer-events: none; }
+.station-head { position: relative; z-index: 7; padding: 12px 16px 0; pointer-events: none; }
 .station-head h2 {
   display: inline-block;
   font-family: var(--serif);
-  font-weight: 800;
-  font-size: 18px;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 0.2px;
   color: var(--ink);
-  background: rgba(253, 248, 236, 0.94);
-  border: 2px solid var(--edge);
-  border-radius: 999px;
-  padding: 5px 16px;
-  box-shadow: var(--shadow-soft);
+  text-shadow: 0 1px 8px rgba(255, 250, 240, 0.95), 0 1px 2px rgba(255, 250, 240, 0.9);
 }
 .station-head .hint {
   display: block;
   width: fit-content;
-  max-width: 92%;
-  font-size: 12px;
+  max-width: 94%;
+  font-size: 12.5px;
+  font-weight: 600;
   color: var(--ink-soft);
-  background: rgba(253, 248, 236, 0.92);
-  border: 1.5px solid var(--edge);
-  border-radius: 14px;
-  padding: 4px 11px;
-  margin-top: 6px;
+  margin-top: 3px;
+  text-shadow: 0 1px 6px rgba(255, 250, 240, 0.95);
   min-height: 0;
 }
-.station-head .note { color: var(--clay); }
+.station-head .note { color: var(--clay-deep); }
 
 /* floating control dock over the counter */
 .station-controls {
@@ -333,13 +328,11 @@ body {
 #panel-build .station-controls { margin-top: 0; }
 .control-note {
   text-align: center;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
   color: var(--ink-soft);
-  background: rgba(253, 248, 236, 0.9);
-  border: 1.5px solid var(--edge);
-  border-radius: 999px;
-  padding: 7px 12px;
+  text-shadow: 0 1px 6px rgba(255, 250, 240, 0.9);
+  padding: 4px 12px;
   margin: 0 auto;
 }
 
@@ -487,34 +480,58 @@ body {
   transform: scale(0);
 }
 
-/* espresso bar shows the 3D scene behind the overlays */
+/* brew/milk bars show the 3D scene behind the overlays */
 .scene-wrap.show3d { background: transparent; }
 
-/* espresso shot gauge — clear glass, high-contrast crema, marked target band */
-.shot-gauge {
-  position: absolute; left: 50%; top: 47%;
-  transform: translate(-50%, -50%);
-  width: 44%; max-width: 200px;
-  display: flex; flex-direction: column; align-items: center;
-  z-index: 6;
+/* light floating status (no boxy block) for the 3D pull */
+.pour-status {
+  position: absolute; left: 0; right: 0; top: 30%;
+  text-align: center; z-index: 6; pointer-events: none;
+  font-family: var(--serif); font-weight: 700; font-size: 16px;
+  letter-spacing: 0.3px; color: var(--ink-soft);
+  text-shadow: 0 1px 6px rgba(255, 250, 240, 0.9);
 }
-.shot-svg { width: 100%; height: auto; display: block; filter: drop-shadow(0 8px 16px rgba(60, 40, 25, 0.25)); }
-.shot-svg .glass { fill: rgba(255, 255, 255, 0.18); stroke: #b79c86; stroke-width: 2.4; }
-.shot-svg .band { fill: rgba(158, 181, 133, 0.32); stroke: #9eb585; stroke-width: 1.5; transition: fill 0.15s, stroke 0.15s; }
-.shot-svg .band.on { fill: rgba(116, 196, 110, 0.78); stroke: #3f9e46; }
-.shot-svg .bandline { stroke: #3f8e44; stroke-width: 2; stroke-dasharray: 5 3; }
-.shot-svg .bandlabel { fill: #3f8e44; font: 700 9px var(--sans); }
-.shot-status {
-  margin-top: 8px; font-weight: 800; font-size: 13px;
-  color: var(--ink-soft);
-  background: rgba(253, 248, 236, 0.94);
-  border: 1.5px solid var(--edge); border-radius: 999px;
-  padding: 5px 14px; box-shadow: var(--shadow-soft);
-}
-.shot-status.good { color: #2f8e3a; border-color: #9eb585; }
-.shot-status.over { color: var(--bad); border-color: var(--bad); }
+.pour-status.good { color: #2f8e3a; }
+.pour-status.over { color: var(--bad); }
 .btn.hold-pour { touch-action: none; }
-.btn.hold-pour.held { transform: scale(0.97); filter: brightness(0.95); }
+.btn.hold-pour.held { transform: scale(0.97); filter: brightness(0.96); }
+
+/* milk steaming — big, clear horizontal meters with a green target zone */
+.milk-meters {
+  position: absolute; left: 14px; right: 14px; top: 78px;
+  display: flex; flex-direction: column; gap: 10px; z-index: 6;
+  pointer-events: none;
+}
+.milk-meters.hidden { display: none; }
+.mtr-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.mtr-label {
+  font-family: var(--serif); font-weight: 700; font-size: 12px;
+  letter-spacing: 1px; text-transform: uppercase; color: var(--ink-soft);
+}
+.mtr-check, .mtr-tier { font-weight: 800; font-size: 12px; color: var(--sage-deep); opacity: 0; transition: opacity 0.15s; }
+.mtr.inzone .mtr-check { opacity: 1; }
+.mtr-tier { opacity: 1; color: var(--clay-deep); text-transform: capitalize; }
+.mtr-bar {
+  position: relative; height: 16px; border-radius: 999px;
+  background: rgba(255, 252, 245, 0.85);
+  box-shadow: var(--shadow-inset);
+  overflow: hidden;
+}
+.mtr-zone {
+  position: absolute; top: 0; bottom: 0;
+  background: rgba(158, 181, 133, 0.45);
+  border-left: 2px solid rgba(95, 144, 121, 0.6);
+  border-right: 2px solid rgba(95, 144, 121, 0.6);
+}
+.mtr-zone.art-zone { background: rgba(217, 135, 106, 0.4); border-color: rgba(196, 113, 79, 0.6); }
+.mtr-fill {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #e7c9a0, #d39b6f);
+  transition: width 0.08s linear;
+}
+.mtr-fill.art { background: linear-gradient(90deg, #f0dcc0, #d9876a); }
+.mtr.inzone .mtr-fill { background: linear-gradient(90deg, #9ec98c, #6fae5a); }
 
 /* dial-in plate (espresso) */
 .dial-plate {
