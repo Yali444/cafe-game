@@ -19,8 +19,8 @@
   --shadow-soft: 0 8px 18px rgba(107, 84, 60, 0.13), 0 2px 4px rgba(107, 84, 60, 0.08);
   --shadow-lift: 0 14px 30px rgba(107, 84, 60, 0.18), 0 3px 7px rgba(107, 84, 60, 0.10);
   --shadow-inset: inset 0 2px 5px rgba(107, 84, 60, 0.16);
-  --serif: "Poppins", ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
-  --sans: "Nunito", -apple-system, "Segoe UI", system-ui, sans-serif;
+  --serif: "Baloo 2", ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+  --sans: "Baloo 2", ui-rounded, -apple-system, system-ui, sans-serif;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
