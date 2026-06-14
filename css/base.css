@@ -447,6 +447,27 @@ body {
   z-index: 4;
 }
 
+/* pour-over digital scale readout (grams → target) */
+.scale-readout {
+  position: absolute; left: 50%; top: 60%;
+  transform: translateX(-50%);
+  z-index: 6; pointer-events: none;
+  background: #33403a; color: #bfe4bd;
+  font-family: var(--serif); font-weight: 800;
+  font-size: 16px; letter-spacing: 0.4px;
+  padding: 4px 14px; border-radius: 10px;
+  border: 2px solid #2a342f;
+  box-shadow: var(--shadow-soft), inset 0 1px 3px rgba(0,0,0,0.45);
+  white-space: nowrap;
+}
+.scale-readout b { font-size: 21px; color: #eaffe6; }
+.scale-tgt { font-size: 12px; opacity: 0.72; font-weight: 600; margin-left: 2px; }
+.scale-readout.on {
+  background: #2f6b3a; color: #eaffe6;
+  border-color: #3f9e46;
+  box-shadow: 0 0 0 2px rgba(116, 196, 110, 0.5), var(--shadow-soft);
+}
+
 .bloom-ring, .steep-ring {
   position: absolute;
   left: 27%; top: 46%;

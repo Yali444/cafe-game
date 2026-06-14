@@ -499,41 +499,60 @@ CG.svg = (function () {
   function sceneBrewV60() {
     var p = 'sv';
     return open(p) + brewWallCommon(p, 'SLOW BAR') +
-      '<g transform="translate(56,220) scale(1.62)">' +
-      shadow(p, 44, 124, 56, 6, 0.18) +
-      '<rect x="-8" y="114" width="104" height="11" rx="5.5" fill="#4f4a43" ' + ol(1.8) + '/>' +
-      '<rect x="62" y="116.5" width="20" height="6" rx="3" fill="#cfe0d5"/>' +
+      '<g transform="translate(96,214) scale(1.5)">' +
+      shadow(p, 44, 132, 54, 6, 0.18) +
+      // digital scale base (the rig sits on it)
+      '<rect x="-12" y="118" width="112" height="17" rx="7" fill="#e3dcc8" ' + ol(2) + '/>' +
+      '<rect x="-12" y="118" width="112" height="5" rx="2.5" fill="#ffffff" opacity="0.5"/>' +
+      '<rect x="52" y="121.5" width="36" height="11" rx="2.5" fill="#33403a"/>' +
+      '<rect x="4" y="124" width="22" height="6" rx="3" fill="#cdd6cf"/>' +
+      // glass range server / carafe
       '<g id="v60-server">' +
-      '<clipPath id="' + p + 'sc"><path d="M12 62 h64 l-6 50 h-52 z"/></clipPath>' +
-      '<g clip-path="url(#' + p + 'sc)"><rect id="v60-fill" x="8" y="112" width="72" height="56" fill="#7a4e28"/></g>' +
-      '<path d="M12 62 h64 l-6 50 h-52 z" fill="#dce8e0" fill-opacity="0.5" ' + ol(2) + '/>' +
-      '<line id="v60-line1" x1="6" y1="98" x2="82" y2="98" stroke="#d9876a" stroke-width="2" stroke-dasharray="3 3"/>' +
-      '<line id="v60-line2" x1="6" y1="84" x2="82" y2="84" stroke="#d9876a" stroke-width="2" stroke-dasharray="3 3" opacity="0"/>' +
-      '<line id="v60-line3" x1="6" y1="68" x2="82" y2="68" stroke="#d9876a" stroke-width="2" stroke-dasharray="3 3" opacity="0"/>' +
+      '<clipPath id="' + p + 'sc"><path d="M14 70 H74 Q80 70 79 84 Q76 110 58 114 H30 Q12 110 9 84 Q8 70 14 70 Z"/></clipPath>' +
+      '<g clip-path="url(#' + p + 'sc)"><rect id="v60-fill" x="6" y="116" width="80" height="60" fill="#7a4e28"/></g>' +
+      '<path d="M14 70 H74 Q80 70 79 84 Q76 110 58 114 H30 Q12 110 9 84 Q8 70 14 70 Z" fill="#dce8e0" fill-opacity="0.4" ' + ol(2.2) + '/>' +
+      '<path d="M75 78 q14 3 12 16 q-2 10 -13 9" fill="none" stroke="' + O + '" stroke-width="4.5" stroke-linecap="round"/>' +
+      '<line x1="18" y1="94" x2="29" y2="94" stroke="#9bb0a4" stroke-width="2" stroke-linecap="round"/>' +
       '</g>' +
-      '<path d="M14 18 h60 l-21 38 h-18 z" fill="#f3e3c3" ' + ol(2) + '/>' +
-      '<path d="M16 20 h56 l-3 5.5 h-50 z" fill="#fbf0d8"/>' +
-      '<ellipse id="v60-water" cx="44" cy="30" rx="0" ry="0" fill="#8a5a30" opacity="0.85"/>' +
-      '<path d="M20 30 h48 l-2.5 5.5 h-43 z" fill="#c9a36a" ' + ol(1.5) + '/>' +
-      '<path d="M40 56 h8 v6 h-8 z" fill="#ddd0b2" ' + ol(1.3) + '/>' +
-      '<g id="v60-drip" opacity="0"><rect x="41.5" y="60" width="4" height="14" rx="2" fill="#8a5a30"/></g>' +
+      // V60 cone dripper
+      '<path d="M7 22 H81 L46 64 H42 Z" fill="#f3e3c3" ' + ol(2.2) + '/>' +
+      '<path d="M7 22 H81 L75 30 H13 Z" fill="#fbf0d8"/>' +
+      '<line x1="22" y1="25" x2="43" y2="62" stroke="#e6d0a6" stroke-width="1.6"/>' +
+      '<line x1="35" y1="25" x2="44" y2="62" stroke="#e6d0a6" stroke-width="1.6"/>' +
+      '<line x1="53" y1="25" x2="45" y2="62" stroke="#e6d0a6" stroke-width="1.6"/>' +
+      '<line x1="66" y1="25" x2="46" y2="62" stroke="#e6d0a6" stroke-width="1.6"/>' +
+      // coffee bed (grounds) + water pool that grows as you pour
+      '<ellipse id="v60-bed" cx="44" cy="28" rx="33" ry="6" fill="#7a4e28"/>' +
+      '<ellipse cx="44" cy="26.6" rx="33" ry="5.4" fill="#8a5e38" opacity="0.5"/>' +
+      '<ellipse id="v60-water" cx="44" cy="27" rx="0" ry="0" fill="#54381f" opacity="0.85"/>' +
+      // drip from the cone apex into the carafe
+      '<g id="v60-drip" opacity="0"><rect x="42" y="62" width="4" height="14" rx="2" fill="#7a4e28"/></g>' +
       '</g>' +
       counter(p) +
-      filterBox(238, 398) + timer(276, 398) + brewScale(p, 312, 406, 40) +
+      filterBox(244, 398) + timer(282, 398) + cloth(312, 404, '#aed0c2') +
       '</svg>';
   }
 
+  /* a real gooseneck kettle — flat body, lid+knob, back handle, long swan-neck spout (tip at ~41,33) */
   function kettle() {
     return '<svg viewBox="0 0 110 80" class="drag-svg">' +
-      '<ellipse cx="62" cy="74" rx="34" ry="5" fill="#6b543c" opacity="0.2"/>' +
-      '<path d="M34 30 q-2 40 28 40 q30 0 28 -40 z" fill="#46413a" ' + ol(2) + '/>' +
-      '<path d="M35 31 q-2 8 1 13 l51 0 q3 -5 1 -13 z" fill="#5b554d"/>' +
-      '<path d="M34 32 q-16 2 -26 16 l-6 -3 q10 -18 30 -19 z" fill="#46413a" ' + ol(1.8) + '/>' +
-      '<path d="M2 45 l6 3 4 -5 -7 -4 z" fill="#46413a" ' + ol(1.6) + '/>' +
-      '<rect x="40" y="20" width="44" height="10" rx="5" fill="#2e2a25" ' + ol(1.7) + '/>' +
-      '<path d="M48 18 q14 -14 28 0" fill="none" stroke="#c9a36a" stroke-width="7" stroke-linecap="round"/>' +
-      '<path d="M48 18 q14 -14 28 0" fill="none" stroke="' + O + '" stroke-width="9.5" stroke-linecap="round" opacity="0.35"/>' +
-      '<circle cx="90" cy="38" r="3.2" fill="#d9876a"/>' +
+      '<ellipse cx="58" cy="76" rx="29" ry="4.5" fill="#6b543c" opacity="0.18"/>' +
+      // C-handle on the back/right
+      '<path d="M76 44 q22 1 21 18 q-1 12 -13 14" fill="none" stroke="' + O + '" stroke-width="9" stroke-linecap="round"/>' +
+      '<path d="M76 44 q22 1 21 18 q-1 12 -13 14" fill="none" stroke="#5b554d" stroke-width="5.5" stroke-linecap="round"/>' +
+      // kettle body (flat-bottomed)
+      '<path d="M33 70 Q29 50 42 41 H70 Q83 50 79 70 Q56 76 33 70 z" fill="#4f4a43" ' + ol(2) + '/>' +
+      '<path d="M37 66 Q34 52 44 43 Q40 57 45 70 Q40 69 37 66 z" fill="#ffffff" opacity="0.12"/>' +
+      '<path d="M40 70 Q56 74 73 69 Q72 73 56 74 Q42 74 40 70 z" fill="#000000" opacity="0.12"/>' +
+      // lid + knob
+      '<ellipse cx="56" cy="41" rx="16" ry="4.6" fill="#5b554d" ' + ol(1.6) + '/>' +
+      '<path d="M44 41 Q56 34 68 41 z" fill="#46413a" ' + ol(1.4) + '/>' +
+      '<rect x="52.5" y="30" width="7" height="6" rx="2.5" fill="#2e2a25" ' + ol(1.2) + '/>' +
+      '<circle cx="56" cy="30" r="3" fill="#c9886a" ' + ol(1.1) + '/>' +
+      // gooseneck spout (swan neck) rising from the front-left, tapering to a fine tip
+      '<path d="M41 47 C28 44 19 33 23 22 C26 14 36 14 41 23 C43 28 42 31 41 33" fill="none" stroke="' + O + '" stroke-width="8.5" stroke-linecap="round"/>' +
+      '<path d="M41 47 C28 44 19 33 23 22 C26 14 36 14 41 23 C43 28 42 31 41 33" fill="none" stroke="#5b554d" stroke-width="5" stroke-linecap="round"/>' +
+      '<circle cx="41" cy="33.5" r="2.3" fill="#2e2a25"/>' +
       '</svg>';
   }
 
@@ -761,12 +780,16 @@ CG.svg = (function () {
         '<circle cx="62" cy="44" r="26" fill="#241f1a"/>' + beanGroup(14, '#8a5e38') +
         '<circle cx="104" cy="16" r="6.5" fill="#d9876a" ' + ol(1.6) + '/></g>';
     } else if (key === 'kettle') {
-      inner = '<g transform="translate(36,52) scale(1.45)">' +
-        '<path d="M34 30 q-2 40 28 40 q30 0 28 -40 z" fill="#46413a" ' + ol(2) + '/>' +
-        '<path d="M35 31 q-2 8 1 13 l51 0 q3 -5 1 -13 z" fill="#5b554d"/>' +
-        '<path d="M34 32 q-16 2 -26 16 l-6 -3 q10 -18 30 -19 z" fill="#46413a" ' + ol(1.8) + '/>' +
-        '<rect x="40" y="20" width="44" height="10" rx="5" fill="#2e2a25" ' + ol(1.7) + '/>' +
-        '<path d="M48 18 q14 -14 28 0" fill="none" stroke="#c9a36a" stroke-width="7" stroke-linecap="round"/></g>';
+      inner = '<g transform="translate(30,40) scale(1.5)">' +
+        '<path d="M62 50 q26 1 25 22 q-1 14 -16 16" fill="none" stroke="' + O + '" stroke-width="10" stroke-linecap="round"/>' +
+        '<path d="M62 50 q26 1 25 22 q-1 14 -16 16" fill="none" stroke="#5b554d" stroke-width="6" stroke-linecap="round"/>' +
+        '<path d="M20 80 Q15 54 30 44 H62 Q80 54 75 80 Q47 88 20 80 z" fill="#46413a" ' + ol(2.2) + '/>' +
+        '<path d="M25 75 Q21 57 33 46 Q28 64 34 80 Q28 79 25 75 z" fill="#ffffff" opacity="0.12"/>' +
+        '<ellipse cx="46" cy="44" rx="18" ry="5" fill="#5b554d" ' + ol(1.7) + '/>' +
+        '<rect x="42" y="32" width="8" height="7" rx="3" fill="#2e2a25" ' + ol(1.4) + '/>' +
+        '<circle cx="46" cy="31" r="3.4" fill="#c9886a" ' + ol(1.2) + '/>' +
+        '<path d="M30 52 C15 48 5 35 10 22 C14 12 27 12 33 23 C36 29 35 33 33 36" fill="none" stroke="' + O + '" stroke-width="9.5" stroke-linecap="round"/>' +
+        '<path d="M30 52 C15 48 5 35 10 22 C14 12 27 12 33 23 C36 29 35 33 33 36" fill="none" stroke="#5b554d" stroke-width="5.5" stroke-linecap="round"/></g>';
     } else if (key === 'pitcher') {
       inner = '<g transform="translate(56,46) scale(1.35)">' +
         '<path d="M14 10 h52 l-7 58 h-38 z" fill="#e3ded3" ' + ol(2) + '/>' +

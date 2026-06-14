@@ -260,17 +260,19 @@ CG.stations.brew = (function () {
 
   /* ================= v60: grab the kettle, pour in phases ================= */
 
+  var V60_BLOOM = 45, V60_FINAL = 300;   // pour-over targets, in grams
+
   function setupV60() {
     phase = 'v60';
-    v60 = { level: 0, phase: 0, targets: [28, 56, 88], scores: [], pouring: false,
-            bloomT: 0, penalty: 0, kx: 64, ky: 28, grabbed: false, pid: null };
+    v60 = { grams: 0, stage: 'bloom', pouring: false, bloomT: 0, penalty: 0,
+            kx: 50, ky: 12, grabbed: false, pid: null, bloomScore: 0 };
     spendBean();
     overlayEl.innerHTML =
-      '<div class="drag-el kettle-el" id="kettle" style="left:58%;top:24%;width:30%">' + CG.svg.kettle() + '</div>' +
+      '<div class="drag-el kettle-el" id="kettle" style="left:46%;top:5%;width:32%">' + CG.svg.kettle() + '</div>' +
       '<div class="pour-stream hidden" id="kstream"></div>' +
-      '<div class="bloom-ring hidden" id="bloom"></div>';
-    controlsEl.innerHTML = '<p class="control-note" id="v60-note">Bloom first — pour gently to the first line, then release.</p>';
-    msgEl.textContent = 'Pick up the kettle.';
+      '<div class="scale-readout" id="v60-scale"><b id="v60-g">0</b> g <span class="scale-tgt" id="v60-tgt">/ ' + V60_BLOOM + ' g · bloom</span></div>';
+    controlsEl.innerHTML = '<p class="control-note" id="v60-note">Hold the kettle over the grounds — pour to about ' + V60_BLOOM + ' g, then lift off to bloom.</p>';
+    msgEl.textContent = 'Pour-over — wet the coffee bed evenly.';
 
     var kettleEl = overlayEl.querySelector('#kettle');
     kettleEl.addEventListener('pointerdown', function (e) {
@@ -295,11 +297,11 @@ CG.stations.brew = (function () {
       var host = overlayEl.getBoundingClientRect();
       v60.kx = d.clamp((e.clientX - host.left) / host.width * 100, 0, 100);
       v60.ky = d.clamp((e.clientY - host.top) / host.height * 100, 0, 100);
-      kettleEl.style.left = d.clamp(v60.kx - 15, -6, 76) + '%';
-      kettleEl.style.top = d.clamp(v60.ky - 12, -2, 78) + '%';
-      // spout over the dripper? (dripper ≈ x 30–48%, y 22–48% of scene)
-      var over = v60.kx > 18 && v60.kx < 52 && v60.ky > 38 && v60.ky < 62;
-      setPouring(over);
+      kettleEl.style.left = d.clamp(v60.kx - 16, -8, 72) + '%';
+      kettleEl.style.top = d.clamp(v60.ky - 6, -4, 70) + '%';
+      // pour only when the spout tip hovers over the coffee bed (top of the rig)
+      var overBed = v60.kx > 18 && v60.kx < 58 && v60.ky > 12 && v60.ky < 44;
+      setPouring(overBed && (v60.stage === 'bloom' || v60.stage === 'main'));
     }
   }
 
@@ -315,71 +317,65 @@ CG.stations.brew = (function () {
     if (on) CG.audio.play('pour');
   }
 
+  function v60ScaleTick() {
+    var g = panel.querySelector('#v60-g');
+    if (g) g.textContent = Math.round(v60.grams);
+    var tgt = v60.stage === 'main' ? V60_FINAL : V60_BLOOM;
+    var tol = v60.stage === 'main' ? 22 : 10;
+    var el = panel.querySelector('#v60-scale');
+    if (el) el.classList.toggle('on', Math.abs(v60.grams - tgt) <= tol);
+  }
+
   function v60Release() {
-    if (phase !== 'v60' || v60.phase >= 3) return;
-    if (v60.level < 4) return; // barely poured — not a real attempt
-    var target = v60.targets[v60.phase];
-    var score = d.clamp(100 - Math.abs(v60.level - target) * 4, 0, 100);
-    v60.scores.push(score);
-    CG.audio.play(score >= 60 ? 'chime' : 'tap');
-    v60.phase++;
-    var note = panel.querySelector('#v60-note');
-    if (v60.phase === 1) {
-      v60.bloomT = 1.8;
-      var bloom = overlayEl.querySelector('#bloom');
-      if (bloom) bloom.classList.remove('hidden');
+    if (phase !== 'v60') return;
+    if (v60.stage === 'bloom') {
+      if (v60.grams < 12) return; // not a real pour yet
+      v60.bloomScore = d.clamp(100 - Math.abs(v60.grams - V60_BLOOM) * 2.4, 0, 100);
+      v60.stage = 'bloomwait';
+      v60.bloomT = 2.2;
+      CG.audio.play(v60.bloomScore >= 60 ? 'chime' : 'tap');
       msgEl.textContent = 'Let it bloom…';
-      if (note) note.textContent = 'Wait for the bloom to settle.';
-    } else if (v60.phase === 2) {
-      msgEl.textContent = 'Final pour — up to the top line.';
-      if (note) note.textContent = 'Slow spirals to the last line, then release.';
-      showLine(3);
-    } else if (v60.phase === 3) {
-      var avg = v60.scores.reduce(function (a, b) { return a + b; }, 0) / 3;
-      finishBrew(Math.max(0, avg - v60.penalty));
+      var note = panel.querySelector('#v60-note');
+      if (note) note.textContent = 'Wait for the bloom to settle — don\'t pour.';
+    } else if (v60.stage === 'main') {
+      if (v60.grams < V60_BLOOM + 20) return;
+      var mainScore = d.clamp(100 - Math.abs(v60.grams - V60_FINAL) * 0.6, 0, 100);
+      v60.stage = 'done';
+      finishBrew(Math.max(0, v60.bloomScore * 0.4 + mainScore * 0.6 - v60.penalty));
     }
   }
 
-  function showLine(n) {
-    var l = stageEl.querySelector('#v60-line' + n);
-    if (l) l.setAttribute('opacity', '1');
-  }
-
   function v60Update(dt) {
-    if (v60.bloomT > 0) {
+    if (v60.stage === 'bloomwait') {
       v60.bloomT -= dt;
-      var bloom = overlayEl.querySelector('#bloom');
-      if (bloom) bloom.style.transform = 'scale(' + (0.5 + v60.bloomT / 1.8 * 0.6) + ')';
       if (v60.pouring && v60.penalty === 0) {
         v60.penalty = 15;
         CG.ui.toast('Let it bloom!', 'bad');
         CG.audio.play('buzz');
       }
+      var w = stageEl.querySelector('#v60-water');
+      if (w) { var r = 27 + Math.sin(Date.now() / 180) * 2.5; w.setAttribute('rx', r); w.setAttribute('ry', r * 0.17); }
       if (v60.bloomT <= 0) {
-        if (bloom) bloom.classList.add('hidden');
-        msgEl.textContent = 'Second pour — to the middle line.';
+        v60.stage = 'main';
+        var t = panel.querySelector('#v60-tgt');
+        if (t) t.textContent = '/ ' + V60_FINAL + ' g';
+        msgEl.textContent = 'Main pour — up to ' + V60_FINAL + ' g.';
         var note = panel.querySelector('#v60-note');
-        if (note) note.textContent = 'Pour to the second line, then release.';
-        showLine(2);
+        if (note) note.textContent = 'Pour in slow spirals to ' + V60_FINAL + ' g, then lift off.';
+        v60ScaleTick();
       }
       return;
     }
-    if (v60.pouring && v60.phase < 3) {
-      v60.level = Math.min(112, v60.level + 17 * CG.upgradeValue('kettle') * dt / 1);
-      var fill = stageEl.querySelector('#v60-fill');
-      if (fill) fill.setAttribute('y', 112 - v60.level / 100 * 50);
+    if (v60.pouring && (v60.stage === 'bloom' || v60.stage === 'main')) {
+      v60.grams = Math.min(380, v60.grams + 60 * CG.upgradeValue('kettle') * dt);
+      v60ScaleTick();
       var water = stageEl.querySelector('#v60-water');
-      if (water) { water.setAttribute('rx', 18); water.setAttribute('ry', 5); }
-      // stream follows the kettle spout
+      if (water) { var rr = Math.min(30, v60.grams / 6); water.setAttribute('rx', rr); water.setAttribute('ry', rr * 0.17); }
+      var fillFrac = d.clamp((v60.grams - 30) / (V60_FINAL - 30), 0, 1);
+      var fill = stageEl.querySelector('#v60-fill');
+      if (fill) fill.setAttribute('y', 114 - fillFrac * 44);
       var s = overlayEl.querySelector('#kstream');
-      if (s) {
-        s.style.left = (v60.kx - 16) + '%';
-        s.style.top = (v60.ky + 2) + '%';
-      }
-      if (v60.level >= 112) { setPouring(false); v60Release(); }
-    } else {
-      var w = stageEl.querySelector('#v60-water');
-      if (w) { w.setAttribute('rx', 0); w.setAttribute('ry', 0); }
+      if (s) { s.style.left = (v60.kx - 13) + '%'; s.style.top = (v60.ky + 2) + '%'; }
     }
   }
 
