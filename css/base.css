@@ -876,23 +876,33 @@ body {
 .shop-info small { color: var(--ink-soft); font-size: 12px; }
 .lvlrow { display: flex; align-items: center; gap: 7px; margin-top: 6px; }
 .lv-badge {
-  font-size: 9px; font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  background: var(--linen);
+  font-size: 9.5px; font-weight: 800;
+  letter-spacing: 0.4px;
+  background: linear-gradient(180deg, #fbdd92, #e9c178);
   border-radius: 999px;
-  padding: 2px 8px;
-  color: var(--ink-soft);
+  padding: 2px 9px;
+  color: #8a5e2b;
+  box-shadow: var(--shadow-soft);
 }
 .lvlbar {
-  flex: 1; max-width: 110px; height: 7px;
-  background: var(--linen);
-  border-radius: 4px;
+  position: relative;
+  flex: 1; max-width: 130px; height: 10px;
+  background: #e7e0cd;
+  border-radius: 999px;
   box-shadow: var(--shadow-inset);
   overflow: hidden;
   display: inline-block;
 }
-.lvlbar-fill { display: block; height: 100%; border-radius: 4px; background: var(--sage); }
+.lvlbar-fill {
+  display: block; height: 100%; border-radius: 999px;
+  background: linear-gradient(180deg, #a9dc6e, #7cc04a);
+}
+/* segment notches over the bar (reference style) */
+.lvlbar::after {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(90deg, transparent 0 13px, rgba(255,253,247,0.9) 13px 16px);
+  pointer-events: none;
+}
 .btn-buy { background: var(--linen); font-size: 14px; padding: 11px 15px; box-shadow: var(--shadow-soft); }
 .shop-max { font-weight: 700; font-size: 11px; letter-spacing: 1px; color: var(--sage-deep); }
 
@@ -1000,15 +1010,24 @@ body {
 .shop-card { width: 100%; text-align: left; font-family: var(--sans); cursor: pointer; }
 .shop-price {
   font-family: var(--serif);
-  font-weight: 700;
+  font-weight: 800;
   font-size: 14px;
-  background: var(--linen);
-  border: 2px solid var(--edge);
+  background: linear-gradient(180deg, #fbe7b2, #f0cd86);
+  border: none;
   border-radius: 999px;
-  padding: 8px 13px;
-  color: var(--ink);
+  padding: 8px 14px 8px 24px;
+  color: #8a5e2b;
+  box-shadow: var(--shadow-soft);
+  position: relative;
 }
-.shop-price.dim { opacity: 0.45; }
+.shop-price::before {
+  content: ''; position: absolute; left: 8px; top: 50%;
+  width: 11px; height: 11px; margin-top: -5.5px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff1c4, #e3a93f);
+  box-shadow: inset 0 0 0 1.5px #cf983a;
+}
+.shop-price.dim { opacity: 0.5; }
 
 .upgrade-detail { position: relative; }
 .lv-badge.float {

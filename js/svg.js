@@ -590,25 +590,27 @@ CG.svg = (function () {
     return open(p) + wall(p) +
       pendant(326, 20) +
       '<text x="20" y="86" font-size="10" letter-spacing="3" fill="#b3996e" font-family="system-ui,sans-serif">MILK BAR</text>' +
-      shelfPlank(p, 170, 130, 120) +
-      bottle(178, 104, '#fdfdfd') + bottle(198, 104, '#f2cfc4') + mug(222, 112, '#aed0c2') + mug(248, 112, '#fdf8ec') +
-      framedPrint(p, 302, 110) +
+      shelfPlank(p, 168, 130, 130) +
+      bottle(176, 104, '#fdfdfd') + bottle(196, 104, '#f2cfc4') + jar(222, 110, 22, '#c0a06a', 0.6) + mug(252, 112, '#aed0c2') + mug(276, 112, '#fdf8ec') +
+      framedPrint(p, 308, 110) +
+      plantHang(40, 96) +
       tiles(0, 300, 360, 122) +
       fridge(p, 14, 242, 178) +
-      '<g transform="translate(96,160) scale(1.5)">' +
+      '<g transform="translate(96,158) scale(1.5)">' +
       shadow(p, 60, 134, 64, 6, 0.16) +
-      '<rect x="0" y="0" width="116" height="48" rx="11" fill="url(#' + p + 'st)" ' + ol(2.2) + '/>' +
-      '<rect x="2" y="2" width="112" height="7" rx="3.5" fill="#6d665d"/>' +
-      '<circle cx="26" cy="24" r="8.5" fill="#fdf8ec" ' + ol(1.7) + '/><circle cx="26" cy="24" r="3" fill="#d9876a"/>' +
-      '<rect x="64" y="18" width="32" height="12" rx="5" fill="#c9a36a" ' + ol(1.6) + '/>' +
-      '<rect x="36" y="44" width="8" height="46" rx="4" fill="#9b948b" ' + ol(1.7) + ' transform="rotate(-12 40 44)"/>' +
-      '<circle cx="31" cy="92" r="4.5" fill="#46413a"/>' +
+      '<rect x="0" y="0" width="116" height="50" rx="12" fill="url(#' + p + 'sg)" ' + ol(2.2) + '/>' +
+      '<rect x="2" y="2" width="112" height="8" rx="4" fill="#bcd0a4" opacity="0.7"/>' +
+      '<rect x="2" y="40" width="112" height="9" rx="4" fill="#7c9268" opacity="0.6"/>' +
+      '<circle cx="26" cy="25" r="9" fill="#fdf8ec" ' + ol(1.7) + '/><circle cx="26" cy="25" r="3" fill="#d9876a"/>' +
+      '<rect x="62" y="18" width="34" height="13" rx="6" fill="#c9a36a" ' + ol(1.6) + '/>' +
+      '<rect x="36" y="46" width="8" height="46" rx="4" fill="#cdd6cf" ' + ol(1.7) + ' transform="rotate(-12 40 46)"/>' +
+      '<circle cx="31" cy="94" r="4.5" fill="#7c9268"/>' +
       '<g id="milk-steam" opacity="0">' +
       '<path d="M33 96 q-6 12 2 22 q6 10 -2 18" stroke="#ffffff" stroke-opacity="0.85" stroke-width="5" fill="none" stroke-linecap="round"/>' +
       '<path d="M44 98 q-4 10 2 16" stroke="#ffffff" stroke-opacity="0.6" stroke-width="4" fill="none" stroke-linecap="round"/></g>' +
       '</g>' +
       counter(p) +
-      cloth(288, 404, '#aed0c2') + saucerStack(330, 410, 3) +
+      cloth(276, 404, '#aed0c2') + saucerStack(322, 410, 3) + vasePlant(40, 388) + cupStack(96, 402, 2, '#f2cfc4') +
       '</svg>';
   }
 
