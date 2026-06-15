@@ -528,37 +528,59 @@ CG.stations.brew = (function () {
 
   /* ================= batch: keep the carafe stocked ================= */
 
+  function batchFreshness() {
+    var sv = CG.state.service;
+    if (sv.batchBrewedAt == null) return 0;
+    return d.clamp(1 - (sv.clock - sv.batchBrewedAt) / 55, 0, 1); // stale after ~55s
+  }
+
+  function startBatchBrew() {
+    var sv = CG.state.service;
+    if (sv.roastInventory[d.BATCH_ORIGIN] <= 0) return;
+    sv.roastInventory[d.BATCH_ORIGIN]--;
+    CG.events.emit('inventorychange');
+    batch = { brewing: true, t: 0 };
+    var drip = stageEl.querySelector('#batch-drip');
+    if (drip) drip.setAttribute('opacity', '1');
+    CG.audio.play('pour');
+    msgEl.textContent = 'Brewing a fresh batch…';
+    controlsEl.innerHTML = '<p class="control-note">The smell of fresh filter coffee.</p>';
+  }
+
   function setupBatch() {
     phase = 'batch';
     var sv = CG.state.service;
     renderBatchFill();
     if (sv.batchCarafe > 0) {
-      msgEl.textContent = 'The carafe is hot — draw a cup.';
-      controlsEl.innerHTML = '<button class="btn btn-primary btn-wide" id="batch-draw">Draw a cup (' + sv.batchCarafe + ' left)</button>';
+      var fresh = batchFreshness();
+      var label = fresh > 0.66 ? 'piping fresh' : fresh > 0.33 ? 'still good' : 'getting stale';
+      msgEl.innerHTML = 'Carafe: <b>' + label + '</b> · ' + sv.batchCarafe + ' cup' + (sv.batchCarafe > 1 ? 's' : '') + ' left';
+      controlsEl.innerHTML =
+        '<div class="fresh-meter' + (fresh <= 0.33 ? ' low' : '') + '"><span class="fresh-tag">freshness</span>' +
+        '<div class="fresh-track"><div class="fresh-fill" style="width:' + Math.round(fresh * 100) + '%"></div></div></div>' +
+        '<button class="btn btn-primary btn-wide" id="batch-draw">Pour a cup</button>' +
+        '<button class="btn btn-ghost btn-wide" id="batch-rebrew">Brew a fresh batch</button>';
       controlsEl.querySelector('#batch-draw').addEventListener('click', function () {
         sv.batchCarafe--;
         renderBatchFill();
         var q = sv.roastQuality[d.BATCH_ORIGIN];
-        finishBrew(d.clamp(70 + ((q == null ? 70 : q) - 70) * 0.6, 55, 92));
-      });
-    } else if (sv.roastInventory[d.BATCH_ORIGIN] > 0) {
-      msgEl.textContent = 'The carafe is empty.';
-      controlsEl.innerHTML = '<button class="btn btn-primary btn-wide" id="batch-brew">Brew a fresh batch</button>';
-      controlsEl.querySelector('#batch-brew').addEventListener('click', function () {
-        sv.roastInventory[d.BATCH_ORIGIN]--;
-        CG.events.emit('inventorychange');
-        batch = { brewing: true, t: 0 };
-        var drip = stageEl.querySelector('#batch-drip');
-        if (drip) drip.setAttribute('opacity', '1');
+        var base = d.clamp(70 + ((q == null ? 70 : q) - 70) * 0.6, 55, 92);
+        var score = Math.round(d.clamp(base * (0.55 + 0.45 * batchFreshness()), 30, 95));
         CG.audio.play('pour');
-        msgEl.textContent = 'Brewing…';
-        controlsEl.innerHTML = '<p class="control-note">The smell of fresh filter coffee.</p>';
+        finishBrew(score);
       });
+      controlsEl.querySelector('#batch-rebrew').addEventListener('click', startBatchBrew);
+    } else if (sv.roastInventory[d.BATCH_ORIGIN] > 0) {
+      msgEl.textContent = 'The carafe is empty — brew a fresh batch.';
+      controlsEl.innerHTML = '<button class="btn btn-primary btn-wide" id="batch-brew">Brew a fresh batch</button>';
+      controlsEl.querySelector('#batch-brew').addEventListener('click', startBatchBrew);
     } else {
       stageEl.classList.add('dim');
       msgEl.innerHTML = 'No <b>Colombia</b> roasted for the batch.';
-      controlsEl.innerHTML = '<button class="btn btn-warn btn-wide" id="goto-roast2">To the Roastery →</button>';
+      controlsEl.innerHTML = '<button class="btn btn-warn btn-wide" id="goto-roast2">To the Roastery →</button>' +
+        '<button class="btn btn-ghost btn-wide brew-back">← back to orders</button>';
       controlsEl.querySelector('#goto-roast2').addEventListener('click', function () { CG.main.switchStation('roast'); });
+      controlsEl.querySelector('.brew-back').addEventListener('click', function () { CG.audio.play('tap'); chooseOrder(); });
     }
   }
 
@@ -577,6 +599,7 @@ CG.stations.brew = (function () {
     if (batch.t >= 3.2) {
       batch.brewing = false;
       sv.batchCarafe = d.BATCH_CARAFE;
+      sv.batchBrewedAt = sv.clock;
       var drip = stageEl.querySelector('#batch-drip');
       if (drip) drip.setAttribute('opacity', '0');
       CG.audio.play('chime');

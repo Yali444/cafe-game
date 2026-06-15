@@ -40,6 +40,7 @@
       roastInventory: { colombia: 6, ethiopia: 5, kenya: 5 }, // a starter batch of every origin
       roastQuality: { colombia: 72, ethiopia: 70, kenya: 70 },
       batchCarafe: 0,          // cups left in the batch-brew carafe
+      batchBrewedAt: null,     // service-clock time the carafe was last brewed (freshness)
       earnedToday: 0,
       tipsToday: 0,
       lostToday: 0,

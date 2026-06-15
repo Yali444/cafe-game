@@ -55,7 +55,17 @@ CG.data = (function () {
     rosa:   { name: 'Rosa',   skin: '#cd8a57', hair: 'flower',   hairColor: '#2e2a26', top: '#ecae93', collar: '#c26a4c', outfit: 'apron', outfitColor: '#f4ddc8',
               patienceMult: 1.0, patienceFloor: 25 },
     marcus: { name: 'Marcus', skin: '#95603f', hair: 'bald',     hairColor: '#000000', top: '#9fb3bf', collar: '#516b7c', accessory: 'phone', outfit: 'overalls', outfitColor: '#566f80',
-              patienceMult: 1.0, prefersComplex: true }
+              patienceMult: 1.0, prefersComplex: true },
+    nori:   { name: 'Nori',   skin: '#e8c49a', hair: 'wavy',     hairColor: '#5a3a26', top: '#cdbfe0', collar: '#9a86b8', outfit: 'cardigan', outfitColor: '#9a86b8',
+              patienceMult: 1.2 },
+    lina:   { name: 'Lina',   skin: '#f3d2b8', hair: 'buns',     hairColor: '#d98aa8', top: '#f7c9d4', collar: '#e0a0b4', accessory: 'freckles', outfit: 'apron', outfitColor: '#fbe0e8',
+              patienceMult: 1.0, only: ['latte', 'flatwhite', 'cortado'] },
+    yuki:   { name: 'Yuki',   skin: '#f0cfa8', hair: 'long',     hairColor: '#2a2630', top: '#bcd6cf', collar: '#8fb3a8', outfit: 'cardigan', outfitColor: '#8fb3a8',
+              patienceMult: 1.0, tipBonusAt90: 0.3 },
+    oscar:  { name: 'Oscar',  skin: '#d8a578', hair: 'cap',      hairColor: '#5f7e96', top: '#d4ddc8', collar: '#9caf8a', accessory: 'mustache', outfit: 'turtleneck',
+              patienceMult: 1.3, only: ['batch', 'v60'] },
+    sam:    { name: 'Sam',    skin: '#7a4f33', hair: 'curly',    hairColor: '#241c16', top: '#9ab6c8', collar: '#6f8fa1', outfit: 'overalls', outfitColor: '#5f7a8c',
+              patienceMult: 0.9, prefersComplex: true }
   };
 
   /* applied at the start of the listed day */

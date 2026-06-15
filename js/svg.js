@@ -838,6 +838,22 @@ CG.svg = (function () {
                '<g transform="translate(68,24)"><circle r="3.2" cx="0" cy="-4" fill="#eba7b0"/>' +
                '<circle r="3.2" cx="4" cy="2" fill="#eba7b0"/><circle r="3.2" cx="-4" cy="2" fill="#eba7b0"/>' +
                '<circle r="2.2" fill="#e9c178"/></g>';
+      case 'wavy':
+        return '<path d="M26 44 q-5 18 0 34 q5 -3 7 -14 q2 9 6 14 q3 -16 -1 -34 z" fill="' + h + '"/>' +
+               '<path d="M74 44 q5 18 0 34 q-5 -3 -7 -14 q-2 9 -6 14 q-3 -16 1 -34 z" fill="' + h + '"/>' +
+               '<path d="M27 42 a23 22 0 0 1 46 0 l-5 -3 a18 17 0 0 0 -36 0 z" fill="' + h + '"/>';
+      case 'buns':
+        return '<circle cx="34" cy="17" r="8" fill="' + h + '" ' + ol(1.5) + '/>' +
+               '<circle cx="66" cy="17" r="8" fill="' + h + '" ' + ol(1.5) + '/>' +
+               '<path d="M27 41 a23 21 0 0 1 46 0 l-5 -2 a18 17 0 0 0 -36 0 z" fill="' + h + '"/>';
+      case 'long':
+        return '<path d="M25 40 q-5 26 0 44 h14 q-4 -22 -2 -44 z" fill="' + h + '"/>' +
+               '<path d="M75 40 q5 26 0 44 h-14 q4 -22 2 -44 z" fill="' + h + '"/>' +
+               '<path d="M27 42 a23 22 0 0 1 46 0 l-5 -3 a18 17 0 0 0 -36 0 z" fill="' + h + '"/>';
+      case 'cap':
+        return '<path d="M26 39 A24 21 0 0 1 74 39 Z" fill="' + h + '" ' + ol(1.6) + '/>' +
+               '<path d="M24 39 q-11 1 -14 7 q3 3 15 2 q8 -1 10 -5 z" fill="' + h + '" ' + ol(1.4) + '/>' +
+               '<circle cx="50" cy="17.5" r="2.6" fill="' + h + '"/>';
       case 'bald':
         return '<ellipse cx="42" cy="22" rx="6" ry="3" fill="#ffffff" opacity="0.3"/>';
       default: return '';

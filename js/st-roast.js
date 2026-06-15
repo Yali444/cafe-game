@@ -18,10 +18,15 @@ CG.stations.roast = (function () {
       CG.svg.sceneRoast() +
       '<div id="roast-crackles"></div>' +
       '<div id="roast-zones"></div>' +
-      '<div class="thermo-overlay"><div class="thermo-track">' +
+      '<div class="thermo-overlay">' +
+      '<div class="roast-temp" id="roast-temp">ready</div>' +
+      '<div class="thermo-track">' +
+      '<span class="roast-lvl rl-dark">dark</span>' +
+      '<span class="roast-lvl rl-med">med</span>' +
+      '<span class="roast-lvl rl-light">light</span>' +
       '<div class="thermo-band" id="roast-band"><span id="roast-band-label"></span></div>' +
       '<div class="thermo-mark" id="thermo-mark"></div></div>' +
-      '<label class="gauge-tag">profile</label></div>' +
+      '<label class="gauge-tag">roast</label></div>' +
       '</div>' +
       '<div id="roast-controls" class="station-controls"></div>';
     thermoMark = panel.querySelector('#thermo-mark');
@@ -102,6 +107,7 @@ CG.stations.roast = (function () {
     renderBeans();
     renderInventory();
     renderControls();
+    setTemp('ready');
     msgEl.innerHTML = '<b>' + d.ORIGINS[origin].name + '</b> — ' + d.ORIGINS[origin].notes;
   }
 
@@ -161,13 +167,20 @@ CG.stations.roast = (function () {
     renderInventory();
     renderControls();
     CG.events.emit('inventorychange');
+    setTemp(t >= d.ROAST_BURN ? 'burnt' : 'dropped');
     msgEl.textContent = 'Batch resting on the cooling tray.';
+  }
+
+  function setTemp(txt) {
+    var te = panel.querySelector('#roast-temp');
+    if (te) te.textContent = txt;
   }
 
   function update(dt) {
     if (phase !== 'roasting') return;
     t += dt;
     thermoMark.style.bottom = Math.min(t / d.ROAST_TOTAL, 1) * 100 + '%';
+    setTemp(Math.round(182 + Math.min(t / d.ROAST_TOTAL, 1) * 58) + '°C');
 
     if (!crackled.first && t > d.ORIGINS.ethiopia.roastCenter - 1.1) { crackled.first = true; msgEl.textContent = 'First crack!'; }
     if (!crackled.second && t > 7.2) { crackled.second = true; msgEl.textContent = 'Second crack — careful now.'; }
