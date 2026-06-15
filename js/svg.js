@@ -811,8 +811,23 @@ CG.svg = (function () {
 
   /* ============ characters ============ */
 
-  function hairSvg(c) {
-    var h = c.hairColor;
+  function _hx(n) { n = Math.max(0, Math.min(255, Math.round(n))); return (n < 16 ? '0' : '') + n.toString(16); }
+  function lighten(hex, a) {
+    var r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+    return '#' + _hx(r + (255 - r) * a) + _hx(g + (255 - g) * a) + _hx(b + (255 - b) * a);
+  }
+  function darken(hex, a) {
+    var r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+    return '#' + _hx(r * (1 - a)) + _hx(g * (1 - a)) + _hx(b * (1 - a));
+  }
+  function _stops(arr) {
+    return arr.map(function (s) { return '<stop offset="' + s[0] + '" stop-color="' + s[1] + '"' + (s.length > 2 ? ' stop-opacity="' + s[2] + '"' : '') + '/>'; }).join('');
+  }
+  function radialG(id, cx, cy, r, stops) { return '<radialGradient id="' + id + '" cx="' + cx + '" cy="' + cy + '" r="' + r + '">' + _stops(stops) + '</radialGradient>'; }
+  function linearG(id, stops) { return '<linearGradient id="' + id + '" x1="0" y1="0" x2="0" y2="1">' + _stops(stops) + '</linearGradient>'; }
+
+  function hairSvg(c, fill) {
+    var h = fill || c.hairColor;
     switch (c.hair) {
       case 'bun':
         return '<circle cx="50" cy="16" r="9" fill="' + h + '" ' + ol(1.6) + '/>' +
@@ -892,32 +907,28 @@ CG.svg = (function () {
     return eye(L) + eye(R);
   }
 
-  function faceSvg(mood) {
-    var eyes, brows = '', mouth, blush = '';
-    var nose = '<ellipse cx="50" cy="51" rx="1.5" ry="1.1" fill="#d4946f" opacity="0.5"/>';
-    var bL = '<circle cx="31" cy="53" r="6.5" fill="#f4a48f" opacity="0.62"/>',
-        bR = '<circle cx="69" cy="53" r="6.5" fill="#f4a48f" opacity="0.62"/>';
+  function faceSvg(mood, u) {
+    var eyes, brows = '', mouth;
+    var nose = '<path d="M48.6 50.5 q1.4 1.6 2.8 0" stroke="#c98a66" stroke-width="1.3" fill="none" stroke-linecap="round" opacity="0.65"/>';
+    var blush = '<ellipse cx="30" cy="54" rx="8.5" ry="6.6" fill="url(#' + u + 'bl)"/>' +
+                '<ellipse cx="70" cy="54" rx="8.5" ry="6.6" fill="url(#' + u + 'bl)"/>';
     if (mood === 'angry') {
       eyes = eyePair(4);
-      brows = '<line x1="34" y1="35" x2="46" y2="39" stroke="' + INK + '" stroke-width="2.5" stroke-linecap="round"/>' +
-              '<line x1="66" y1="35" x2="54" y2="39" stroke="' + INK + '" stroke-width="2.5" stroke-linecap="round"/>';
-      mouth = '<path d="M42 61 q8 -7 16 0" stroke="' + INK + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
-      blush = bL.replace('#f4a48f', '#e08d77') + bR.replace('#f4a48f', '#e08d77');
+      brows = '<path d="M34 35 q6 1 11 4" stroke="' + INK + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>' +
+              '<path d="M66 35 q-6 1 -11 4" stroke="' + INK + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
+      mouth = '<path d="M42 61 q8 -6 16 0" stroke="' + INK + '" stroke-width="2.5" fill="none" stroke-linecap="round"/>';
     } else if (mood === 'annoyed') {
       eyes = eyePair(4);
-      brows = '<line x1="35" y1="37" x2="46" y2="39" stroke="' + INK + '" stroke-width="2.3" stroke-linecap="round"/>' +
-              '<line x1="65" y1="37" x2="54" y2="39" stroke="' + INK + '" stroke-width="2.3" stroke-linecap="round"/>';
-      mouth = '<path d="M43 60 q7 -3 14 0" stroke="' + INK + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
-      blush = bL + bR;
+      brows = '<path d="M35 37 q6 0.5 11 2.5" stroke="' + INK + '" stroke-width="2.2" fill="none" stroke-linecap="round"/>' +
+              '<path d="M65 37 q-6 0.5 -11 2.5" stroke="' + INK + '" stroke-width="2.2" fill="none" stroke-linecap="round"/>';
+      mouth = '<path d="M43 60 q7 -3 14 0" stroke="' + INK + '" stroke-width="2.3" fill="none" stroke-linecap="round"/>';
     } else if (mood === 'neutral') {
       eyes = eyePair(4.2);
-      mouth = '<path d="M44 59 q6 2.5 12 0" stroke="' + INK + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
-      blush = bL + bR;
+      mouth = '<path d="M44 59 q6 2.5 12 0" stroke="' + INK + '" stroke-width="2.3" fill="none" stroke-linecap="round"/>';
     } else {
       eyes = eyePair(4.5);
-      mouth = '<path d="M40 57 q10 9 20 0" stroke="' + INK + '" stroke-width="2.7" fill="none" stroke-linecap="round"/>' +
+      mouth = '<path d="M40 57 q10 9 20 0" stroke="' + INK + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
               '<path d="M44 58 q6 5 12 0z" fill="#e58c80" opacity="0.55"/>';
-      blush = bL + bR;
     }
     return blush + brows + eyes + nose + mouth;
   }
@@ -951,25 +962,39 @@ CG.svg = (function () {
     return '';
   }
 
+  var custUid = 0;
   function customer(charId, mood) {
     var c = CG.data.CHARACTERS[charId];
     var collar = c.collar || c.top;
-    var hairHi = (c.hair && c.hair !== 'bald') ? '<path d="M33 26 q11 -9 23 -4 q-11 3 -19 11 z" fill="#ffffff" opacity="0.15"/>' : '';
-    return '<svg viewBox="0 0 100 112" class="cust-svg" aria-label="' + c.name + '">' +
-      '<ellipse cx="50" cy="109" rx="30" ry="3.6" fill="#6b543c" opacity="0.16"/>' +
-      // neck
-      '<rect x="44" y="60" width="12" height="14" rx="6" fill="' + c.skin + '" ' + ol(1.6) + '/>' +
-      // soft rounded body (shirt)
-      '<path d="M17 112 v-17 a33 27 0 0 1 66 0 v17 z" fill="' + c.top + '" ' + ol(2.2) + '/>' +
-      '<path d="M20 97 a30 25 0 0 1 60 -2 q-30 -11 -60 2 z" fill="#ffffff" opacity="0.15"/>' +
-      '<path d="M17 104 q33 9 66 0 v8 h-66 z" fill="#000000" opacity="0.06"/>' +
-      // cozy collar
-      '<path d="M37 67 q13 12 26 0 l-6 14 q-7 5 -14 0 z" fill="' + collar + '" ' + ol(1.6) + '/>' +
+    var skin = c.skin, hairc = c.hairColor, top = c.top;
+    var u = 'cu' + (custUid++) + '_';
+    var defs = '<defs>' +
+      // soft volumetric skin (light upper-left → shaded lower-right)
+      radialG(u + 'sk', '42%', '33%', '70%', [[0, lighten(skin, 0.20)], [0.62, skin], [1, darken(skin, 0.14)]]) +
+      // blended blush that fades out (no hard circle edge)
+      radialG(u + 'bl', '50%', '50%', '52%', [[0, '#ef8676', 0.8], [0.55, '#f0907f', 0.42], [1, '#f0907f', 0]]) +
+      // shaded hair (highlight top → shadow underneath)
+      linearG(u + 'ha', [[0, lighten(hairc, 0.30)], [0.45, hairc], [1, darken(hairc, 0.12)]]) +
+      // shaded shirt
+      linearG(u + 'bo', [[0, lighten(top, 0.10)], [1, darken(top, 0.13)]]) +
+      '</defs>';
+    var hairHi = (c.hair && c.hair !== 'bald') ? '<path d="M33 25 q12 -10 24 -4 q-12 4 -20 12 z" fill="#ffffff" opacity="0.2"/>' : '';
+    return '<svg viewBox="0 0 100 112" class="cust-svg" aria-label="' + c.name + '">' + defs +
+      '<ellipse cx="50" cy="109.5" rx="30" ry="3.4" fill="#6b543c" opacity="0.16"/>' +
+      // neck + soft jaw shadow
+      '<rect x="44" y="60" width="12" height="14" rx="6" fill="url(#' + u + 'sk)" ' + ol(1.5) + '/>' +
+      '<path d="M44 63 q6 4 12 0 v2.5 q-6 4 -12 0 z" fill="#000000" opacity="0.1"/>' +
+      // body (shaded shirt)
+      '<path d="M16 112 v-18 a34 28 0 0 1 68 0 v18 z" fill="url(#' + u + 'bo)" ' + ol(2) + '/>' +
+      '<path d="M22 95 a28 22 0 0 1 56 -1 q-28 -9 -56 1 z" fill="#ffffff" opacity="0.1"/>' +
+      // collar
+      '<path d="M37 66 q13 12 26 0 l-6 14 q-7 5 -14 0 z" fill="' + collar + '" ' + ol(1.5) + '/>' +
       outfitSvg(c) +
-      // big round head
-      '<circle cx="50" cy="43" r="24" fill="' + c.skin + '" ' + ol(2) + '/>' +
-      '<path d="M31 34 a22 22 0 0 1 40 -1 a23 15 0 0 0 -40 1z" fill="#ffffff" opacity="0.12"/>' +
-      hairSvg(c) + hairHi + faceSvg(mood || 'happy') + accessorySvg(c) +
+      // head (volumetric)
+      '<circle cx="50" cy="43" r="24" fill="url(#' + u + 'sk)" ' + ol(1.9) + '/>' +
+      // soft hairline shadow across the forehead
+      '<path d="M29 35 q21 -15 42 0 q-10 6 -21 6 q-11 0 -21 -6 z" fill="#000000" opacity="0.05"/>' +
+      hairSvg(c, 'url(#' + u + 'ha)') + hairHi + faceSvg(mood || 'happy', u) + accessorySvg(c) +
       '</svg>';
   }
 
