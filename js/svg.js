@@ -900,9 +900,12 @@ CG.svg = (function () {
              '<path d="M54 44 q5 4.5 10 0" stroke="' + INK + '" stroke-width="2.8" fill="none" stroke-linecap="round"/>';
     }
     function eye(cx) {
-      return '<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + r + '" ry="' + (r * 1.22).toFixed(2) + '" fill="' + INK + '"/>' +
-        '<circle cx="' + (cx + 1.7) + '" cy="' + (cy - 2) + '" r="2.1" fill="#ffffff"/>' +
-        '<circle cx="' + (cx - 1.6) + '" cy="' + (cy + 2.3) + '" r="1" fill="#ffffff" opacity="0.85"/>';
+      return '<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + r + '" ry="' + (r * 1.25).toFixed(2) + '" fill="' + INK + '"/>' +
+        // glossy catchlights
+        '<circle cx="' + (cx + 1.7) + '" cy="' + (cy - 2.2) + '" r="2.2" fill="#ffffff"/>' +
+        '<circle cx="' + (cx - 1.6) + '" cy="' + (cy + 2.4) + '" r="1.1" fill="#ffffff" opacity="0.85"/>' +
+        // upper lash/lid line for definition
+        '<path d="M' + (cx - r - 0.5).toFixed(1) + ' ' + (cy - r * 0.7).toFixed(1) + ' q' + (r + 0.5).toFixed(1) + ' -' + (r * 0.7).toFixed(1) + ' ' + (2 * r + 1).toFixed(1) + ' 0.5" stroke="' + INK + '" stroke-width="1.7" fill="none" stroke-linecap="round"/>';
     }
     return eye(L) + eye(R);
   }
@@ -910,6 +913,8 @@ CG.svg = (function () {
   function faceSvg(mood, u) {
     var eyes, brows = '', mouth;
     var nose = '<path d="M48.6 50.5 q1.4 1.6 2.8 0" stroke="#c98a66" stroke-width="1.3" fill="none" stroke-linecap="round" opacity="0.65"/>';
+    var softBrow = '<path d="M35 36 q5.5 -2.6 10.5 -0.4" stroke="#9a7a60" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.7"/>' +
+                   '<path d="M65 36 q-5.5 -2.6 -10.5 -0.4" stroke="#9a7a60" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.7"/>';
     var blush = '<ellipse cx="30" cy="54" rx="8.5" ry="6.6" fill="url(#' + u + 'bl)"/>' +
                 '<ellipse cx="70" cy="54" rx="8.5" ry="6.6" fill="url(#' + u + 'bl)"/>';
     if (mood === 'angry') {
@@ -924,9 +929,11 @@ CG.svg = (function () {
       mouth = '<path d="M43 60 q7 -3 14 0" stroke="' + INK + '" stroke-width="2.3" fill="none" stroke-linecap="round"/>';
     } else if (mood === 'neutral') {
       eyes = eyePair(4.2);
+      brows = softBrow;
       mouth = '<path d="M44 59 q6 2.5 12 0" stroke="' + INK + '" stroke-width="2.3" fill="none" stroke-linecap="round"/>';
     } else {
       eyes = eyePair(4.5);
+      brows = softBrow;
       mouth = '<path d="M40 57 q10 9 20 0" stroke="' + INK + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
               '<path d="M44 58 q6 5 12 0z" fill="#e58c80" opacity="0.55"/>';
     }
@@ -992,6 +999,12 @@ CG.svg = (function () {
       outfitSvg(c) +
       // head (volumetric)
       '<circle cx="50" cy="43" r="24" fill="url(#' + u + 'sk)" ' + ol(1.9) + '/>' +
+      // rim light on the upper-left edge
+      '<path d="M30 33 a24 24 0 0 1 15 -10" stroke="#ffffff" stroke-width="2.3" fill="none" stroke-linecap="round" opacity="0.3"/>' +
+      // soft form shadow on the lower-right cheek
+      '<path d="M70 42 a24 24 0 0 1 -16 24 q15 -3 20 -16 q3 -7 -4 -8 z" fill="#7a4a30" opacity="0.1"/>' +
+      // chin shadow onto the neck
+      '<ellipse cx="50" cy="64" rx="10" ry="3" fill="#000000" opacity="0.1"/>' +
       // soft hairline shadow across the forehead
       '<path d="M29 35 q21 -15 42 0 q-10 6 -21 6 q-11 0 -21 -6 z" fill="#000000" opacity="0.05"/>' +
       hairSvg(c, 'url(#' + u + 'ha)') + hairHi + faceSvg(mood || 'happy', u) + accessorySvg(c) +
