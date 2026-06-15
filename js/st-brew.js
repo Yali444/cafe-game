@@ -40,30 +40,89 @@ CG.stations.brew = (function () {
     overlayEl = panel.querySelector('#brew-overlays');
     controlsEl = panel.querySelector('#brew-controls');
     sceneWrapEl = panel.querySelector('.scene-wrap');
-    CG.events.on('ticketschange', function () { if (active() && phase === 'pick') enter(); });
-    CG.events.on('inventorychange', function () { if (active() && phase === 'pick') enter(); });
+    CG.events.on('ticketschange', function () { if (active() && phase === 'choose') chooseOrder(); });
+    CG.events.on('inventorychange', function () { if (active() && (phase === 'choose' || phase === 'method')) chooseOrder(); });
   }
 
   function active() { return CG.state.service && CG.state.service.activeStation === 'brew'; }
 
   function pct(n, of) { return (n / of * 100) + '%'; }
 
-  /* ---------- entry / ticket pick ---------- */
+  /* ---------- entry: pick an order, then pick how to brew it ---------- */
 
-  function enter() {
-    var sv = CG.state.service;
+  var METHODS = [
+    { mode: 'espresso', title: 'Espresso', sub: 'machine' },
+    { mode: 'v60',      title: 'Pour-over', sub: 'V60' },
+    { mode: 'aero',     title: 'AeroPress', sub: 'immersion' },
+    { mode: 'batch',    title: 'Batch',     sub: 'filter' }
+  ];
+  function methodTitle(m) { for (var i = 0; i < METHODS.length; i++) if (METHODS[i].mode === m) return METHODS[i].title; return m; }
+
+  function enter() { chooseOrder(); }
+
+  function chooseOrder() {
+    phase = 'choose';
+    ticket = null;
     overlayEl.innerHTML = '';
-    phase = 'pick';
-    ticket = CG.tickets.pickFor('brew');
-    if (!ticket) {
-      mode = 'espresso';
-      setBackdrop(mode);
-      stageEl.classList.add('dim');
-      msgEl.textContent = 'Nothing to brew right now.';
-      controlsEl.innerHTML = '';
+    setBackdrop('espresso');
+    stageEl.classList.add('dim');
+    var list = CG.tickets.needing('brew');
+    if (!list.length) {
+      msgEl.textContent = 'No orders waiting to brew.';
+      controlsEl.innerHTML = '<p class="control-note">Take an order at the counter first.</p>';
       return;
     }
-    mode = d.RECIPES[ticket.recipe].brew;
+    msgEl.textContent = 'Choose an order to brew';
+    controlsEl.innerHTML = '<div class="brew-orders">' + list.map(function (t) {
+      var cust = CG.customers.byId(t.customerId);
+      var nm = d.CHARACTERS[cust.charId].name;
+      var r = d.RECIPES[t.recipe];
+      var o = t.origin ? d.ORIGINS[t.origin].short : '';
+      return '<button class="brew-order-card" data-tid="' + t.id + '">' +
+        '<span class="boc-cust">' + CG.svg.customer(cust.charId, cust.mood) + '</span>' +
+        '<span class="boc-info"><b>' + nm + '</b><small>' + r.name + (o ? ' · ' + o : '') + '</small></span>' +
+        '<span class="boc-go">→</span></button>';
+    }).join('') + '</div>';
+    controlsEl.querySelectorAll('.brew-order-card').forEach(function (el) {
+      el.addEventListener('click', function () {
+        CG.audio.play('tap');
+        var t = CG.tickets.byId(el.getAttribute('data-tid'));
+        if (t) { CG.tickets.select(t.id); chooseMethod(t); }
+      });
+    });
+  }
+
+  function chooseMethod(t) {
+    phase = 'method';
+    ticket = t;
+    overlayEl.innerHTML = '';
+    setBackdrop('espresso');
+    stageEl.classList.add('dim');
+    var cust = CG.customers.byId(t.customerId);
+    var nm = d.CHARACTERS[cust.charId].name;
+    var r = d.RECIPES[t.recipe];
+    msgEl.innerHTML = 'How will you brew the <b>' + r.name + '</b> for ' + nm + '?';
+    controlsEl.innerHTML = '<div class="brew-methods">' + METHODS.map(function (m) {
+      return '<button class="brew-method" data-mode="' + m.mode + '"><b>' + m.title + '</b><small>' + m.sub + '</small></button>';
+    }).join('') + '</div><button class="btn btn-ghost btn-wide brew-back">← back to orders</button>';
+    controlsEl.querySelectorAll('.brew-method').forEach(function (el) {
+      el.addEventListener('click', function () {
+        var picked = el.getAttribute('data-mode');
+        if (picked === r.brew) { CG.audio.play('select'); startBrewing(t, picked); }
+        else {
+          CG.audio.play('buzz');
+          CG.ui.toast(nm + ' asked for a ' + r.name + ' — use the ' + methodTitle(r.brew), 'bad');
+        }
+      });
+    });
+    controlsEl.querySelector('.brew-back').addEventListener('click', function () { CG.audio.play('tap'); chooseOrder(); });
+  }
+
+  function startBrewing(t, m) {
+    var sv = CG.state.service;
+    ticket = t; mode = m;
+    phase = 'brewing';
+    overlayEl.innerHTML = '';
     setBackdrop(mode);
     stageEl.classList.remove('dim');
     var cust = CG.customers.byId(ticket.customerId);
@@ -73,8 +132,10 @@ CG.stations.brew = (function () {
     if (mode !== 'batch' && o && sv.roastInventory[ticket.origin] <= 0) {
       stageEl.classList.add('dim');
       msgEl.innerHTML = 'No roasted <b>' + o.short + '</b> on the shelf.';
-      controlsEl.innerHTML = '<button class="btn btn-warn btn-wide" id="goto-roast">To the Roastery →</button>';
+      controlsEl.innerHTML = '<button class="btn btn-warn btn-wide" id="goto-roast">To the Roastery →</button>' +
+        '<button class="btn btn-ghost btn-wide brew-back">← back to orders</button>';
       controlsEl.querySelector('#goto-roast').addEventListener('click', function () { CG.main.switchStation('roast'); });
+      controlsEl.querySelector('.brew-back').addEventListener('click', function () { CG.audio.play('tap'); chooseOrder(); });
       return;
     }
 
@@ -383,69 +444,85 @@ CG.stations.brew = (function () {
 
   function setupAero() {
     phase = 'aero';
-    aero = { steepT: 0, steeping: false, steepScore: 0, pressY: 0, pressing: false, pauses: 0, started: false };
+    aero = { stage: 'steep', steepT: 0, target: 3.0, steepScore: 0,
+             pressY: 0, jerk: 0, lastClientY: 0 };
     spendBean();
-    controlsEl.innerHTML = '<button class="btn btn-primary btn-wide" id="aero-start">Add coffee &amp; water</button>';
-    msgEl.textContent = 'Immersion brew — timing is everything.';
-    controlsEl.querySelector('#aero-start').addEventListener('click', function () {
-      CG.audio.play('pour');
-      aero.steeping = true;
-      var brew = stageEl.querySelector('#aero-brew');
-      if (brew) brew.setAttribute('opacity', '0.9');
-      overlayEl.innerHTML = '<div class="steep-ring" id="steep-ring"><span></span></div>';
-      controlsEl.innerHTML = '<button class="btn btn-primary btn-wide" id="aero-go">Press!</button>';
-      msgEl.textContent = 'Steep… press when the ring closes.';
-      controlsEl.querySelector('#aero-go').addEventListener('click', function () {
-        if (!aero.steeping) return;
-        aero.steeping = false;
-        aero.steepScore = d.clamp(100 - Math.abs(aero.steepT - 3) / 0.9 * 50, 0, 100);
-        CG.audio.play(aero.steepScore >= 60 ? 'chime' : 'buzz');
-        startPress();
-      });
+    var brew = stageEl.querySelector('#aero-brew');
+    if (brew) brew.setAttribute('opacity', '0.9');
+    var fill = stageEl.querySelector('#aero-fill');
+    if (fill) { fill.setAttribute('y', '84'); fill.setAttribute('height', '36'); }
+    overlayEl.innerHTML = '<div class="steep-readout" id="aero-timer"><b>0.0</b>s <span class="scale-tgt">steep ' + aero.target.toFixed(1) + 's</span></div>';
+    msgEl.textContent = 'Immersion brew — let it steep, then press.';
+    controlsEl.innerHTML = '<button class="btn btn-primary btn-wide" id="aero-go">Press now</button>';
+    controlsEl.querySelector('#aero-go').addEventListener('click', function () {
+      if (aero.stage !== 'steep') return;
+      aero.steepScore = d.clamp(100 - Math.abs(aero.steepT - aero.target) / 1.0 * 50, 0, 100);
+      CG.audio.play(aero.steepScore >= 60 ? 'chime' : 'buzz');
+      startPress();
     });
   }
 
   function startPress() {
-    overlayEl.innerHTML = '<div class="dock-zone hot press-zone" id="press-zone" style="left:30%;top:38%;width:25%;height:15%"><span>hold to press</span></div>';
-    msgEl.textContent = 'Press slowly and steadily to the bottom.';
-    controlsEl.innerHTML = '<p class="control-note">Lifting off mid-press costs you.</p>';
-    var zone = overlayEl.querySelector('#press-zone');
-    zone.addEventListener('pointerdown', function (e) {
+    aero.stage = 'press';
+    msgEl.textContent = 'Press the plunger down — slow and steady.';
+    controlsEl.innerHTML = '<p class="control-note">Drag the plunger down evenly. Don\'t rush it.</p>';
+    overlayEl.innerHTML =
+      '<div class="press-handle" id="aero-press"><span>press ↓</span></div>' +
+      '<div class="press-meter"><div class="press-bar" id="aero-bar"></div></div>';
+    var h = overlayEl.querySelector('#aero-press');
+    var dragging = false, startClientY = 0, startPressY = 0;
+    h.addEventListener('pointerdown', function (e) {
       e.preventDefault();
-      zone.setPointerCapture(e.pointerId);
-      if (aero.started && !aero.pressing) aero.pauses++;
-      aero.started = true;
-      aero.pressing = true;
+      h.setPointerCapture(e.pointerId);
+      dragging = true; startClientY = e.clientY; startPressY = aero.pressY; aero.lastClientY = e.clientY;
       CG.audio.play('steam');
     });
-    var up = function () { aero.pressing = false; };
-    zone.addEventListener('pointerup', up);
-    zone.addEventListener('pointercancel', up);
+    h.addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      var host = overlayEl.getBoundingClientRect();
+      var moved = (e.clientY - startClientY) / host.height * 210;     // % of travel
+      var np = d.clamp(startPressY + moved, aero.pressY, 100);        // monotonic, downward only
+      var frameSpeed = e.clientY - aero.lastClientY;
+      if (frameSpeed > 13) aero.jerk += (frameSpeed - 13);            // yanking → channeling penalty
+      aero.lastClientY = e.clientY;
+      aero.pressY = np;
+      paintPress();
+      if (aero.pressY >= 100) { dragging = false; finishAero(); }
+    });
+    var up = function () { dragging = false; };
+    h.addEventListener('pointerup', up);
+    h.addEventListener('pointercancel', up);
+    paintPress();
+  }
+
+  function paintPress() {
+    var pl = stageEl.querySelector('#aero-plunger');
+    if (pl) pl.setAttribute('transform', 'translate(0,' + (aero.pressY / 100 * 44).toFixed(1) + ')');
+    var fill = stageEl.querySelector('#aero-fill');
+    if (fill) fill.setAttribute('y', (84 + aero.pressY / 100 * 30).toFixed(1));
+    var bar = overlayEl.querySelector('#aero-bar');
+    if (bar) bar.style.width = aero.pressY + '%';
+    var h = overlayEl.querySelector('#aero-press');
+    if (h) h.style.top = (12 + aero.pressY / 100 * 34) + '%';
+  }
+
+  function finishAero() {
+    var pressScore = d.clamp(100 - aero.jerk * 1.6, 35, 100);
+    finishBrew(0.5 * aero.steepScore + 0.5 * pressScore);
   }
 
   function aeroUpdate(dt) {
-    if (aero.steeping) {
-      aero.steepT += dt;
-      var ring = overlayEl.querySelector('#steep-ring span');
-      if (ring) ring.style.transform = 'scale(' + Math.min(aero.steepT / 3, 1.15) + ')';
-      if (aero.steepT > 4.4) { // oversteeped — auto press
-        aero.steeping = false;
-        aero.steepScore = 35;
-        CG.ui.toast('Oversteeped', 'bad');
-        startPress();
-      }
-      return;
+    if (aero.stage !== 'steep') return;
+    aero.steepT += dt;
+    var tm = overlayEl.querySelector('#aero-timer');
+    if (tm) {
+      tm.querySelector('b').textContent = aero.steepT.toFixed(1);
+      tm.classList.toggle('on', Math.abs(aero.steepT - aero.target) <= 0.6);
     }
-    if (aero.pressing && aero.pressY < 44) {
-      aero.pressY += 19 * dt;
-      var pl = stageEl.querySelector('#aero-plunger');
-      if (pl) pl.setAttribute('transform', 'translate(0,' + Math.min(aero.pressY, 44) + ')');
-      var fill = stageEl.querySelector('#aero-fill');
-      if (fill) fill.setAttribute('y', 120 - (aero.pressY / 44) * 38);
-      if (aero.pressY >= 44) {
-        var pressScore = d.clamp(100 - aero.pauses * 15, 40, 100);
-        finishBrew(0.5 * aero.steepScore + 0.5 * pressScore);
-      }
+    if (aero.steepT > aero.target + 2) {       // over-steeped — auto press
+      aero.steepScore = 35;
+      CG.ui.toast('Oversteeped', 'bad');
+      startPress();
     }
   }
 

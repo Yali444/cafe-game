@@ -63,6 +63,15 @@ CG.customers = (function () {
 
   /* ---------- day scheduling (one guest at a time) ---------- */
 
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
   function startDay() {
     var s = CG.state, sv = s.service;
     var ids = Object.keys(d.CHARACTERS).filter(function (cid) {
@@ -70,13 +79,16 @@ CG.customers = (function () {
       return !c.minDay || s.day >= c.minDay;
     });
 
-    // build the day's guest list, avoiding the same regular twice in a row
-    var queue = [];
-    var lastChar = null;
-    for (var i = 0; i < sv.guestsTotal; i++) {
-      var cid;
-      do { cid = pick(ids); } while (cid === lastChar && ids.length > 1);
-      lastChar = cid;
+    // each day's guests are distinct people: sample without replacement, refilling
+    // a fresh shuffled pool only once everyone has come in (never the same twice in a row)
+    var queue = [], pool = [];
+    while (queue.length < sv.guestsTotal) {
+      if (!pool.length) pool = shuffle(ids);
+      var cid = pool.shift();
+      if (queue.length && cid === queue[queue.length - 1] && pool.length) {
+        pool.push(cid);          // avoid back-to-back repeats across a pool refill
+        cid = pool.shift();
+      }
       queue.push(cid);
     }
     sv.charQueue = queue;

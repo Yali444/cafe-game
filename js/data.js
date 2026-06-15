@@ -40,21 +40,21 @@ CG.data = (function () {
 
   /* 8 regulars */
   var CHARACTERS = {
-    mabel:  { name: 'Mabel',  skin: '#f0cba8', hair: 'bun',      hairColor: '#d6d0c6', top: '#c79bb4', collar: '#a87e98',
+    mabel:  { name: 'Mabel',  skin: '#f0cba8', hair: 'bun',      hairColor: '#d6d0c6', top: '#efe0e8', collar: '#a87e98', outfit: 'cardigan', outfitColor: '#b58aa8',
               patienceMult: 1.4, prefersNewest: true },
-    dex:    { name: 'Dex',    skin: '#c98f5f', hair: 'beanie',   hairColor: '#5b6770', top: '#7fa0b3', collar: '#5f8295',
+    dex:    { name: 'Dex',    skin: '#c98f5f', hair: 'beanie',   hairColor: '#5b6770', top: '#cbd6db', collar: '#5f8295', outfit: 'overalls', outfitColor: '#5f7a8c',
               patienceMult: 0.7, only: ['espresso', 'batch'] },
-    priya:  { name: 'Priya',  skin: '#bd7a42', hair: 'pony',     hairColor: '#36292e', top: '#e0a26b', collar: '#c5824c',
+    priya:  { name: 'Priya',  skin: '#bd7a42', hair: 'pony',     hairColor: '#36292e', top: '#d98a4e', collar: '#c5824c', outfit: 'apron', outfitColor: '#f0e0c4',
               patienceMult: 1.0, tipBonusAt90: 0.3 },
-    hank:   { name: 'Hank',   skin: '#e7b78c', hair: 'short',    hairColor: '#7a6248', top: '#cf8f76', collar: '#b06f57', accessory: 'mustache',
+    hank:   { name: 'Hank',   skin: '#e7b78c', hair: 'short',    hairColor: '#7a6248', top: '#cf8f76', collar: '#b06f57', accessory: 'mustache', outfit: 'turtleneck',
               patienceMult: 1.0, forceOrigin: 'colombia' },
-    junie:  { name: 'Junie',  skin: '#f5d6b2', hair: 'pigtails', hairColor: '#e09a52', top: '#f1d27f', collar: '#d9b75c', accessory: 'freckles',
+    junie:  { name: 'Junie',  skin: '#f5d6b2', hair: 'pigtails', hairColor: '#e09a52', top: '#fbe6a8', collar: '#d9b75c', accessory: 'freckles', outfit: 'apron', outfitColor: '#fbeed0',
               patienceMult: 1.0, only: ['latte', 'flatwhite', 'cortado'] },
-    theo:   { name: 'Theo',   skin: '#d6a06c', hair: 'curly',    hairColor: '#46362b', top: '#86b59c', collar: '#5f9079', accessory: 'scarf',
+    theo:   { name: 'Theo',   skin: '#d6a06c', hair: 'curly',    hairColor: '#46362b', top: '#a9cdb8', collar: '#5f9079', accessory: 'scarf', outfit: 'cardigan', outfitColor: '#6f9079',
               patienceMult: 1.0, only: ['v60'], minDay: 3 },
-    rosa:   { name: 'Rosa',   skin: '#cd8a57', hair: 'flower',   hairColor: '#2e2a26', top: '#e08a6a', collar: '#c26a4c',
+    rosa:   { name: 'Rosa',   skin: '#cd8a57', hair: 'flower',   hairColor: '#2e2a26', top: '#ecae93', collar: '#c26a4c', outfit: 'apron', outfitColor: '#f4ddc8',
               patienceMult: 1.0, patienceFloor: 25 },
-    marcus: { name: 'Marcus', skin: '#95603f', hair: 'bald',     hairColor: '#000000', top: '#6f8a9b', collar: '#516b7c', accessory: 'phone',
+    marcus: { name: 'Marcus', skin: '#95603f', hair: 'bald',     hairColor: '#000000', top: '#9fb3bf', collar: '#516b7c', accessory: 'phone', outfit: 'overalls', outfitColor: '#566f80',
               patienceMult: 1.0, prefersComplex: true }
   };
 

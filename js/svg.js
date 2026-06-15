@@ -863,65 +863,97 @@ CG.svg = (function () {
 
   // big glossy kawaii eyes with a large catchlight + lower shine
   function eyePair(r, blink) {
-    var L = 41.5, R = 58.5, cy = 44;
+    var L = 41, R = 59, cy = 45;
     if (blink) {
-      return '<path d="M37 43 q4.5 4 9 0" stroke="' + INK + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
-             '<path d="M54 43 q4.5 4 9 0" stroke="' + INK + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
+      return '<path d="M36 44 q5 4.5 10 0" stroke="' + INK + '" stroke-width="2.8" fill="none" stroke-linecap="round"/>' +
+             '<path d="M54 44 q5 4.5 10 0" stroke="' + INK + '" stroke-width="2.8" fill="none" stroke-linecap="round"/>';
     }
     function eye(cx) {
-      return '<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + r + '" ry="' + (r * 1.18).toFixed(2) + '" fill="' + INK + '"/>' +
-        '<circle cx="' + (cx + 1.5) + '" cy="' + (cy - 1.7) + '" r="1.8" fill="#ffffff"/>' +
-        '<circle cx="' + (cx - 1.4) + '" cy="' + (cy + 2) + '" r="0.9" fill="#ffffff" opacity="0.8"/>';
+      return '<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + r + '" ry="' + (r * 1.22).toFixed(2) + '" fill="' + INK + '"/>' +
+        '<circle cx="' + (cx + 1.7) + '" cy="' + (cy - 2) + '" r="2.1" fill="#ffffff"/>' +
+        '<circle cx="' + (cx - 1.6) + '" cy="' + (cy + 2.3) + '" r="1" fill="#ffffff" opacity="0.85"/>';
     }
     return eye(L) + eye(R);
   }
 
   function faceSvg(mood) {
     var eyes, brows = '', mouth, blush = '';
-    var bL = '<circle cx="32" cy="51" r="6" fill="#f4a48f" opacity="0.6"/>',
-        bR = '<circle cx="68" cy="51" r="6" fill="#f4a48f" opacity="0.6"/>';
+    var nose = '<ellipse cx="50" cy="51" rx="1.5" ry="1.1" fill="#d4946f" opacity="0.5"/>';
+    var bL = '<circle cx="31" cy="53" r="6.5" fill="#f4a48f" opacity="0.62"/>',
+        bR = '<circle cx="69" cy="53" r="6.5" fill="#f4a48f" opacity="0.62"/>';
     if (mood === 'angry') {
-      eyes = eyePair(3.8);
-      brows = '<line x1="35" y1="34" x2="46" y2="38" stroke="' + INK + '" stroke-width="2.4" stroke-linecap="round"/>' +
-              '<line x1="65" y1="34" x2="54" y2="38" stroke="' + INK + '" stroke-width="2.4" stroke-linecap="round"/>';
-      mouth = '<path d="M42 60 q8 -7 16 0" stroke="' + INK + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
+      eyes = eyePair(4);
+      brows = '<line x1="34" y1="35" x2="46" y2="39" stroke="' + INK + '" stroke-width="2.5" stroke-linecap="round"/>' +
+              '<line x1="66" y1="35" x2="54" y2="39" stroke="' + INK + '" stroke-width="2.5" stroke-linecap="round"/>';
+      mouth = '<path d="M42 61 q8 -7 16 0" stroke="' + INK + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
       blush = bL.replace('#f4a48f', '#e08d77') + bR.replace('#f4a48f', '#e08d77');
     } else if (mood === 'annoyed') {
-      eyes = eyePair(3.8);
-      brows = '<line x1="36" y1="36" x2="46" y2="38" stroke="' + INK + '" stroke-width="2.2" stroke-linecap="round"/>' +
-              '<line x1="64" y1="36" x2="54" y2="38" stroke="' + INK + '" stroke-width="2.2" stroke-linecap="round"/>';
-      mouth = '<path d="M43 59 q7 -3 14 0" stroke="' + INK + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
+      eyes = eyePair(4);
+      brows = '<line x1="35" y1="37" x2="46" y2="39" stroke="' + INK + '" stroke-width="2.3" stroke-linecap="round"/>' +
+              '<line x1="65" y1="37" x2="54" y2="39" stroke="' + INK + '" stroke-width="2.3" stroke-linecap="round"/>';
+      mouth = '<path d="M43 60 q7 -3 14 0" stroke="' + INK + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
       blush = bL + bR;
     } else if (mood === 'neutral') {
-      eyes = eyePair(4);
-      mouth = '<path d="M44 58 q6 2 12 0" stroke="' + INK + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
+      eyes = eyePair(4.2);
+      mouth = '<path d="M44 59 q6 2.5 12 0" stroke="' + INK + '" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
       blush = bL + bR;
     } else {
-      eyes = eyePair(4.2);
-      mouth = '<path d="M41 56 q9 8 18 0" stroke="' + INK + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>' +
-              '<path d="M45 57 q5 4 10 0z" fill="#e58c80" opacity="0.55"/>';
+      eyes = eyePair(4.5);
+      mouth = '<path d="M40 57 q10 9 20 0" stroke="' + INK + '" stroke-width="2.7" fill="none" stroke-linecap="round"/>' +
+              '<path d="M44 58 q6 5 12 0z" fill="#e58c80" opacity="0.55"/>';
       blush = bL + bR;
     }
-    return blush + brows + eyes + mouth;
+    return blush + brows + eyes + nose + mouth;
+  }
+
+  // cozy cafe outfits layered over the shirt
+  function outfitSvg(c) {
+    var O2 = ol(1.6);
+    if (c.outfit === 'apron') {
+      var a = c.outfitColor || '#e9dcc0';
+      return '<path d="M41 73 L37 95" fill="none" stroke="' + a + '" stroke-width="4" stroke-linecap="round"/>' +
+        '<path d="M59 73 L63 95" fill="none" stroke="' + a + '" stroke-width="4" stroke-linecap="round"/>' +
+        '<path d="M35 89 q15 -6 30 0 v23 h-30 z" fill="' + a + '" ' + O2 + '/>' +
+        '<line x1="36" y1="100" x2="64" y2="100" stroke="#6b543c" stroke-opacity="0.25" stroke-width="1.6"/>';
+    }
+    if (c.outfit === 'overalls') {
+      var dn = c.outfitColor || '#7f9bb3';
+      return '<path d="M40 73 L38 92" fill="none" stroke="' + dn + '" stroke-width="5" stroke-linecap="round"/>' +
+        '<path d="M60 73 L62 92" fill="none" stroke="' + dn + '" stroke-width="5" stroke-linecap="round"/>' +
+        '<path d="M34 90 q16 -6 32 0 v22 h-32 z" fill="' + dn + '" ' + O2 + '/>' +
+        '<circle cx="40" cy="93" r="2" fill="#e9c178"/><circle cx="60" cy="93" r="2" fill="#e9c178"/>';
+    }
+    if (c.outfit === 'cardigan') {
+      var cg = c.outfitColor || '#caa07a';
+      return '<path d="M50 70 L41 112 H20 v-16 a30 25 0 0 1 30 -26 z" fill="' + cg + '" ' + O2 + '/>' +
+        '<path d="M50 70 L59 112 H80 v-16 a30 25 0 0 0 -30 -26 z" fill="' + cg + '" ' + O2 + '/>' +
+        '<circle cx="50" cy="88" r="1.6" fill="#fffaf0"/><circle cx="50" cy="99" r="1.6" fill="#fffaf0"/>';
+    }
+    if (c.outfit === 'turtleneck') {
+      return '<path d="M39 64 q11 9 22 0 v11 q-11 7 -22 0 z" fill="' + (c.collar || c.top) + '" ' + O2 + '/>';
+    }
+    return '';
   }
 
   function customer(charId, mood) {
     var c = CG.data.CHARACTERS[charId];
     var collar = c.collar || c.top;
+    var hairHi = (c.hair && c.hair !== 'bald') ? '<path d="M33 26 q11 -9 23 -4 q-11 3 -19 11 z" fill="#ffffff" opacity="0.15"/>' : '';
     return '<svg viewBox="0 0 100 112" class="cust-svg" aria-label="' + c.name + '">' +
-      '<ellipse cx="50" cy="109" rx="29" ry="3.6" fill="#6b543c" opacity="0.16"/>' +
+      '<ellipse cx="50" cy="109" rx="30" ry="3.6" fill="#6b543c" opacity="0.16"/>' +
       // neck
-      '<rect x="44.5" y="61" width="11" height="13" rx="5.5" fill="' + c.skin + '" ' + ol(1.6) + '/>' +
-      // soft rounded sweater body
-      '<path d="M18 112 v-18 a32 26 0 0 1 64 0 v18 z" fill="' + c.top + '" ' + ol(2.2) + '/>' +
-      '<path d="M21 96 a29 24 0 0 1 58 -2 q-29 -10 -58 2 z" fill="#ffffff" opacity="0.16"/>' +
-      '<path d="M18 104 q32 9 64 0 v8 h-64 z" fill="#000000" opacity="0.06"/>' +
+      '<rect x="44" y="60" width="12" height="14" rx="6" fill="' + c.skin + '" ' + ol(1.6) + '/>' +
+      // soft rounded body (shirt)
+      '<path d="M17 112 v-17 a33 27 0 0 1 66 0 v17 z" fill="' + c.top + '" ' + ol(2.2) + '/>' +
+      '<path d="M20 97 a30 25 0 0 1 60 -2 q-30 -11 -60 2 z" fill="#ffffff" opacity="0.15"/>' +
+      '<path d="M17 104 q33 9 66 0 v8 h-66 z" fill="#000000" opacity="0.06"/>' +
       // cozy collar
-      '<path d="M37 68 q13 12 26 0 l-6 14 q-7 5 -14 0 z" fill="' + collar + '" ' + ol(1.6) + '/>' +
+      '<path d="M37 67 q13 12 26 0 l-6 14 q-7 5 -14 0 z" fill="' + collar + '" ' + ol(1.6) + '/>' +
+      outfitSvg(c) +
       // big round head
-      '<circle cx="50" cy="44" r="23" fill="' + c.skin + '" ' + ol(2) + '/>' +
-      '<path d="M31 35 a21 21 0 0 1 38 -1 a22 15 0 0 0 -38 1z" fill="#ffffff" opacity="0.12"/>' +
-      hairSvg(c) + faceSvg(mood || 'happy') + accessorySvg(c) +
+      '<circle cx="50" cy="43" r="24" fill="' + c.skin + '" ' + ol(2) + '/>' +
+      '<path d="M31 34 a22 22 0 0 1 40 -1 a23 15 0 0 0 -40 1z" fill="#ffffff" opacity="0.12"/>' +
+      hairSvg(c) + hairHi + faceSvg(mood || 'happy') + accessorySvg(c) +
       '</svg>';
   }
 
